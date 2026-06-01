@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão Roças + Controle PIX | Viana Farinha</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #e6f0e6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: #1a4a2a;
+            color: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .status {
+            background: #2d6a4f;
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            color: #1a4a2a;
+            transition: 0.2s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .tab-btn:hover {
+            background: #c8e0c8;
+            transform: translateY(-1px);
+        }
+
+        .tab-btn.active {
+            background: #1a4a2a;
+            color: white;
+        }
+
+        .panel {
+            display: none;
+        }
+
+        .panel.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid #d4e2d4;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e2ece2;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .card-header h2 {
+            font-size: 18px;
+            color: #1a4a2a;
+            font-weight: 700;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group label {
+            font-size: 12px;
+            font-weight: 700;
+            color: #4a6741;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input, select, textarea {
+            padding: 10px 12px;
+            border: 1px solid #cbdccb;
+            border-radius: 10px;
+            font-size: 14px;
+            background: white;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #1a4a2a;
+            box-shadow: 0 0 0 2px rgba(26,74,42,0.1);
+        }
+
+        .btn {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 30px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary { background: #1a4a2a; color: white; }
+        .btn-primary:hover { background: #2d6a4f; transform: scale(0.97); }
+        .btn-secondary { background: #64748b; color: white; }
+        .btn-secondary:hover { background: #475569; }
+        .btn-danger { background: #dc2626; color: white; }
+        .btn-danger:hover { background: #b91c1c; }
+        .btn-warning { background: #f59e0b; color: white; }
+        .btn-warning:hover { background: #d97706; }
+        .btn-sm { padding: 5px 12px; font-size: 12px; }
+        .btn-group { display: flex; gap: 12px; justify-content: flex-end; }
+
+        .filters, .pix-filters {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            background: #f0f6f0;
+            padding: 16px;
+            border-radius: 14px;
+            margin-bottom: 20px;
+        }
+
+        .filter-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .filter-item label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #4a6741;
+            text-transform: uppercase;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            border: 1px solid #e0eae0;
+            border-radius: 12px;
+            background: white;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            min-width: 700px;
+        }
+
+        th {
+            background: #1a4a2a;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e0eae0;
+            background: white;
+            vertical-align: middle;
+        }
+
+        tbody tr:hover td {
+            background-color: #fde68a !important;
+            cursor: pointer;
+        }
+
+        .pix-status-recebido { background-color: #bbf7d0; color: #166534; font-weight: bold; border-radius: 20px; padding: 4px 12px; display: inline-block; }
+        .pix-status-parcial { background-color: #fef3c7; color: #92400e; font-weight: bold; border-radius: 20px; padding: 4px 12px; display: inline-block; }
+        .pix-status-atrasado { background-color: #fee2e2; color: #991b1b; font-weight: bold; border-radius: 20px; padding: 4px 12px; display: inline-block; }
+        .pix-status-pendente { background-color: #dbeafe; color: #1e40af; font-weight: bold; border-radius: 20px; padding: 4px 12px; display: inline-block; }
+        .pix-atrasado-row { background-color: #fff0f0 !important; }
+
+        .resumo-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .resumo-card {
+            background: linear-gradient(135deg, #1a4a2a, #2d6a4f);
+            color: white;
+            padding: 20px;
+            border-radius: 16px;
+            text-align: center;
+        }
+
+        .resumo-card h3 {
+            font-size: 12px;
+            opacity: 0.9;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .resumo-card .valor {
+            font-size: 24px;
+            font-weight: 800;
+        }
+
+        .socio-table-wrapper {
+            overflow-x: auto;
+            margin-top: 20px;
+            border-radius: 12px;
+            border: 1px solid #e0eae0;
+        }
+
+        .socio-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            font-size: 14px;
+        }
+
+        .socio-table th {
+            background: #334155;
+            color: white;
+            padding: 14px 12px;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .socio-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e0eae0;
+            text-align: center;
+        }
+
+        .socio-table td:first-child {
+            text-align: left;
+            font-weight: 700;
+            background: #f8faf8;
+        }
+
+        .badge-ativo {
+            background: #bbf7d0;
+            color: #166534;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            display: inline-block;
+        }
+
+        .badge-inativo {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            display: inline-block;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 24px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 550px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-content h3 {
+            margin-bottom: 20px;
+            color: #1a4a2a;
+            border-left: 4px solid #1a4a2a;
+            padding-left: 12px;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .pagination button {
+            padding: 6px 14px;
+            background: #1a4a2a;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .pagination button:disabled {
+            background: #94a3b8;
+            cursor: default;
+        }
+
+        .feedback {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #1a4a2a;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 40px;
+            display: none;
+            z-index: 1100;
+            font-size: 13px;
+            font-weight: 500;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .obs-cell {
+            max-width: 200px;
+            white-space: normal;
+            word-break: break-word;
+            text-align: left;
+        }
+
+        @media (max-width: 700px) {
+            body { padding: 12px; }
+            .resumo-cards { grid-template-columns: 1fr; }
+            .filters, .pix-filters { flex-direction: column; align-items: stretch; }
+            .form-grid { grid-template-columns: 1fr; }
+            .card-header { flex-direction: column; align-items: flex-start; }
+            td, th { padding: 8px; font-size: 11px; }
+            .btn-sm { padding: 3px 8px; font-size: 10px; }
+            .obs-cell { max-width: 120px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>🌱 GESTÃO DE ROÇAS + CONTROLE PIX | VIANA FARINHA</h1>
+        <div class="status" id="statusOnline">🟢 CONECTADO</div>
+    </div>
+
+    <div class="tabs">
+        <button class="tab-btn active" data-tab="tab1">📋 CADASTRO DE ROÇAS</button>
+        <button class="tab-btn" data-tab="tab2">📥 ENTRADAS / DESPESAS</button>
+        <button class="tab-btn" data-tab="tab3">💰 PRESTAÇÃO + RESUMO</button>
+        <button class="tab-btn" data-tab="tab4">💳 CONTROLE PIX</button>
+    </div>
+
+    <!-- GUIA 1: CADASTRO DE ROÇAS -->
+    <div id="tab1" class="panel active">
+        <div class="card">
+            <div class="card-header"><h2>🌱 NOVA ROÇA</h2></div>
+            <div class="form-grid">
+                <div class="form-group"><label>NOME DA ROÇA</label><input type="text" id="rocaNome" placeholder="Ex: Roça do Nene"></div>
+                <div class="form-group"><label>CÓDIGO</label><input type="text" id="rocaCodigo" readonly placeholder="Automático"></div>
+                <div class="form-group"><label>DATA CADASTRO</label><input type="date" id="rocaDataCadastro"></div>
+                <div class="form-group"><label>DATA INATIVAÇÃO</label><input type="date" id="rocaDataInativacao"></div>
+            </div>
+            <input type="hidden" id="rocaEditandoId">
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="limparFormRoca()">LIMPAR</button>
+                <button class="btn btn-primary" onclick="salvarRoca()">SALVAR ROÇA</button>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header"><h2>📋 LISTA DE ROÇAS</h2></div>
+            <div class="table-wrapper">
+                <table><thead><tr><th>CÓDIGO</th><th>NOME</th><th>CADASTRO</th><th>INATIVAÇÃO</th><th>STATUS</th><th>AÇÕES</th></tr></thead>
+                <tbody id="listaRocas"></tbody></table>
+            </div>
+            <div id="paginacaoRocas" class="pagination"></div>
+        </div>
+    </div>
+
+    <!-- GUIA 2: ENTRADAS / DESPESAS -->
+    <div id="tab2" class="panel">
+        <div class="card">
+            <div class="card-header"><h2>🔍 FILTROS</h2></div>
+            <div class="filters">
+                <div class="filter-item"><label>ROÇA</label><select id="filtroRoca"><option value="">Todas as Roças</option></select></div>
+                <div class="filter-item"><label>DATA INÍCIO</label><input type="date" id="filtroDataInicio"></div>
+                <div class="filter-item"><label>DATA FIM</label><input type="date" id="filtroDataFim"></div>
+                <button class="btn btn-primary" onclick="aplicarFiltros()">BUSCAR</button>
+                <button class="btn btn-secondary" onclick="limparFiltros()">LIMPAR</button>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header"><h2>📥 ENTRADAS (Receitas da Roça)</h2><button class="btn btn-primary btn-sm" onclick="abrirModalEntrada()">+ NOVA ENTRADA</button></div>
+            <div class="table-wrapper">
+                <table><thead><tr><th>DATA</th><th>ROÇA</th><th>CATEGORIA</th><th>VALOR</th><th>AÇÕES</th></tr></thead>
+                <tbody id="listaEntradas"></tbody></table>
+            </div>
+            <div id="paginacaoEntradas" class="pagination"></div>
+        </div>
+        <div class="card">
+            <div class="card-header"><h2>📤 SAÍDAS/DESPESAS (Custos da Roça)</h2><button class="btn btn-primary btn-sm" onclick="abrirModalDespesa()">+ NOVA DESPESA</button></div>
+            <div class="table-wrapper">
+                <table><thead><tr><th>DATA</th><th>ROÇA</th><th>CATEGORIA</th><th>DESCRIÇÃO</th><th>VALOR</th><th>AÇÕES</th></tr></thead>
+                <tbody id="listaDespesas"></tbody></table>
+            </div>
+            <div id="paginacaoDespesas" class="pagination"></div>
+        </div>
+    </div>
+
+    <!-- GUIA 3: PRESTAÇÃO + RESUMO -->
+    <div id="tab3" class="panel">
+        <div class="card">
+            <div class="card-header"><h2>🔍 FILTROS</h2></div>
+            <div class="filters">
+                <div class="filter-item"><label>ROÇA</label><select id="filtroResumoRoca"><option value="">Todas as Roças</option></select></div>
+                <div class="filter-item"><label>DATA INÍCIO</label><input type="date" id="filtroResumoInicio"></div>
+                <div class="filter-item"><label>DATA FIM</label><input type="date" id="filtroResumoFim"></div>
+                <button class="btn btn-primary" onclick="atualizarResumo()">ATUALIZAR</button>
+                <button class="btn btn-secondary" onclick="exportarResumo()">EXPORTAR</button>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header"><h2>💰 PRESTAÇÃO DE CONTAS (Repasses aos Sócios)</h2><button class="btn btn-primary btn-sm" onclick="abrirModalPrestacao()">+ NOVO REPASSE</button></div>
+            <div class="table-wrapper">
+                <table><thead><tr><th>DATA</th><th>ROÇA</th><th>RESPONSÁVEL</th><th>VALOR</th><th>FORMA</th><th>AÇÕES</th></tr></thead>
+                <tbody id="listaPrestacoes"></tbody></table>
+            </div>
+            <div id="paginacaoPrestacoes" class="pagination"></div>
+        </div>
+        <div class="card">
+            <div class="card-header"><h2>📊 RESUMO FINANCEIRO</h2></div>
+            <div id="resumoContainer"></div>
+        </div>
+    </div>
+
+    <!-- GUIA 4: CONTROLE PIX -->
+    <div id="tab4" class="panel">
+        <div class="card">
+            <div class="card-header"><h2>💳 FILTROS PIX</h2></div>
+            <div class="pix-filters">
+                <div class="filter-item"><label>DATA LANÇAMENTO INÍCIO</label><input type="date" id="pixDataIni"></div>
+                <div class="filter-item"><label>DATA LANÇAMENTO FIM</label><input type="date" id="pixDataFim"></div>
+                <div class="filter-item"><label>PERÍODO ROÇA INÍCIO</label><input type="date" id="pixPeriodoRocaIni" placeholder="Filtra pela coluna PERÍODO"></div>
+                <div class="filter-item"><label>PERÍODO ROÇA FIM</label><input type="date" id="pixPeriodoRocaFim" placeholder="Filtra pela coluna PERÍODO"></div>
+                <div class="filter-item"><label>CLIENTE/PAGADOR</label><input type="text" id="pixSearchNome" placeholder="Nome..."></div>
+                <div class="filter-item"><label>STATUS</label><select id="pixFiltroStatus"><option value="">Todos</option><option>Pendente</option><option>Recebido</option><option>Parcial</option><option>Atrasado</option></select></div>
+                <button class="btn btn-primary" onclick="aplicarFiltrosPix()">FILTRAR</button>
+                <button class="btn btn-secondary" onclick="limparFiltrosPix()">LIMPAR</button>
+                <button class="btn btn-primary" onclick="abrirModalPix()">+ NOVO LANÇAMENTO</button>
+                <button class="btn btn-danger" onclick="gerarPDFPix()">GERAR PDF</button>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header"><h2>📋 LANÇAMENTOS PIX</h2><button class="btn btn-secondary btn-sm" onclick="toggleTabelaPix()">RECOLHER TABELA</button></div>
+            <div class="table-wrapper" id="cardTabelaPix">
+                <table id="tabelaPix">
+                    <thead><tr><th>DATA</th><th>PERÍODO</th><th>BANCO</th><th>PAGADOR</th><th>VALOR</th><th>RECEBIDO</th><th>DIFERENÇA</th><th>STATUS</th><th>RECEBER ATÉ</th><th>OBSERVAÇÃO</th><th>AÇÕES</th></tr></thead>
+                    <tbody id="pixTableBody"></tbody>
+                    <tfoot id="pixTableFooter"></tfoot>
+                </table>
+            </div>
+            <div id="pixPagination" class="pagination"></div>
+        </div>
+        <div class="card">
+            <div class="resumo-cards" id="pixResumoGrid">
+                <div class="resumo-card"><h3>💰 TOTAL RECEBIDO</h3><div class="valor">R$ 0,00</div></div>
+                <div class="resumo-card"><h3>📌 TOTAL A RECEBER</h3><div class="valor">R$ 0,00</div></div>
+                <div class="resumo-card"><h3>📊 TOTAL GERAL</h3><div class="valor">R$ 0,00</div></div>
+                <div class="resumo-card"><h3>🏦 MAIOR PAGADOR</h3><div class="valor">-</div></div>
+                <div class="resumo-card"><h3>⏰ PENDÊNCIAS</h3><div class="valor">0</div></div>
+                <div class="resumo-card"><h3>✅ RECEBIDOS</h3><div class="valor">0</div></div>
+                <div class="resumo-card"><h3>⚠️ ATRASADOS</h3><div class="valor">0</div></div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header"><h2>⚙️ GERENCIAR</h2></div>
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="gerenciarClientes()">✏️ EDITAR/EXCLUIR CLIENTES</button>
+                <button class="btn btn-secondary" onclick="gerenciarBancos()">✏️ EDITAR/EXCLUIR BANCOS</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAIS -->
+<div id="modalEntrada" class="modal"><div class="modal-content"><h3>📥 NOVA ENTRADA</h3><input type="hidden" id="entradaId"><div class="form-group"><label>DATA</label><input type="date" id="entradaData"></div><div class="form-group"><label>ROÇA</label><select id="entradaRoca"></select></div><div class="form-group"><label>CATEGORIA</label><input type="text" id="entradaCategoria" placeholder="Ex: Venda de Farinha"></div><div class="form-group"><label>VALOR (R$)</label><input type="number" id="entradaValor" step="0.01"></div><div class="btn-group" style="margin-top:20px"><button class="btn btn-secondary" onclick="fecharModal('modalEntrada')">CANCELAR</button><button class="btn btn-primary" onclick="salvarEntrada()">SALVAR</button></div></div></div>
+
+<div id="modalDespesa" class="modal"><div class="modal-content"><h3>📤 NOVA DESPESA</h3><input type="hidden" id="despesaId"><div class="form-group"><label>DATA</label><input type="date" id="despesaData"></div><div class="form-group"><label>ROÇA</label><select id="despesaRoca"></select></div><div class="form-group"><label>CATEGORIA</label><select id="despesaCategoria"><option>Combustível</option><option>Operador</option><option>Adubo</option><option>Veneno</option><option>Pulverização</option><option>Carpina</option><option>Diaristas</option><option>Maniva</option><option>Outros</option></select></div><div class="form-group"><label>DESCRIÇÃO</label><input type="text" id="despesaDescricao" placeholder="Detalhamento"></div><div class="form-group"><label>VALOR (R$)</label><input type="number" id="despesaValor" step="0.01"></div><div class="btn-group" style="margin-top:20px"><button class="btn btn-secondary" onclick="fecharModal('modalDespesa')">CANCELAR</button><button class="btn btn-primary" onclick="salvarDespesa()">SALVAR</button></div></div></div>
+
+<div id="modalPrestacao" class="modal"><div class="modal-content"><h3>💰 NOVO REPASSE</h3><input type="hidden" id="prestacaoId"><div class="form-group"><label>DATA</label><input type="date" id="prestacaoData"></div><div class="form-group"><label>ROÇA</label><select id="prestacaoRoca"></select></div><div class="form-group"><label>RESPONSÁVEL</label><select id="prestacaoResponsavel"><option>Nene</option><option>Leandro</option></select></div><div class="form-group"><label>VALOR (R$)</label><input type="number" id="prestacaoValor" step="0.01"></div><div class="form-group"><label>FORMA</label><select id="prestacaoForma"><option>Pix</option><option>Dinheiro</option><option>Transferência</option></select></div><div class="btn-group" style="margin-top:20px"><button class="btn btn-secondary" onclick="fecharModal('modalPrestacao')">CANCELAR</button><button class="btn btn-primary" onclick="salvarPrestacao()">SALVAR</button></div></div></div>
+
+<div id="modalPix" class="modal"><div class="modal-content"><h3>💳 LANÇAMENTO PIX</h3><input type="hidden" id="pixEditId"><div class="form-group"><label>DATA LANÇAMENTO *</label><input type="date" id="pixData"></div><div class="form-group"><label>PERÍODO INÍCIO *</label><input type="date" id="pixPeriodoIni"></div><div class="form-group"><label>PERÍODO FIM *</label><input type="date" id="pixPeriodoFim"></div><div class="form-group"><label>RECEBER ATÉ *</label><input type="date" id="pixReceberAte"></div><div class="form-group"><label>PAGADOR/CLIENTE *</label><select id="pixCliente"><option value="">Selecione</option></select><button class="btn btn-secondary btn-sm" style="margin-top:5px" onclick="novoClientePix()">+ NOVO CLIENTE</button></div><div class="form-group"><label>BANCO/CONTA *</label><select id="pixBanco"><option value="">Selecione</option></select><button class="btn btn-secondary btn-sm" style="margin-top:5px" onclick="novoBancoPix()">+ NOVO BANCO</button></div><div class="form-group"><label>VALOR TOTAL *</label><input type="number" id="pixValor" step="0.01"></div><div class="form-group"><label>VALOR RECEBIDO</label><input type="number" id="pixValorRecebido" step="0.01" value="0"></div><div class="form-group"><label>STATUS</label><select id="pixStatus"><option value="Pendente">Pendente</option><option value="Parcial">Parcial</option><option value="Recebido">Recebido</option><option value="Atrasado">Atrasado</option></select></div><div class="form-group"><label>OBSERVAÇÃO</label><textarea id="pixObs" rows="3" placeholder="Informações adicionais..."></textarea></div><div class="btn-group" style="margin-top:20px"><button class="btn btn-secondary" onclick="fecharModal('modalPix')">CANCELAR</button><button class="btn btn-primary" onclick="salvarLancamentoPix()">SALVAR</button></div></div></div>
+
+<div id="modalLista" class="modal"><div class="modal-content"><h3 id="modalListaTitle">Gerenciar</h3><div id="listaContainer" style="max-height: 400px; overflow-y: auto;"></div><div class="btn-group" style="margin-top:20px"><button class="btn btn-secondary" onclick="fecharModal('modalLista')">FECHAR</button></div></div></div>
+
+<div id="feedback" class="feedback">✅ Operação concluída</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyDqHI2ZR9WK-JYDkerl34vaIsMuQytgVYo",
+        authDomain: "controleroca-30c32.firebaseapp.com",
+        projectId: "controleroca-30c32",
+        storageBucket: "controleroca-30c32.firebasestorage.app",
+        messagingSenderId: "221204726730",
+        appId: "1:221204726730:web:66a75bc5c4973779574533"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const rocasCol = collection(db, "rocas");
+    const entradasCol = collection(db, "entradas");
+    const despesasCol = collection(db, "despesas");
+    const prestacoesCol = collection(db, "prestacoes");
+
+    let rocas = [], entradas = [], despesas = [], prestacoes = [];
+    let lancamentosPix = [];
+    let clientesPix = ["Empresa XPTO", "João Silva", "Maria Oliveira", "Carlos Souza"];
+    let bancosPix = ["BRADESCO", "BRASIL PF", "BRASIL PJ", "Itaú", "Nubank", "SICREDI AGRO", "SICREDI PJ"];
+    let pixFiltered = [];
+    let currentPixPage = 1;
+    let tabelaPixVisible = true;
+    let paginaRocas = 1, paginaEntradas = 1, paginaDespesas = 1, paginaPrestacoes = 1;
+    const ITENS_POR_PAGINA = 15;
+
+    function ordenarClientes() { clientesPix.sort((a, b) => a.localeCompare(b, 'pt-BR')); }
+    function ordenarBancos() { bancosPix.sort((a, b) => a.localeCompare(b, 'pt-BR')); }
+    function formatarMoeda(valor) { return (valor || 0).toLocaleString('pt-br', { style: 'currency', currency: 'BRL' }); }
+    function formatarData(data) { if (!data) return ''; const [ano, mes, dia] = data.split('-'); return `${dia}/${mes}/${ano}`; }
+    function mostrarFeedback(msg) { const fb = document.getElementById('feedback'); fb.textContent = msg; fb.style.display = 'block'; setTimeout(() => fb.style.display = 'none', 2000); }
+    function fecharModal(id) { document.getElementById(id).style.display = 'none'; }
+    function escapeHtml(text) { if (!text) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
+
+    function atualizarSelects() {
+        const optsRoca = '<option value="">Selecione</option>' + rocas.map(r => `<option value="${r.id}">${escapeHtml(r.nome)}</option>`).join('');
+        const optsFiltro = '<option value="">Todas as Roças</option>' + rocas.map(r => `<option value="${r.id}">${escapeHtml(r.nome)}</option>`).join('');
+        document.getElementById('entradaRoca').innerHTML = optsRoca;
+        document.getElementById('despesaRoca').innerHTML = optsRoca;
+        document.getElementById('prestacaoRoca').innerHTML = optsRoca;
+        document.getElementById('filtroRoca').innerHTML = optsFiltro;
+        document.getElementById('filtroResumoRoca').innerHTML = optsFiltro;
+    }
+
+    function atualizarSelectsPix() {
+        ordenarClientes();
+        const clienteSelect = document.getElementById('pixCliente');
+        clienteSelect.innerHTML = '<option value="">Selecione</option>';
+        clientesPix.forEach(c => { const opt = document.createElement('option'); opt.value = c; opt.textContent = c; clienteSelect.appendChild(opt); });
+        ordenarBancos();
+        const bancoSelect = document.getElementById('pixBanco');
+        bancoSelect.innerHTML = '<option value="">Selecione</option>';
+        bancosPix.forEach(b => { const opt = document.createElement('option'); opt.value = b; opt.textContent = b; bancoSelect.appendChild(opt); });
+    }
+
+    // ==================== ROÇAS ====================
+    function gerarCodigoRoca() { return 'R' + String(rocas.length + 1).padStart(3, '0'); }
+    function limparFormRoca() { document.getElementById('rocaEditandoId').value = ''; document.getElementById('rocaNome').value = ''; document.getElementById('rocaCodigo').value = gerarCodigoRoca(); document.getElementById('rocaDataCadastro').value = new Date().toISOString().split('T')[0]; document.getElementById('rocaDataInativacao').value = ''; }
+    async function salvarRoca() {
+        const id = document.getElementById('rocaEditandoId').value;
+        const nome = document.getElementById('rocaNome').value.trim();
+        const codigo = document.getElementById('rocaCodigo').value || gerarCodigoRoca();
+        const dataCadastro = document.getElementById('rocaDataCadastro').value;
+        const dataInativacao = document.getElementById('rocaDataInativacao').value || null;
+        if (!nome || !dataCadastro) { alert('Preencha NOME e DATA CADASTRO'); return; }
+        const novaRoca = { nome, codigo, dataCadastro, dataInativacao, ativo: !dataInativacao };
+        try {
+            if (id) await updateDoc(doc(rocasCol, id), novaRoca);
+            else await addDoc(rocasCol, novaRoca);
+            mostrarFeedback('Roça salva!');
+            limparFormRoca();
+        } catch (e) { alert('Erro: ' + e.message); }
+    }
+    async function excluirRoca(id) { if (confirm('Excluir esta roça?')) { await deleteDoc(doc(rocasCol, id)); mostrarFeedback('Roça excluída'); } }
+    function editarRoca(id) { const roca = rocas.find(r => r.id === id); if (roca) { document.getElementById('rocaEditandoId').value = roca.id; document.getElementById('rocaNome').value = roca.nome; document.getElementById('rocaCodigo').value = roca.codigo; document.getElementById('rocaDataCadastro').value = roca.dataCadastro; document.getElementById('rocaDataInativacao').value = roca.dataInativacao || ''; } }
+    function renderizarRocas() {
+        let lista = [...rocas];
+        const total = lista.length, inicio = (paginaRocas - 1) * ITENS_POR_PAGINA;
+        lista = lista.slice(inicio, inicio + ITENS_POR_PAGINA);
+        const tbody = document.getElementById('listaRocas'); if (!tbody) return;
+        tbody.innerHTML = '';
+        lista.forEach(r => { const row = tbody.insertRow(); row.insertCell(0).innerHTML = escapeHtml(r.codigo || '-'); row.insertCell(1).innerHTML = `<strong>${escapeHtml(r.nome)}</strong>`; row.insertCell(2).innerHTML = formatarData(r.dataCadastro); row.insertCell(3).innerHTML = r.dataInativacao ? formatarData(r.dataInativacao) : '—'; row.insertCell(4).innerHTML = `<span class="${r.ativo ? 'badge-ativo' : 'badge-inativo'}">${r.ativo ? 'ATIVA' : 'INATIVA'}</span>`; row.insertCell(5).innerHTML = `<button class="btn btn-primary btn-sm" onclick="editarRoca('${r.id}')">✏️</button> <button class="btn btn-danger btn-sm" onclick="excluirRoca('${r.id}')">🗑️</button>`; });
+        const pagDiv = document.getElementById('paginacaoRocas');
+        const paginas = Math.ceil(total / ITENS_POR_PAGINA);
+        if (paginas <= 1) { pagDiv.innerHTML = ''; return; }
+        pagDiv.innerHTML = `<button ${paginaRocas <= 1 ? 'disabled' : ''} onclick="mudarPaginaRocas(-1)">◀ ANTERIOR</button><span>${paginaRocas} / ${paginas}</span><button ${paginaRocas >= paginas ? 'disabled' : ''} onclick="mudarPaginaRocas(1)">PRÓXIMO ▶</button>`;
+    }
+    function mudarPaginaRocas(delta) { paginaRocas += delta; renderizarRocas(); }
+
+    // ==================== ENTRADAS ====================
+    function abrirModalEntrada(entrada = null) { document.getElementById('entradaId').value = entrada?.id || ''; document.getElementById('entradaData').value = entrada?.data || new Date().toISOString().split('T')[0]; document.getElementById('entradaRoca').value = entrada?.rocaId || ''; document.getElementById('entradaCategoria').value = entrada?.categoria || ''; document.getElementById('entradaValor').value = entrada?.valor || ''; document.getElementById('modalEntrada').style.display = 'flex'; }
+    async function salvarEntrada() {
+        const id = document.getElementById('entradaId').value, data = document.getElementById('entradaData').value, rocaId = document.getElementById('entradaRoca').value, categoria = document.getElementById('entradaCategoria').value.trim(), valor = parseFloat(document.getElementById('entradaValor').value) || 0;
+        if (!data || !rocaId || !categoria || valor <= 0) { alert('Preencha todos os campos!'); return; }
+        const roca = rocas.find(r => r.id === rocaId);
+        const novaEntrada = { data, rocaId, rocaNome: roca?.nome || '', categoria, valor };
+        try { if (id) await updateDoc(doc(entradasCol, id), novaEntrada); else await addDoc(entradasCol, novaEntrada); mostrarFeedback('Entrada salva!'); fecharModal('modalEntrada'); } catch (e) { alert('Erro: ' + e.message); }
+    }
+    async function excluirEntrada(id) { if (confirm('Excluir entrada?')) { await deleteDoc(doc(entradasCol, id)); mostrarFeedback('Entrada excluída'); } }
+    function editarEntrada(id) { const entrada = entradas.find(e => e.id === id); if (entrada) abrirModalEntrada(entrada); }
+    function renderizarEntradas() {
+        const rocaFiltro = document.getElementById('filtroRoca').value, dataInicio = document.getElementById('filtroDataInicio').value, dataFim = document.getElementById('filtroDataFim').value;
+        let filtradas = [...entradas];
+        if (rocaFiltro) filtradas = filtradas.filter(e => e.rocaId === rocaFiltro);
+        if (dataInicio) filtradas = filtradas.filter(e => e.data >= dataInicio);
+        if (dataFim) filtradas = filtradas.filter(e => e.data <= dataFim);
+        filtradas.sort((a,b) => new Date(b.data) - new Date(a.data));
+        const total = filtradas.length, inicio = (paginaEntradas - 1) * ITENS_POR_PAGINA;
+        filtradas = filtradas.slice(inicio, inicio + ITENS_POR_PAGINA);
+        const tbody = document.getElementById('listaEntradas'); if (!tbody) return;
+        tbody.innerHTML = '';
+        filtradas.forEach(e => { const row = tbody.insertRow(); row.insertCell(0).innerHTML = formatarData(e.data); row.insertCell(1).innerHTML = `<strong>${escapeHtml(e.rocaNome)}</strong>`; row.insertCell(2).innerHTML = escapeHtml(e.categoria); row.insertCell(3).innerHTML = formatarMoeda(e.valor); row.insertCell(4).innerHTML = `<button class="btn btn-primary btn-sm" onclick="editarEntrada('${e.id}')">✏️</button> <button class="btn btn-danger btn-sm" onclick="excluirEntrada('${e.id}')">🗑️</button>`; });
+        const pagDiv = document.getElementById('paginacaoEntradas');
+        const paginas = Math.ceil(total / ITENS_POR_PAGINA);
+        if (paginas <= 1) { pagDiv.innerHTML = ''; return; }
+        pagDiv.innerHTML = `<button ${paginaEntradas <= 1 ? 'disabled' : ''} onclick="mudarPaginaEntradas(-1)">◀ ANTERIOR</button><span>${paginaEntradas} / ${paginas}</span><button ${paginaEntradas >= paginas ? 'disabled' : ''} onclick="mudarPaginaEntradas(1)">PRÓXIMO ▶</button>`;
+    }
+    function mudarPaginaEntradas(delta) { paginaEntradas += delta; renderizarEntradas(); }
+
+    // ==================== DESPESAS ====================
+    function abrirModalDespesa(despesa = null) { document.getElementById('despesaId').value = despesa?.id || ''; document.getElementById('despesaData').value = despesa?.data || new Date().toISOString().split('T')[0]; document.getElementById('despesaRoca').value = despesa?.rocaId || ''; document.getElementById('despesaCategoria').value = despesa?.categoria || 'Combustível'; document.getElementById('despesaDescricao').value = despesa?.descricao || ''; document.getElementById('despesaValor').value = despesa?.valor || ''; document.getElementById('modalDespesa').style.display = 'flex'; }
+    async function salvarDespesa() {
+        const id = document.getElementById('despesaId').value, data = document.getElementById('despesaData').value, rocaId = document.getElementById('despesaRoca').value, categoria = document.getElementById('despesaCategoria').value, descricao = document.getElementById('despesaDescricao').value, valor = parseFloat(document.getElementById('despesaValor').value) || 0;
+        if (!data || !rocaId || !categoria || valor <= 0) { alert('Preencha os campos obrigatórios!'); return; }
+        const roca = rocas.find(r => r.id === rocaId);
+        const novaDespesa = { data, rocaId, rocaNome: roca?.nome || '', categoria, descricao, valor };
+        try { if (id) await updateDoc(doc(despesasCol, id), novaDespesa); else await addDoc(despesasCol, novaDespesa); mostrarFeedback('Despesa salva!'); fecharModal('modalDespesa'); } catch (e) { alert('Erro: ' + e.message); }
+    }
+    async function excluirDespesa(id) { if (confirm('Excluir despesa?')) { await deleteDoc(doc(despesasCol, id)); mostrarFeedback('Despesa excluída'); } }
+    function editarDespesa(id) { const despesa = despesas.find(d => d.id === id); if (despesa) abrirModalDespesa(despesa); }
+    function renderizarDespesas() {
+        const rocaFiltro = document.getElementById('filtroRoca').value, dataInicio = document.getElementById('filtroDataInicio').value, dataFim = document.getElementById('filtroDataFim').value;
+        let filtradas = [...despesas];
+        if (rocaFiltro) filtradas = filtradas.filter(d => d.rocaId === rocaFiltro);
+        if (dataInicio) filtradas = filtradas.filter(d => d.data >= dataInicio);
+        if (dataFim) filtradas = filtradas.filter(d => d.data <= dataFim);
+        filtradas.sort((a,b) => new Date(b.data) - new Date(a.data));
+        const total = filtradas.length, inicio = (paginaDespesas - 1) * ITENS_POR_PAGINA;
+        filtradas = filtradas.slice(inicio, inicio + ITENS_POR_PAGINA);
+        const tbody = document.getElementById('listaDespesas'); if (!tbody) return;
+        tbody.innerHTML = '';
+        filtradas.forEach(d => { const row = tbody.insertRow(); row.insertCell(0).innerHTML = formatarData(d.data); row.insertCell(1).innerHTML = `<strong>${escapeHtml(d.rocaNome)}</strong>`; row.insertCell(2).innerHTML = escapeHtml(d.categoria); row.insertCell(3).innerHTML = escapeHtml(d.descricao || '—'); row.insertCell(4).innerHTML = formatarMoeda(d.valor); row.insertCell(5).innerHTML = `<button class="btn btn-primary btn-sm" onclick="editarDespesa('${d.id}')">✏️</button> <button class="btn btn-danger btn-sm" onclick="excluirDespesa('${d.id}')">🗑️</button>`; });
+        const pagDiv = document.getElementById('paginacaoDespesas');
+        const paginas = Math.ceil(total / ITENS_POR_PAGINA);
+        if (paginas <= 1) { pagDiv.innerHTML = ''; return; }
+        pagDiv.innerHTML = `<button ${paginaDespesas <= 1 ? 'disabled' : ''} onclick="mudarPaginaDespesas(-1)">◀ ANTERIOR</button><span>${paginaDespesas} / ${paginas}</span><button ${paginaDespesas >= paginas ? 'disabled' : ''} onclick="mudarPaginaDespesas(1)">PRÓXIMO ▶</button>`;
+    }
+    function mudarPaginaDespesas(delta) { paginaDespesas += delta; renderizarDespesas(); }
+
+    // ==================== PRESTAÇÕES ====================
+    function abrirModalPrestacao(prestacao = null) { document.getElementById('prestacaoId').value = prestacao?.id || ''; document.getElementById('prestacaoData').value = prestacao?.data || new Date().toISOString().split('T')[0]; document.getElementById('prestacaoRoca').value = prestacao?.rocaId || ''; document.getElementById('prestacaoResponsavel').value = prestacao?.responsavel || 'Nene'; document.getElementById('prestacaoValor').value = prestacao?.valor || ''; document.getElementById('prestacaoForma').value = prestacao?.forma || 'Pix'; document.getElementById('modalPrestacao').style.display = 'flex'; }
+    async function salvarPrestacao() {
+        const id = document.getElementById('prestacaoId').value, data = document.getElementById('prestacaoData').value, rocaId = document.getElementById('prestacaoRoca').value, responsavel = document.getElementById('prestacaoResponsavel').value, valor = parseFloat(document.getElementById('prestacaoValor').value) || 0, forma = document.getElementById('prestacaoForma').value;
+        if (!data || !rocaId || !responsavel || valor <= 0) { alert('Preencha todos os campos!'); return; }
+        const roca = rocas.find(r => r.id === rocaId);
+        const novaPrestacao = { data, rocaId, rocaNome: roca?.nome || '', responsavel, valor, forma };
+        try { if (id) await updateDoc(doc(prestacoesCol, id), novaPrestacao); else await addDoc(prestacoesCol, novaPrestacao); mostrarFeedback('Repasse salvo!'); fecharModal('modalPrestacao'); } catch (e) { alert('Erro: ' + e.message); }
+    }
+    async function excluirPrestacao(id) { if (confirm('Excluir repasse?')) { await deleteDoc(doc(prestacoesCol, id)); mostrarFeedback('Repasse excluído'); } }
+    function editarPrestacao(id) { const prestacao = prestacoes.find(p => p.id === id); if (prestacao) abrirModalPrestacao(prestacao); }
+    function renderizarPrestacoes() {
+        const rocaFiltro = document.getElementById('filtroResumoRoca').value, dataInicio = document.getElementById('filtroResumoInicio').value, dataFim = document.getElementById('filtroResumoFim').value;
+        let filtradas = [...prestacoes];
+        if (rocaFiltro) filtradas = filtradas.filter(p => p.rocaId === rocaFiltro);
+        if (dataInicio) filtradas = filtradas.filter(p => p.data >= dataInicio);
+        if (dataFim) filtradas = filtradas.filter(p => p.data <= dataFim);
+        filtradas.sort((a,b) => new Date(b.data) - new Date(a.data));
+        const total = filtradas.length, inicio = (paginaPrestacoes - 1) * ITENS_POR_PAGINA;
+        filtradas = filtradas.slice(inicio, inicio + ITENS_POR_PAGINA);
+        const tbody = document.getElementById('listaPrestacoes'); if (!tbody) return;
+        tbody.innerHTML = '';
+        filtradas.forEach(p => { const row = tbody.insertRow(); row.insertCell(0).innerHTML = formatarData(p.data); row.insertCell(1).innerHTML = `<strong>${escapeHtml(p.rocaNome)}</strong>`; row.insertCell(2).innerHTML = escapeHtml(p.responsavel); row.insertCell(3).innerHTML = formatarMoeda(p.valor); row.insertCell(4).innerHTML = escapeHtml(p.forma); row.insertCell(5).innerHTML = `<button class="btn btn-primary btn-sm" onclick="editarPrestacao('${p.id}')">✏️</button> <button class="btn btn-danger btn-sm" onclick="excluirPrestacao('${p.id}')">🗑️</button>`; });
+        const pagDiv = document.getElementById('paginacaoPrestacoes');
+        const paginas = Math.ceil(total / ITENS_POR_PAGINA);
+        if (paginas <= 1) { pagDiv.innerHTML = ''; return; }
+        pagDiv.innerHTML = `<button ${paginaPrestacoes <= 1 ? 'disabled' : ''} onclick="mudarPaginaPrestacoes(-1)">◀ ANTERIOR</button><span>${paginaPrestacoes} / ${paginas}</span><button ${paginaPrestacoes >= paginas ? 'disabled' : ''} onclick="mudarPaginaPrestacoes(1)">PRÓXIMO ▶</button>`;
+    }
+    function mudarPaginaPrestacoes(delta) { paginaPrestacoes += delta; renderizarPrestacoes(); }
+
+    // ==================== RESUMO FINANCEIRO ====================
+    function atualizarResumo() {
+        const rocaFiltro = document.getElementById('filtroResumoRoca').value, dataInicio = document.getElementById('filtroResumoInicio').value, dataFim = document.getElementById('filtroResumoFim').value;
+        let entradasFilt = [...entradas], despesasFilt = [...despesas], prestacoesFilt = [...prestacoes];
+        if (rocaFiltro) { entradasFilt = entradasFilt.filter(e => e.rocaId === rocaFiltro); despesasFilt = despesasFilt.filter(d => d.rocaId === rocaFiltro); prestacoesFilt = prestacoesFilt.filter(p => p.rocaId === rocaFiltro); }
+        if (dataInicio) { entradasFilt = entradasFilt.filter(e => e.data >= dataInicio); despesasFilt = despesasFilt.filter(d => d.data >= dataInicio); prestacoesFilt = prestacoesFilt.filter(p => p.data >= dataInicio); }
+        if (dataFim) { entradasFilt = entradasFilt.filter(e => e.data <= dataFim); despesasFilt = despesasFilt.filter(d => d.data <= dataFim); prestacoesFilt = prestacoesFilt.filter(p => p.data <= dataFim); }
+        const receitas = entradasFilt.reduce((a,b) => a + (b.valor || 0), 0);
+        const despesasTotal = despesasFilt.reduce((a,b) => a + (b.valor || 0), 0);
+        const lucro = receitas - despesasTotal;
+        const direito = lucro / 2, despGerais = despesasTotal / 2;
+        const repNene = prestacoesFilt.filter(p => p.responsavel === 'Nene').reduce((a,b) => a + (b.valor || 0), 0);
+        const repLeandro = prestacoesFilt.filter(p => p.responsavel === 'Leandro').reduce((a,b) => a + (b.valor || 0), 0);
+        const saldoNene = direito - despGerais - repNene;
+        const saldoLeandro = direito - despGerais - repLeandro;
+        const container = document.getElementById('resumoContainer');
+        if (!container) return;
+        container.innerHTML = `<div class="resumo-cards"><div class="resumo-card"><h3>📈 RECEITAS</h3><div class="valor">${formatarMoeda(receitas)}</div></div><div class="resumo-card"><h3>📉 DESPESAS</h3><div class="valor">${formatarMoeda(despesasTotal)}</div></div><div class="resumo-card"><h3>💰 LUCRO TOTAL</h3><div class="valor">${formatarMoeda(lucro)}</div></div></div><div class="socio-table-wrapper"><table class="socio-table"><thead><tr><th>SÓCIO</th><th>DIREITO (50%)</th><th>DESPESAS GERAIS (50%)</th><th>REPASSES</th><th>SALDO</th></tr></thead><tbody><tr><td><strong>👨‍🌾 NENE</strong></td><td>${formatarMoeda(direito)}</td><td>${formatarMoeda(despGerais)}</td><td>${formatarMoeda(repNene)}</td><td style="color: ${saldoNene >= 0 ? '#166534' : '#dc2626'}; font-weight: 700;">${formatarMoeda(saldoNene)}</td></tr><tr><td><strong>👨‍🌾 LEANDRO</strong></td><td>${formatarMoeda(direito)}</td><td>${formatarMoeda(despGerais)}</td><td>${formatarMoeda(repLeandro)}</td><td style="color: ${saldoLeandro >= 0 ? '#166534' : '#dc2626'}; font-weight: 700;">${formatarMoeda(saldoLeandro)}</td></tr></tbody></table></div>`;
+    }
+
+    function aplicarFiltros() { paginaEntradas = 1; paginaDespesas = 1; renderizarEntradas(); renderizarDespesas(); }
+    function limparFiltros() { document.getElementById('filtroRoca').value = ''; document.getElementById('filtroDataInicio').value = ''; document.getElementById('filtroDataFim').value = ''; paginaEntradas = 1; paginaDespesas = 1; renderizarEntradas(); renderizarDespesas(); }
+    function exportarResumo() { alert('Exportação de relatório disponível na versão completa'); }
+
+    // ==================== PIX ====================
+    function carregarLancamentosPix() {
+        const dadosSalvos = localStorage.getItem('lancamentosPix');
+        if (dadosSalvos) lancamentosPix = JSON.parse(dadosSalvos);
+        else lancamentosPix = [{ id: 1001, dataLancamento: "2026-05-10", periodoIni: "2026-05-01", periodoFim: "2026-05-10", receberAte: "2026-05-20", cliente: "João Silva", banco: "SICREDI PJ", valor: 1500, valorRecebido: 1500, status: "Recebido", obs: "Pagamento à vista" }, { id: 1002, dataLancamento: "2026-05-15", periodoIni: "2026-05-11", periodoFim: "2026-05-20", receberAte: "2026-05-25", cliente: "Maria Oliveira", banco: "BRADESCO", valor: 2300, valorRecebido: 1000, status: "Parcial", obs: "Entrada de R$ 1.000" }];
+        const clientesSalvos = localStorage.getItem('clientesPix');
+        if (clientesSalvos) clientesPix = JSON.parse(clientesSalvos);
+        ordenarClientes();
+        const bancosSalvos = localStorage.getItem('bancosPix');
+        if (bancosSalvos) bancosPix = JSON.parse(bancosSalvos);
+        ordenarBancos();
+        atualizarSelectsPix();
+        aplicarFiltrosPix();
+    }
+
+    function salvarDadosPix() { localStorage.setItem('lancamentosPix', JSON.stringify(lancamentosPix)); localStorage.setItem('clientesPix', JSON.stringify(clientesPix)); localStorage.setItem('bancosPix', JSON.stringify(bancosPix)); }
+
+    function aplicarFiltrosPix() {
+        const search = document.getElementById('pixSearchNome').value.toLowerCase();
+        const status = document.getElementById('pixFiltroStatus').value;
+        const dataIni = document.getElementById('pixDataIni').value ? new Date(document.getElementById('pixDataIni').value) : null;
+        const dataFim = document.getElementById('pixDataFim').value ? new Date(document.getElementById('pixDataFim').value) : null;
+        const periodoRocaIni = document.getElementById('pixPeriodoRocaIni').value;
+        const periodoRocaFim = document.getElementById('pixPeriodoRocaFim').value;
+        pixFiltered = lancamentosPix.filter(l => {
+            if (search && !l.cliente.toLowerCase().includes(search)) return false;
+            if (status && l.status !== status) return false;
+            if (dataIni && new Date(l.dataLancamento) < dataIni) return false;
+            if (dataFim && new Date(l.dataLancamento) > dataFim) return false;
+            if (periodoRocaIni && l.periodoIni < periodoRocaIni) return false;
+            if (periodoRocaFim && l.periodoFim > periodoRocaFim) return false;
+            return true;
+        });
+        currentPixPage = 1;
+        renderPixTabela();
+        atualizarResumoPix();
+    }
+
+    function limparFiltrosPix() { document.getElementById('pixDataIni').value = ''; document.getElementById('pixDataFim').value = ''; document.getElementById('pixPeriodoRocaIni').value = ''; document.getElementById('pixPeriodoRocaFim').value = ''; document.getElementById('pixSearchNome').value = ''; document.getElementById('pixFiltroStatus').value = ''; aplicarFiltrosPix(); }
+
+    function renderPixTabela() {
+        const itemsPorPagina = 20, totalPages = Math.ceil(pixFiltered.length / itemsPorPagina), start = (currentPixPage - 1) * itemsPorPagina, pageItems = pixFiltered.slice(start, start + itemsPorPagina);
+        const tbody = document.getElementById('pixTableBody'); if (!tbody) return;
+        tbody.innerHTML = '';
+        let totalValor = 0, totalRecebido = 0, totalDif = 0;
+        pixFiltered.forEach(l => { totalValor += l.valor; totalRecebido += l.valorRecebido; totalDif += (l.valor - l.valorRecebido); });
+        const hoje = new Date().toISOString().split('T')[0];
+        pageItems.forEach(l => {
+            const diff = l.valor - l.valorRecebido;
+            let statusClass = '';
+            if (l.status === 'Recebido') statusClass = 'pix-status-recebido';
+            else if (l.status === 'Parcial') statusClass = 'pix-status-parcial';
+            else if (l.status === 'Atrasado') statusClass = 'pix-status-atrasado';
+            else statusClass = 'pix-status-pendente';
+            const isAtrasado = (l.receberAte < hoje && l.status !== 'Recebido');
+            const row = tbody.insertRow();
+            if (isAtrasado) row.classList.add('pix-atrasado-row');
+            row.innerHTML = `<td>${formatarData(l.dataLancamento)}</td><td>${formatarData(l.periodoIni)} a ${formatarData(l.periodoFim)}</td><td>${escapeHtml(l.banco)}</td><td>${escapeHtml(l.cliente)}</td><td>${formatarMoeda(l.valor)}</td><td>${formatarMoeda(l.valorRecebido)}</td><td>${formatarMoeda(diff)}</td><td><span class="${statusClass}">${l.status}</span></td><td>${formatarData(l.receberAte)}</td><td class="obs-cell">${escapeHtml(l.obs || '')}</td><td><button class="btn btn-primary btn-sm" onclick="editarLancamentoPix(${l.id})">✏️</button> <button class="btn btn-warning btn-sm" onclick="clonarLancamentoPix(${l.id})">📋</button> <button class="btn btn-danger btn-sm" onclick="excluirLancamentoPix(${l.id})">🗑️</button></td>`;
+        });
+        const tfoot = document.getElementById('pixTableFooter');
+        if (tfoot) tfoot.innerHTML = `<tr class="total-row"><td colspan="4"><strong>TOTAIS</strong></td><td><strong>${formatarMoeda(totalValor)}</strong></td><td><strong>${formatarMoeda(totalRecebido)}</strong></td><td><strong>${formatarMoeda(totalDif)}</strong></td><td colspan="4"></td></tr>`;
+        const pagDiv = document.getElementById('pixPagination');
+        if (pagDiv) {
+            if (totalPages <= 1) pagDiv.innerHTML = '';
+            else pagDiv.innerHTML = `<button ${currentPixPage <= 1 ? 'disabled' : ''} onclick="mudarPaginaPix(${currentPixPage - 1})">◀ ANTERIOR</button><span>${currentPixPage} / ${totalPages}</span><button ${currentPixPage >= totalPages ? 'disabled' : ''} onclick="mudarPaginaPix(${currentPixPage + 1})">PRÓXIMO ▶</button>`;
+        }
+    }
+
+    function mudarPaginaPix(pagina) { const itemsPorPagina = 20, total = Math.ceil(pixFiltered.length / itemsPorPagina); if (pagina < 1 || pagina > total) return; currentPixPage = pagina; renderPixTabela(); }
+
+    function atualizarResumoPix() {
+        const search = document.getElementById('pixSearchNome').value.toLowerCase(), status = document.getElementById('pixFiltroStatus').value, dataIni = document.getElementById('pixDataIni').value ? new Date(document.getElementById('pixDataIni').value) : null, dataFim = document.getElementById('pixDataFim').value ? new Date(document.getElementById('pixDataFim').value) : null, periodoRocaIni = document.getElementById('pixPeriodoRocaIni').value, periodoRocaFim = document.getElementById('pixPeriodoRocaFim').value;
+        const dados = lancamentosPix.filter(l => {
+            if (search && !l.cliente.toLowerCase().includes(search)) return false;
+            if (status && l.status !== status) return false;
+            if (dataIni && new Date(l.dataLancamento) < dataIni) return false;
+            if (dataFim && new Date(l.dataLancamento) > dataFim) return false;
+            if (periodoRocaIni && l.periodoIni < periodoRocaIni) return false;
+            if (periodoRocaFim && l.periodoFim > periodoRocaFim) return false;
+            return true;
+        });
+        const totalRecebido = dados.reduce((a, l) => a + l.valorRecebido, 0);
+        const totalGeral = dados.reduce((a, l) => a + l.valor, 0);
+        const totalAReceber = totalGeral - totalRecebido;
+        const clienteMap = new Map(); dados.forEach(l => clienteMap.set(l.cliente, (clienteMap.get(l.cliente) || 0) + l.valor));
+        const maiorPagador = clienteMap.size ? [...clienteMap.entries()].reduce((a, b) => a[1] > b[1] ? a : b)[0] : '-';
+        const pendentes = dados.filter(l => l.status === 'Pendente').length;
+        const recebidos = dados.filter(l => l.status === 'Recebido').length;
+        const atrasados = dados.filter(l => l.status === 'Atrasado').length;
+        const grid = document.getElementById('pixResumoGrid');
+        if (grid) grid.innerHTML = `<div class="resumo-card"><h3>💰 TOTAL RECEBIDO</h3><div class="valor">${formatarMoeda(totalRecebido)}</div></div><div class="resumo-card"><h3>📌 TOTAL A RECEBER</h3><div class="valor">${formatarMoeda(totalAReceber)}</div></div><div class="resumo-card"><h3>📊 TOTAL GERAL</h3><div class="valor">${formatarMoeda(totalGeral)}</div></div><div class="resumo-card"><h3>🏦 MAIOR PAGADOR</h3><div class="valor">${escapeHtml(maiorPagador)}</div></div><div class="resumo-card"><h3>⏰ PENDÊNCIAS</h3><div class="valor">${pendentes}</div></div><div class="resumo-card"><h3>✅ RECEBIDOS</h3><div class="valor">${recebidos}</div></div><div class="resumo-card"><h3>⚠️ ATRASADOS</h3><div class="valor">${atrasados}</div></div>`;
+    }
+
+    function abrirModalPix(lancamento = null) {
+        document.getElementById('pixEditId').value = lancamento?.id || '';
+        document.getElementById('pixData').value = lancamento?.dataLancamento || new Date().toISOString().split('T')[0];
+        document.getElementById('pixPeriodoIni').value = lancamento?.periodoIni || '';
+        document.getElementById('pixPeriodoFim').value = lancamento?.periodoFim || '';
+        document.getElementById('pixReceberAte').value = lancamento?.receberAte || '';
+        document.getElementById('pixCliente').value = lancamento?.cliente || '';
+        document.getElementById('pixBanco').value = lancamento?.banco || '';
+        document.getElementById('pixValor').value = lancamento?.valor || '';
+        document.getElementById('pixValorRecebido').value = lancamento?.valorRecebido || 0;
+        document.getElementById('pixObs').value = lancamento?.obs || '';
+        document.getElementById('pixStatus').value = lancamento?.status || 'Pendente';
+        document.getElementById('modalPix').style.display = 'flex';
+    }
+
+    function clonarLancamentoPix(id) {
+        const original = lancamentosPix.find(l => l.id === id);
+        if (original) {
+            const novoId = Date.now();
+            const clone = { ...original, id: novoId, dataLancamento: new Date().toISOString().split('T')[0], valorRecebido: 0, status: "Pendente", obs: original.obs ? `(Clone de ${original.id}) ${original.obs}` : `Clone de ${original.id}` };
+            lancamentosPix.push(clone);
+            salvarDadosPix();
+            aplicarFiltrosPix();
+            mostrarFeedback('Lançamento clonado com sucesso!');
+        }
+    }
+
+    async function salvarLancamentoPix() {
+        const id = document.getElementById('pixEditId').value;
+        const dataLancamento = document.getElementById('pixData').value;
+        const periodoIni = document.getElementById('pixPeriodoIni').value;
+        const periodoFim = document.getElementById('pixPeriodoFim').value;
+        const receberAte = document.getElementById('pixReceberAte').value;
+        const cliente = document.getElementById('pixCliente').value;
+        const banco = document.getElementById('pixBanco').value;
+        const valor = parseFloat(document.getElementById('pixValor').value) || 0;
+        let valorRecebido = parseFloat(document.getElementById('pixValorRecebido').value) || 0;
+        const obs = document.getElementById('pixObs').value;
+        let status = document.getElementById('pixStatus').value;
+        if (!dataLancamento || !periodoIni || !periodoFim || !receberAte || !cliente || !banco || valor <= 0) { alert('Preencha todos os campos obrigatórios!'); return; }
+        const hoje = new Date().toISOString().slice(0, 10);
+        if (new Date(receberAte) < new Date(hoje) && status !== 'Recebido') status = 'Atrasado';
+        if (valorRecebido >= valor) status = 'Recebido';
+        else if (valorRecebido > 0 && valorRecebido < valor) status = 'Parcial';
+        else if (valorRecebido === 0 && status !== 'Recebido') status = 'Pendente';
+        if (id) { const idx = lancamentosPix.findIndex(l => l.id == id); if (idx !== -1) lancamentosPix[idx] = { ...lancamentosPix[idx], dataLancamento, periodoIni, periodoFim, receberAte, cliente, banco, valor, valorRecebido, obs, status }; }
+        else { const newId = Date.now(); lancamentosPix.push({ id: newId, dataLancamento, periodoIni, periodoFim, receberAte, cliente, banco, valor, valorRecebido, status, obs }); }
+        salvarDadosPix();
+        fecharModal('modalPix');
+        aplicarFiltrosPix();
+        mostrarFeedback('Lançamento salvo!');
+    }
+
+    function editarLancamentoPix(id) { const lancamento = lancamentosPix.find(l => l.id === id); if (lancamento) abrirModalPix(lancamento); }
+    function excluirLancamentoPix(id) { if (confirm('Excluir este lançamento?')) { lancamentosPix = lancamentosPix.filter(l => l.id !== id); salvarDadosPix(); aplicarFiltrosPix(); mostrarFeedback('Lançamento excluído!'); } }
+    function toggleTabelaPix() { const card = document.getElementById('cardTabelaPix'); const btn = document.querySelector('#tab4 .btn-sm'); if (tabelaPixVisible) { card.style.display = 'none'; if (btn) btn.textContent = 'EXIBIR TABELA'; } else { card.style.display = 'block'; if (btn) btn.textContent = 'RECOLHER TABELA'; } tabelaPixVisible = !tabelaPixVisible; }
+    function gerarPDFPix() {
+        const dados = pixFiltered.length ? pixFiltered : lancamentosPix;
+        let html = `<html><head><title>Relatório PIX</title><style>body{font-family:Arial;padding:20px} h1{color:#1a4a2a} table{width:100%;border-collapse:collapse} th{background:#1a4a2a;color:white;padding:8px} td{padding:6px;border:1px solid #ccc}</style></head><body><h1>CONTROLE PIX - VIANA FARINHA</h1><p>Gerado em ${new Date().toLocaleString()}</p><table border="1"><thead><tr><th>Data</th><th>Período</th><th>Banco</th><th>Cliente</th><th>Valor</th><th>Recebido</th><th>Diferença</th><th>Status</th><th>Receber Até</th><th>Observação</th></tr></thead><tbody>`;
+        dados.forEach(l => { html += `<tr><td>${formatarData(l.dataLancamento)}</td><td>${formatarData(l.periodoIni)} a ${formatarData(l.periodoFim)}</td><td>${escapeHtml(l.banco)}</td><td>${escapeHtml(l.cliente)}</td><td>${formatarMoeda(l.valor)}</td><td>${formatarMoeda(l.valorRecebido)}</td><td>${formatarMoeda(l.valor - l.valorRecebido)}</td><td>${l.status}</td><td>${formatarData(l.receberAte)}</td><td>${escapeHtml(l.obs || '')}</td></tr>`; });
+        html += `</tbody></table></body></html>`;
+        const w = window.open('', '_blank'); w.document.write(html); w.document.close(); w.print();
+    }
+    function novoClientePix() { const novo = prompt('Nome do novo cliente:'); if (novo && !clientesPix.includes(novo)) { clientesPix.push(novo); ordenarClientes(); salvarDadosPix(); atualizarSelectsPix(); mostrarFeedback('Cliente adicionado!'); } }
+    function novoBancoPix() { const novo = prompt('Nome do novo banco/conta:'); if (novo && !bancosPix.includes(novo)) { bancosPix.push(novo); ordenarBancos(); salvarDadosPix(); atualizarSelectsPix(); mostrarFeedback('Banco adicionado!'); } }
+    function gerenciarClientes() { const container = document.getElementById('listaContainer'); container.innerHTML = '<ul style="list-style:none; padding:0">' + clientesPix.map((c, i) => `<li style="margin-bottom:8px; display:flex; justify-content:space-between; align-items:center"><span>${escapeHtml(c)}</span><div><button class="btn btn-primary btn-sm" onclick="editarClientePix(${i})">✏️</button><button class="btn btn-danger btn-sm" onclick="excluirClientePix(${i})">🗑️</button></div></li>`).join('') + '</ul>'; document.getElementById('modalListaTitle').innerText = 'Gerenciar Clientes'; document.getElementById('modalLista').style.display = 'flex'; window.excluirClientePix = (idx) => { if (confirm('Excluir cliente?')) { clientesPix.splice(idx, 1); ordenarClientes(); salvarDadosPix(); atualizarSelectsPix(); gerenciarClientes(); } }; window.editarClientePix = (idx) => { const novo = prompt('Novo nome:', clientesPix[idx]); if (novo && novo.trim()) { clientesPix[idx] = novo.trim(); ordenarClientes(); salvarDadosPix(); atualizarSelectsPix(); gerenciarClientes(); } }; }
+    function gerenciarBancos() { const container = document.getElementById('listaContainer'); container.innerHTML = '<ul style="list-style:none; padding:0">' + bancosPix.map((b, i) => `<li style="margin-bottom:8px; display:flex; justify-content:space-between; align-items:center"><span>${escapeHtml(b)}</span><div><button class="btn btn-primary btn-sm" onclick="editarBancoPix(${i})">✏️</button><button class="btn btn-danger btn-sm" onclick="excluirBancoPix(${i})">🗑️</button></div></li>`).join('') + '</ul>'; document.getElementById('modalListaTitle').innerText = 'Gerenciar Bancos'; document.getElementById('modalLista').style.display = 'flex'; window.excluirBancoPix = (idx) => { if (confirm('Excluir banco?')) { bancosPix.splice(idx, 1); ordenarBancos(); salvarDadosPix(); atualizarSelectsPix(); gerenciarBancos(); } }; window.editarBancoPix = (idx) => { const novo = prompt('Novo nome:', bancosPix[idx]); if (novo && novo.trim()) { bancosPix[idx] = novo.trim(); ordenarBancos(); salvarDadosPix(); atualizarSelectsPix(); gerenciarBancos(); } }; }
+
+    // ==================== LISTENERS ====================
+    onSnapshot(query(rocasCol, orderBy("codigo")), (snapshot) => { rocas = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); atualizarSelects(); renderizarRocas(); });
+    onSnapshot(entradasCol, () => { getDocs(entradasCol).then(snapshot => { entradas = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); renderizarEntradas(); atualizarResumo(); }); });
+    onSnapshot(despesasCol, () => { getDocs(despesasCol).then(snapshot => { despesas = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); renderizarDespesas(); atualizarResumo(); }); });
+    onSnapshot(prestacoesCol, () => { getDocs(prestacoesCol).then(snapshot => { prestacoes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); renderizarPrestacoes(); atualizarResumo(); }); });
+
+    // ==================== TABS ====================
+    document.querySelectorAll('.tab-btn').forEach(btn => { btn.addEventListener('click', () => { document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); document.querySelectorAll('.panel').forEach(p => p.classList.remove('active')); btn.classList.add('active'); document.getElementById(btn.dataset.tab).classList.add('active'); if (btn.dataset.tab === 'tab3') atualizarResumo(); if (btn.dataset.tab === 'tab4') { carregarLancamentosPix(); aplicarFiltrosPix(); } }); });
+
+    // ==================== INICIALIZAÇÃO ====================
+    const hoje = new Date().toISOString().split('T')[0];
+    document.getElementById('rocaDataCadastro').value = hoje;
+    document.getElementById('rocaCodigo').value = 'R001';
+    carregarLancamentosPix();
+
+    // Expor funções globais
+    window.limparFormRoca = limparFormRoca; window.salvarRoca = salvarRoca; window.editarRoca = editarRoca; window.excluirRoca = excluirRoca; window.mudarPaginaRocas = mudarPaginaRocas;
+    window.abrirModalEntrada = abrirModalEntrada; window.salvarEntrada = salvarEntrada; window.editarEntrada = editarEntrada; window.excluirEntrada = excluirEntrada; window.mudarPaginaEntradas = mudarPaginaEntradas;
+    window.abrirModalDespesa = abrirModalDespesa; window.salvarDespesa = salvarDespesa; window.editarDespesa = editarDespesa; window.excluirDespesa = excluirDespesa; window.mudarPaginaDespesas = mudarPaginaDespesas;
+    window.abrirModalPrestacao = abrirModalPrestacao; window.salvarPrestacao = salvarPrestacao; window.editarPrestacao = editarPrestacao; window.excluirPrestacao = excluirPrestacao; window.mudarPaginaPrestacoes = mudarPaginaPrestacoes;
+    window.aplicarFiltros = aplicarFiltros; window.limparFiltros = limparFiltros; window.atualizarResumo = atualizarResumo; window.exportarResumo = exportarResumo; window.fecharModal = fecharModal;
+    window.aplicarFiltrosPix = aplicarFiltrosPix; window.limparFiltrosPix = limparFiltrosPix; window.abrirModalPix = abrirModalPix; window.salvarLancamentoPix = salvarLancamentoPix; window.editarLancamentoPix = editarLancamentoPix; window.excluirLancamentoPix = excluirLancamentoPix; window.clonarLancamentoPix = clonarLancamentoPix; window.mudarPaginaPix = mudarPaginaPix; window.toggleTabelaPix = toggleTabelaPix; window.gerarPDFPix = gerarPDFPix; window.novoClientePix = novoClientePix; window.novoBancoPix = novoBancoPix; window.gerenciarClientes = gerenciarClientes; window.gerenciarBancos = gerenciarBancos;
+</script>
+</body>
+</html>
