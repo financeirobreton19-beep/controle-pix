@@ -209,24 +209,33 @@
             width: 100%;
             border-collapse: collapse;
             font-size: 13px;
-            min-width: 700px;
+            min-width: 800px;
         }
 
         th {
             background: #1a4a2a;
             color: white;
-            padding: 12px;
-            text-align: left;
+            padding: 12px 8px;
+            text-align: center;
             font-weight: 600;
             white-space: nowrap;
         }
 
         td {
-            padding: 10px 12px;
+            padding: 10px 8px;
             border-bottom: 1px solid #e0eae0;
             background: white;
             vertical-align: middle;
+            text-align: center;
         }
+
+        td:first-child, th:first-child { text-align: center; }
+        td:nth-child(2), th:nth-child(2) { text-align: left; }
+        td:nth-child(3), th:nth-child(3) { text-align: left; }
+        td:nth-child(4), th:nth-child(4) { text-align: left; }
+        td:nth-child(5), th:nth-child(5) { text-align: right; }
+        td:nth-child(6), th:nth-child(6) { text-align: right; }
+        td:nth-child(7), th:nth-child(7) { text-align: right; }
 
         tbody tr:hover td {
             background-color: #fde68a !important;
@@ -395,15 +404,20 @@
             text-align: left;
         }
 
+        .acoes-cell {
+            white-space: nowrap;
+            text-align: center;
+        }
+
         @media (max-width: 700px) {
             body { padding: 12px; }
             .resumo-cards { grid-template-columns: 1fr; }
             .filters, .pix-filters { flex-direction: column; align-items: stretch; }
             .form-grid { grid-template-columns: 1fr; }
             .card-header { flex-direction: column; align-items: flex-start; }
-            td, th { padding: 8px; font-size: 11px; }
-            .btn-sm { padding: 3px 8px; font-size: 10px; }
-            .obs-cell { max-width: 120px; }
+            td, th { padding: 8px 4px; font-size: 10px; }
+            .btn-sm { padding: 3px 6px; font-size: 9px; }
+            .obs-cell { max-width: 100px; }
         }
     </style>
 </head>
@@ -441,8 +455,10 @@
         <div class="card">
             <div class="card-header"><h2>📋 LISTA DE ROÇAS</h2></div>
             <div class="table-wrapper">
-                <table><thead><tr><th>CÓDIGO</th><th>NOME</th><th>CADASTRO</th><th>INATIVAÇÃO</th><th>STATUS</th><th>AÇÕES</th></tr></thead>
-                <tbody id="listaRocas"></tbody></table>
+                <table>
+                    <thead><tr><th>CÓDIGO</th><th>NOME</th><th>CADASTRO</th><th>INATIVAÇÃO</th><th>STATUS</th><th>AÇÕES</th></tr></thead>
+                    <tbody id="listaRocas"></tbody>
+                </table>
             </div>
             <div id="paginacaoRocas" class="pagination"></div>
         </div>
@@ -463,16 +479,20 @@
         <div class="card">
             <div class="card-header"><h2>📥 ENTRADAS (Receitas da Roça)</h2><button class="btn btn-primary btn-sm" onclick="abrirModalEntrada()">+ NOVA ENTRADA</button></div>
             <div class="table-wrapper">
-                <table><thead><tr><th>DATA</th><th>ROÇA</th><th>CATEGORIA</th><th>VALOR</th><th>AÇÕES</th></tr></thead>
-                <tbody id="listaEntradas"></tbody></table>
+                <table>
+                    <thead><tr><th>DATA</th><th>ROÇA</th><th>CATEGORIA</th><th>VALOR</th><th>AÇÕES</th></tr></thead>
+                    <tbody id="listaEntradas"></tbody>
+                </table>
             </div>
             <div id="paginacaoEntradas" class="pagination"></div>
         </div>
         <div class="card">
             <div class="card-header"><h2>📤 SAÍDAS/DESPESAS (Custos da Roça)</h2><button class="btn btn-primary btn-sm" onclick="abrirModalDespesa()">+ NOVA DESPESA</button></div>
             <div class="table-wrapper">
-                <table><thead><tr><th>DATA</th><th>ROÇA</th><th>CATEGORIA</th><th>DESCRIÇÃO</th><th>VALOR</th><th>AÇÕES</th></tr></thead>
-                <tbody id="listaDespesas"></tbody></table>
+                <table>
+                    <thead><tr><th>DATA</th><th>ROÇA</th><th>CATEGORIA</th><th>DESCRIÇÃO</th><th>VALOR</th><th>AÇÕES</th></tr></thead>
+                    <tbody id="listaDespesas"></tbody>
+                </table>
             </div>
             <div id="paginacaoDespesas" class="pagination"></div>
         </div>
@@ -493,8 +513,10 @@
         <div class="card">
             <div class="card-header"><h2>💰 PRESTAÇÃO DE CONTAS (Repasses aos Sócios)</h2><button class="btn btn-primary btn-sm" onclick="abrirModalPrestacao()">+ NOVO REPASSE</button></div>
             <div class="table-wrapper">
-                <table><thead><tr><th>DATA</th><th>ROÇA</th><th>RESPONSÁVEL</th><th>VALOR</th><th>FORMA</th><th>AÇÕES</th></tr></thead>
-                <tbody id="listaPrestacoes"></tbody></table>
+                <table>
+                    <thead><tr><th>DATA</th><th>ROÇA</th><th>RESPONSÁVEL</th><th>VALOR</th><th>FORMA</th><th>AÇÕES</th></tr></thead>
+                    <tbody id="listaPrestacoes"></tbody>
+                </table>
             </div>
             <div id="paginacaoPrestacoes" class="pagination"></div>
         </div>
@@ -525,7 +547,11 @@
             <div class="card-header"><h2>📋 LANÇAMENTOS PIX</h2><button class="btn btn-secondary btn-sm" onclick="toggleTabelaPix()">RECOLHER TABELA</button></div>
             <div class="table-wrapper" id="cardTabelaPix">
                 <table id="tabelaPix">
-                    <thead><tr><th>DATA</th><th>PERÍODO</th><th>BANCO</th><th>PAGADOR</th><th>VALOR</th><th>RECEBIDO</th><th>DIFERENÇA</th><th>STATUS</th><th>RECEBER ATÉ</th><th>OBSERVAÇÃO</th><th>AÇÕES</th></tr></thead>
+                    <thead>
+                        <tr>
+                            <th>DATA</th><th>PERÍODO</th><th>BANCO</th><th>PAGADOR</th><th>VALOR</th><th>RECEBIDO</th><th>DIFERENÇA</th><th>STATUS</th><th>RECEBER ATÉ</th><th>OBSERVAÇÃO</th><th>AÇÕES</th>
+                        </tr>
+                    </thead>
                     <tbody id="pixTableBody"></tbody>
                     <tfoot id="pixTableFooter"></tfoot>
                 </table>
@@ -589,7 +615,7 @@
 
     let rocas = [], entradas = [], despesas = [], prestacoes = [];
     let lancamentosPix = [];
-    let clientesPix = ["Empresa XPTO", "João Silva", "Maria Oliveira", "Carlos Souza"];
+    let clientesPix = ["Carlos Souza", "Empresa XPTO", "João Silva", "Maria Oliveira"];
     let bancosPix = ["BRADESCO", "BRASIL PF", "BRASIL PJ", "Itaú", "Nubank", "SICREDI AGRO", "SICREDI PJ"];
     let pixFiltered = [];
     let currentPixPage = 1;
@@ -656,7 +682,7 @@
         const pagDiv = document.getElementById('paginacaoRocas');
         const paginas = Math.ceil(total / ITENS_POR_PAGINA);
         if (paginas <= 1) { pagDiv.innerHTML = ''; return; }
-        pagDiv.innerHTML = `<button ${paginaRocas <= 1 ? 'disabled' : ''} onclick="mudarPaginaRocas(-1)">◀ ANTERIOR</button><span>${paginaRocas} / ${paginas}</span><button ${paginaRocas >= paginas ? 'disabled' : ''} onclick="mudarPaginaRocas(1)">PRÓXIMO ▶</button>`;
+        pagDiv.innerHTML = `<button ${paginaRocas <= 1 ? 'disabled' : ''} onclick="mudarPaginaRocas(-1)">◀</button><span>${paginaRocas} / ${paginas}</span><button ${paginaRocas >= paginas ? 'disabled' : ''} onclick="mudarPaginaRocas(1)">▶</button>`;
     }
     function mudarPaginaRocas(delta) { paginaRocas += delta; renderizarRocas(); }
 
@@ -686,7 +712,7 @@
         const pagDiv = document.getElementById('paginacaoEntradas');
         const paginas = Math.ceil(total / ITENS_POR_PAGINA);
         if (paginas <= 1) { pagDiv.innerHTML = ''; return; }
-        pagDiv.innerHTML = `<button ${paginaEntradas <= 1 ? 'disabled' : ''} onclick="mudarPaginaEntradas(-1)">◀ ANTERIOR</button><span>${paginaEntradas} / ${paginas}</span><button ${paginaEntradas >= paginas ? 'disabled' : ''} onclick="mudarPaginaEntradas(1)">PRÓXIMO ▶</button>`;
+        pagDiv.innerHTML = `<button ${paginaEntradas <= 1 ? 'disabled' : ''} onclick="mudarPaginaEntradas(-1)">◀</button><span>${paginaEntradas} / ${paginas}</span><button ${paginaEntradas >= paginas ? 'disabled' : ''} onclick="mudarPaginaEntradas(1)">▶</button>`;
     }
     function mudarPaginaEntradas(delta) { paginaEntradas += delta; renderizarEntradas(); }
 
@@ -716,7 +742,7 @@
         const pagDiv = document.getElementById('paginacaoDespesas');
         const paginas = Math.ceil(total / ITENS_POR_PAGINA);
         if (paginas <= 1) { pagDiv.innerHTML = ''; return; }
-        pagDiv.innerHTML = `<button ${paginaDespesas <= 1 ? 'disabled' : ''} onclick="mudarPaginaDespesas(-1)">◀ ANTERIOR</button><span>${paginaDespesas} / ${paginas}</span><button ${paginaDespesas >= paginas ? 'disabled' : ''} onclick="mudarPaginaDespesas(1)">PRÓXIMO ▶</button>`;
+        pagDiv.innerHTML = `<button ${paginaDespesas <= 1 ? 'disabled' : ''} onclick="mudarPaginaDespesas(-1)">◀</button><span>${paginaDespesas} / ${paginas}</span><button ${paginaDespesas >= paginas ? 'disabled' : ''} onclick="mudarPaginaDespesas(1)">▶</button>`;
     }
     function mudarPaginaDespesas(delta) { paginaDespesas += delta; renderizarDespesas(); }
 
@@ -746,7 +772,7 @@
         const pagDiv = document.getElementById('paginacaoPrestacoes');
         const paginas = Math.ceil(total / ITENS_POR_PAGINA);
         if (paginas <= 1) { pagDiv.innerHTML = ''; return; }
-        pagDiv.innerHTML = `<button ${paginaPrestacoes <= 1 ? 'disabled' : ''} onclick="mudarPaginaPrestacoes(-1)">◀ ANTERIOR</button><span>${paginaPrestacoes} / ${paginas}</span><button ${paginaPrestacoes >= paginas ? 'disabled' : ''} onclick="mudarPaginaPrestacoes(1)">PRÓXIMO ▶</button>`;
+        pagDiv.innerHTML = `<button ${paginaPrestacoes <= 1 ? 'disabled' : ''} onclick="mudarPaginaPrestacoes(-1)">◀</button><span>${paginaPrestacoes} / ${paginas}</span><button ${paginaPrestacoes >= paginas ? 'disabled' : ''} onclick="mudarPaginaPrestacoes(1)">▶</button>`;
     }
     function mudarPaginaPrestacoes(delta) { paginaPrestacoes += delta; renderizarPrestacoes(); }
 
@@ -774,22 +800,38 @@
     function limparFiltros() { document.getElementById('filtroRoca').value = ''; document.getElementById('filtroDataInicio').value = ''; document.getElementById('filtroDataFim').value = ''; paginaEntradas = 1; paginaDespesas = 1; renderizarEntradas(); renderizarDespesas(); }
     function exportarResumo() { alert('Exportação de relatório disponível na versão completa'); }
 
-    // ==================== PIX ====================
+    // ==================== PIX (ORDEM DO MAIS RECENTE PARA O MAIS ANTIGO) ====================
     function carregarLancamentosPix() {
         const dadosSalvos = localStorage.getItem('lancamentosPix');
-        if (dadosSalvos) lancamentosPix = JSON.parse(dadosSalvos);
-        else lancamentosPix = [{ id: 1001, dataLancamento: "2026-05-10", periodoIni: "2026-05-01", periodoFim: "2026-05-10", receberAte: "2026-05-20", cliente: "João Silva", banco: "SICREDI PJ", valor: 1500, valorRecebido: 1500, status: "Recebido", obs: "Pagamento à vista" }, { id: 1002, dataLancamento: "2026-05-15", periodoIni: "2026-05-11", periodoFim: "2026-05-20", receberAte: "2026-05-25", cliente: "Maria Oliveira", banco: "BRADESCO", valor: 2300, valorRecebido: 1000, status: "Parcial", obs: "Entrada de R$ 1.000" }];
+        if (dadosSalvos) {
+            lancamentosPix = JSON.parse(dadosSalvos);
+        } else {
+            lancamentosPix = [
+                { id: 1001, dataLancamento: "2026-05-01", periodoIni: "2026-05-01", periodoFim: "2026-05-10", receberAte: "2026-05-20", cliente: "João Silva", banco: "SICREDI PJ", valor: 1500, valorRecebido: 1500, status: "Recebido", obs: "Pagamento à vista" },
+                { id: 1002, dataLancamento: "2026-05-02", periodoIni: "2026-05-02", periodoFim: "2026-05-11", receberAte: "2026-05-21", cliente: "Maria Oliveira", banco: "BRADESCO", valor: 2300, valorRecebido: 1000, status: "Parcial", obs: "Entrada de R$ 1.000" },
+                { id: 1003, dataLancamento: "2026-05-30", periodoIni: "2026-05-30", periodoFim: "2026-06-08", receberAte: "2026-06-15", cliente: "Lucas Ferreira", banco: "Nubank", valor: 1800, valorRecebido: 0, status: "Pendente", obs: "Aguardando pagamento" }
+            ];
+        }
+        // ORDENAR DO MAIS RECENTE PARA O MAIS ANTIGO (data decrescente)
+        lancamentosPix.sort((a, b) => new Date(b.dataLancamento) - new Date(a.dataLancamento));
+        
         const clientesSalvos = localStorage.getItem('clientesPix');
         if (clientesSalvos) clientesPix = JSON.parse(clientesSalvos);
         ordenarClientes();
+        
         const bancosSalvos = localStorage.getItem('bancosPix');
         if (bancosSalvos) bancosPix = JSON.parse(bancosSalvos);
         ordenarBancos();
+        
         atualizarSelectsPix();
         aplicarFiltrosPix();
     }
 
-    function salvarDadosPix() { localStorage.setItem('lancamentosPix', JSON.stringify(lancamentosPix)); localStorage.setItem('clientesPix', JSON.stringify(clientesPix)); localStorage.setItem('bancosPix', JSON.stringify(bancosPix)); }
+    function salvarDadosPix() { 
+        localStorage.setItem('lancamentosPix', JSON.stringify(lancamentosPix)); 
+        localStorage.setItem('clientesPix', JSON.stringify(clientesPix)); 
+        localStorage.setItem('bancosPix', JSON.stringify(bancosPix)); 
+    }
 
     function aplicarFiltrosPix() {
         const search = document.getElementById('pixSearchNome').value.toLowerCase();
@@ -798,6 +840,7 @@
         const dataFim = document.getElementById('pixDataFim').value ? new Date(document.getElementById('pixDataFim').value) : null;
         const periodoRocaIni = document.getElementById('pixPeriodoRocaIni').value;
         const periodoRocaFim = document.getElementById('pixPeriodoRocaFim').value;
+        
         pixFiltered = lancamentosPix.filter(l => {
             if (search && !l.cliente.toLowerCase().includes(search)) return false;
             if (status && l.status !== status) return false;
@@ -807,20 +850,39 @@
             if (periodoRocaFim && l.periodoFim > periodoRocaFim) return false;
             return true;
         });
+        
+        // GARANTIR ORDEM DECRESCENTE (MAIS RECENTE PRIMEIRO)
+        pixFiltered.sort((a, b) => new Date(b.dataLancamento) - new Date(a.dataLancamento));
+        
         currentPixPage = 1;
         renderPixTabela();
         atualizarResumoPix();
     }
 
-    function limparFiltrosPix() { document.getElementById('pixDataIni').value = ''; document.getElementById('pixDataFim').value = ''; document.getElementById('pixPeriodoRocaIni').value = ''; document.getElementById('pixPeriodoRocaFim').value = ''; document.getElementById('pixSearchNome').value = ''; document.getElementById('pixFiltroStatus').value = ''; aplicarFiltrosPix(); }
+    function limparFiltrosPix() { 
+        document.getElementById('pixDataIni').value = ''; 
+        document.getElementById('pixDataFim').value = ''; 
+        document.getElementById('pixPeriodoRocaIni').value = ''; 
+        document.getElementById('pixPeriodoRocaFim').value = ''; 
+        document.getElementById('pixSearchNome').value = ''; 
+        document.getElementById('pixFiltroStatus').value = ''; 
+        aplicarFiltrosPix(); 
+    }
 
     function renderPixTabela() {
-        const itemsPorPagina = 20, totalPages = Math.ceil(pixFiltered.length / itemsPorPagina), start = (currentPixPage - 1) * itemsPorPagina, pageItems = pixFiltered.slice(start, start + itemsPorPagina);
-        const tbody = document.getElementById('pixTableBody'); if (!tbody) return;
+        const itemsPorPagina = 20;
+        const totalPages = Math.ceil(pixFiltered.length / itemsPorPagina);
+        const start = (currentPixPage - 1) * itemsPorPagina;
+        const pageItems = pixFiltered.slice(start, start + itemsPorPagina);
+        const tbody = document.getElementById('pixTableBody');
+        if (!tbody) return;
         tbody.innerHTML = '';
+        
         let totalValor = 0, totalRecebido = 0, totalDif = 0;
         pixFiltered.forEach(l => { totalValor += l.valor; totalRecebido += l.valorRecebido; totalDif += (l.valor - l.valorRecebido); });
+        
         const hoje = new Date().toISOString().split('T')[0];
+        
         pageItems.forEach(l => {
             const diff = l.valor - l.valorRecebido;
             let statusClass = '';
@@ -828,24 +890,61 @@
             else if (l.status === 'Parcial') statusClass = 'pix-status-parcial';
             else if (l.status === 'Atrasado') statusClass = 'pix-status-atrasado';
             else statusClass = 'pix-status-pendente';
+            
             const isAtrasado = (l.receberAte < hoje && l.status !== 'Recebido');
             const row = tbody.insertRow();
             if (isAtrasado) row.classList.add('pix-atrasado-row');
-            row.innerHTML = `<td>${formatarData(l.dataLancamento)}</td><td>${formatarData(l.periodoIni)} a ${formatarData(l.periodoFim)}</td><td>${escapeHtml(l.banco)}</td><td>${escapeHtml(l.cliente)}</td><td>${formatarMoeda(l.valor)}</td><td>${formatarMoeda(l.valorRecebido)}</td><td>${formatarMoeda(diff)}</td><td><span class="${statusClass}">${l.status}</span></td><td>${formatarData(l.receberAte)}</td><td class="obs-cell">${escapeHtml(l.obs || '')}</td><td><button class="btn btn-primary btn-sm" onclick="editarLancamentoPix(${l.id})">✏️</button> <button class="btn btn-warning btn-sm" onclick="clonarLancamentoPix(${l.id})">📋</button> <button class="btn btn-danger btn-sm" onclick="excluirLancamentoPix(${l.id})">🗑️</button></td>`;
+            
+            row.innerHTML = `
+                <td style="text-align:center">${formatarData(l.dataLancamento)}</td>
+                <td style="text-align:left">${formatarData(l.periodoIni)} a ${formatarData(l.periodoFim)}</td>
+                <td style="text-align:left">${escapeHtml(l.banco)}</td>
+                <td style="text-align:left">${escapeHtml(l.cliente)}</td>
+                <td style="text-align:right">${formatarMoeda(l.valor)}</td>
+                <td style="text-align:right">${formatarMoeda(l.valorRecebido)}</td>
+                <td style="text-align:right">${formatarMoeda(diff)}</td>
+                <td style="text-align:center"><span class="${statusClass}">${l.status}</span></td>
+                <td style="text-align:center">${formatarData(l.receberAte)}</td>
+                <td class="obs-cell" style="text-align:left">${escapeHtml(l.obs || '')}</td>
+                <td class="acoes-cell">
+                    <button class="btn btn-primary btn-sm" onclick="editarLancamentoPix(${l.id})">✏️</button>
+                    <button class="btn btn-warning btn-sm" onclick="clonarLancamentoPix(${l.id})">📋</button>
+                    <button class="btn btn-danger btn-sm" onclick="excluirLancamentoPix(${l.id})">🗑️</button>
+                </td>
+            `;
         });
+        
         const tfoot = document.getElementById('pixTableFooter');
-        if (tfoot) tfoot.innerHTML = `<tr class="total-row"><td colspan="4"><strong>TOTAIS</strong></td><td><strong>${formatarMoeda(totalValor)}</strong></td><td><strong>${formatarMoeda(totalRecebido)}</strong></td><td><strong>${formatarMoeda(totalDif)}</strong></td><td colspan="4"></td></tr>`;
+        if (tfoot) {
+            tfoot.innerHTML = `<tr class="total-row"><td colspan="4" style="text-align:right"><strong>TOTAIS</strong></td><td style="text-align:right"><strong>${formatarMoeda(totalValor)}</strong></td><td style="text-align:right"><strong>${formatarMoeda(totalRecebido)}</strong></td><td style="text-align:right"><strong>${formatarMoeda(totalDif)}</strong></td><td colspan="4"></td></tr>`;
+        }
+        
         const pagDiv = document.getElementById('pixPagination');
         if (pagDiv) {
-            if (totalPages <= 1) pagDiv.innerHTML = '';
-            else pagDiv.innerHTML = `<button ${currentPixPage <= 1 ? 'disabled' : ''} onclick="mudarPaginaPix(${currentPixPage - 1})">◀ ANTERIOR</button><span>${currentPixPage} / ${totalPages}</span><button ${currentPixPage >= totalPages ? 'disabled' : ''} onclick="mudarPaginaPix(${currentPixPage + 1})">PRÓXIMO ▶</button>`;
+            if (totalPages <= 1) {
+                pagDiv.innerHTML = '';
+            } else {
+                pagDiv.innerHTML = `<button ${currentPixPage <= 1 ? 'disabled' : ''} onclick="mudarPaginaPix(${currentPixPage - 1})">◀</button><span>${currentPixPage} / ${totalPages}</span><button ${currentPixPage >= totalPages ? 'disabled' : ''} onclick="mudarPaginaPix(${currentPixPage + 1})">▶</button>`;
+            }
         }
     }
 
-    function mudarPaginaPix(pagina) { const itemsPorPagina = 20, total = Math.ceil(pixFiltered.length / itemsPorPagina); if (pagina < 1 || pagina > total) return; currentPixPage = pagina; renderPixTabela(); }
+    function mudarPaginaPix(pagina) { 
+        const itemsPorPagina = 20; 
+        const total = Math.ceil(pixFiltered.length / itemsPorPagina); 
+        if (pagina < 1 || pagina > total) return; 
+        currentPixPage = pagina; 
+        renderPixTabela(); 
+    }
 
     function atualizarResumoPix() {
-        const search = document.getElementById('pixSearchNome').value.toLowerCase(), status = document.getElementById('pixFiltroStatus').value, dataIni = document.getElementById('pixDataIni').value ? new Date(document.getElementById('pixDataIni').value) : null, dataFim = document.getElementById('pixDataFim').value ? new Date(document.getElementById('pixDataFim').value) : null, periodoRocaIni = document.getElementById('pixPeriodoRocaIni').value, periodoRocaFim = document.getElementById('pixPeriodoRocaFim').value;
+        const search = document.getElementById('pixSearchNome').value.toLowerCase();
+        const status = document.getElementById('pixFiltroStatus').value;
+        const dataIni = document.getElementById('pixDataIni').value ? new Date(document.getElementById('pixDataIni').value) : null;
+        const dataFim = document.getElementById('pixDataFim').value ? new Date(document.getElementById('pixDataFim').value) : null;
+        const periodoRocaIni = document.getElementById('pixPeriodoRocaIni').value;
+        const periodoRocaFim = document.getElementById('pixPeriodoRocaFim').value;
+        
         const dados = lancamentosPix.filter(l => {
             if (search && !l.cliente.toLowerCase().includes(search)) return false;
             if (status && l.status !== status) return false;
@@ -855,16 +954,31 @@
             if (periodoRocaFim && l.periodoFim > periodoRocaFim) return false;
             return true;
         });
+        
         const totalRecebido = dados.reduce((a, l) => a + l.valorRecebido, 0);
         const totalGeral = dados.reduce((a, l) => a + l.valor, 0);
         const totalAReceber = totalGeral - totalRecebido;
-        const clienteMap = new Map(); dados.forEach(l => clienteMap.set(l.cliente, (clienteMap.get(l.cliente) || 0) + l.valor));
+        
+        const clienteMap = new Map();
+        dados.forEach(l => clienteMap.set(l.cliente, (clienteMap.get(l.cliente) || 0) + l.valor));
         const maiorPagador = clienteMap.size ? [...clienteMap.entries()].reduce((a, b) => a[1] > b[1] ? a : b)[0] : '-';
+        
         const pendentes = dados.filter(l => l.status === 'Pendente').length;
         const recebidos = dados.filter(l => l.status === 'Recebido').length;
         const atrasados = dados.filter(l => l.status === 'Atrasado').length;
+        
         const grid = document.getElementById('pixResumoGrid');
-        if (grid) grid.innerHTML = `<div class="resumo-card"><h3>💰 TOTAL RECEBIDO</h3><div class="valor">${formatarMoeda(totalRecebido)}</div></div><div class="resumo-card"><h3>📌 TOTAL A RECEBER</h3><div class="valor">${formatarMoeda(totalAReceber)}</div></div><div class="resumo-card"><h3>📊 TOTAL GERAL</h3><div class="valor">${formatarMoeda(totalGeral)}</div></div><div class="resumo-card"><h3>🏦 MAIOR PAGADOR</h3><div class="valor">${escapeHtml(maiorPagador)}</div></div><div class="resumo-card"><h3>⏰ PENDÊNCIAS</h3><div class="valor">${pendentes}</div></div><div class="resumo-card"><h3>✅ RECEBIDOS</h3><div class="valor">${recebidos}</div></div><div class="resumo-card"><h3>⚠️ ATRASADOS</h3><div class="valor">${atrasados}</div></div>`;
+        if (grid) {
+            grid.innerHTML = `
+                <div class="resumo-card"><h3>💰 TOTAL RECEBIDO</h3><div class="valor">${formatarMoeda(totalRecebido)}</div></div>
+                <div class="resumo-card"><h3>📌 TOTAL A RECEBER</h3><div class="valor">${formatarMoeda(totalAReceber)}</div></div>
+                <div class="resumo-card"><h3>📊 TOTAL GERAL</h3><div class="valor">${formatarMoeda(totalGeral)}</div></div>
+                <div class="resumo-card"><h3>🏦 MAIOR PAGADOR</h3><div class="valor">${escapeHtml(maiorPagador)}</div></div>
+                <div class="resumo-card"><h3>⏰ PENDÊNCIAS</h3><div class="valor">${pendentes}</div></div>
+                <div class="resumo-card"><h3>✅ RECEBIDOS</h3><div class="valor">${recebidos}</div></div>
+                <div class="resumo-card"><h3>⚠️ ATRASADOS</h3><div class="valor">${atrasados}</div></div>
+            `;
+        }
     }
 
     function abrirModalPix(lancamento = null) {
@@ -886,8 +1000,16 @@
         const original = lancamentosPix.find(l => l.id === id);
         if (original) {
             const novoId = Date.now();
-            const clone = { ...original, id: novoId, dataLancamento: new Date().toISOString().split('T')[0], valorRecebido: 0, status: "Pendente", obs: original.obs ? `(Clone de ${original.id}) ${original.obs}` : `Clone de ${original.id}` };
+            const clone = { 
+                ...original, 
+                id: novoId, 
+                dataLancamento: new Date().toISOString().split('T')[0], 
+                valorRecebido: 0, 
+                status: "Pendente", 
+                obs: original.obs ? `(Clone de ${original.id}) ${original.obs}` : `Clone de ${original.id}` 
+            };
             lancamentosPix.push(clone);
+            lancamentosPix.sort((a, b) => new Date(b.dataLancamento) - new Date(a.dataLancamento));
             salvarDadosPix();
             aplicarFiltrosPix();
             mostrarFeedback('Lançamento clonado com sucesso!');
@@ -906,34 +1028,161 @@
         let valorRecebido = parseFloat(document.getElementById('pixValorRecebido').value) || 0;
         const obs = document.getElementById('pixObs').value;
         let status = document.getElementById('pixStatus').value;
-        if (!dataLancamento || !periodoIni || !periodoFim || !receberAte || !cliente || !banco || valor <= 0) { alert('Preencha todos os campos obrigatórios!'); return; }
+        
+        if (!dataLancamento || !periodoIni || !periodoFim || !receberAte || !cliente || !banco || valor <= 0) { 
+            alert('Preencha todos os campos obrigatórios!'); 
+            return; 
+        }
+        
         const hoje = new Date().toISOString().slice(0, 10);
         if (new Date(receberAte) < new Date(hoje) && status !== 'Recebido') status = 'Atrasado';
         if (valorRecebido >= valor) status = 'Recebido';
         else if (valorRecebido > 0 && valorRecebido < valor) status = 'Parcial';
         else if (valorRecebido === 0 && status !== 'Recebido') status = 'Pendente';
-        if (id) { const idx = lancamentosPix.findIndex(l => l.id == id); if (idx !== -1) lancamentosPix[idx] = { ...lancamentosPix[idx], dataLancamento, periodoIni, periodoFim, receberAte, cliente, banco, valor, valorRecebido, obs, status }; }
-        else { const newId = Date.now(); lancamentosPix.push({ id: newId, dataLancamento, periodoIni, periodoFim, receberAte, cliente, banco, valor, valorRecebido, status, obs }); }
+        
+        if (id) { 
+            const idx = lancamentosPix.findIndex(l => l.id == id); 
+            if (idx !== -1) lancamentosPix[idx] = { ...lancamentosPix[idx], dataLancamento, periodoIni, periodoFim, receberAte, cliente, banco, valor, valorRecebido, obs, status }; 
+        } else { 
+            const newId = Date.now(); 
+            lancamentosPix.push({ id: newId, dataLancamento, periodoIni, periodoFim, receberAte, cliente, banco, valor, valorRecebido, status, obs }); 
+        }
+        
+        lancamentosPix.sort((a, b) => new Date(b.dataLancamento) - new Date(a.dataLancamento));
         salvarDadosPix();
         fecharModal('modalPix');
         aplicarFiltrosPix();
         mostrarFeedback('Lançamento salvo!');
     }
 
-    function editarLancamentoPix(id) { const lancamento = lancamentosPix.find(l => l.id === id); if (lancamento) abrirModalPix(lancamento); }
-    function excluirLancamentoPix(id) { if (confirm('Excluir este lançamento?')) { lancamentosPix = lancamentosPix.filter(l => l.id !== id); salvarDadosPix(); aplicarFiltrosPix(); mostrarFeedback('Lançamento excluído!'); } }
-    function toggleTabelaPix() { const card = document.getElementById('cardTabelaPix'); const btn = document.querySelector('#tab4 .btn-sm'); if (tabelaPixVisible) { card.style.display = 'none'; if (btn) btn.textContent = 'EXIBIR TABELA'; } else { card.style.display = 'block'; if (btn) btn.textContent = 'RECOLHER TABELA'; } tabelaPixVisible = !tabelaPixVisible; }
+    function editarLancamentoPix(id) { 
+        const lancamento = lancamentosPix.find(l => l.id === id); 
+        if (lancamento) abrirModalPix(lancamento); 
+    }
+    
+    function excluirLancamentoPix(id) { 
+        if (confirm('Excluir este lançamento?')) { 
+            lancamentosPix = lancamentosPix.filter(l => l.id !== id); 
+            salvarDadosPix(); 
+            aplicarFiltrosPix(); 
+            mostrarFeedback('Lançamento excluído!'); 
+        } 
+    }
+    
+    function toggleTabelaPix() { 
+        const card = document.getElementById('cardTabelaPix'); 
+        const btn = document.querySelector('#tab4 .card-header .btn-sm'); 
+        if (tabelaPixVisible) { 
+            card.style.display = 'none'; 
+            if (btn) btn.textContent = 'EXIBIR TABELA'; 
+        } else { 
+            card.style.display = 'block'; 
+            if (btn) btn.textContent = 'RECOLHER TABELA'; 
+        } 
+        tabelaPixVisible = !tabelaPixVisible; 
+    }
+    
     function gerarPDFPix() {
         const dados = pixFiltered.length ? pixFiltered : lancamentosPix;
-        let html = `<html><head><title>Relatório PIX</title><style>body{font-family:Arial;padding:20px} h1{color:#1a4a2a} table{width:100%;border-collapse:collapse} th{background:#1a4a2a;color:white;padding:8px} td{padding:6px;border:1px solid #ccc}</style></head><body><h1>CONTROLE PIX - VIANA FARINHA</h1><p>Gerado em ${new Date().toLocaleString()}</p><table border="1"><thead><tr><th>Data</th><th>Período</th><th>Banco</th><th>Cliente</th><th>Valor</th><th>Recebido</th><th>Diferença</th><th>Status</th><th>Receber Até</th><th>Observação</th></tr></thead><tbody>`;
-        dados.forEach(l => { html += `<tr><td>${formatarData(l.dataLancamento)}</td><td>${formatarData(l.periodoIni)} a ${formatarData(l.periodoFim)}</td><td>${escapeHtml(l.banco)}</td><td>${escapeHtml(l.cliente)}</td><td>${formatarMoeda(l.valor)}</td><td>${formatarMoeda(l.valorRecebido)}</td><td>${formatarMoeda(l.valor - l.valorRecebido)}</td><td>${l.status}</td><td>${formatarData(l.receberAte)}</td><td>${escapeHtml(l.obs || '')}</td></tr>`; });
+        let html = `<html><head><title>Relatório PIX</title><style>body{font-family:Arial;padding:20px} h1{color:#1a4a2a} table{width:100%;border-collapse:collapse} th{background:#1a4a2a;color:white;padding:8px} td{padding:6px;border:1px solid #ccc}</style></head><body>
+        <h1>CONTROLE PIX - VIANA FARINHA</h1>
+        <p>Gerado em ${new Date().toLocaleString()}</p>
+        <p><strong>Ordenado do mais recente para o mais antigo</strong></p>
+        <table border="1"><thead><tr><th>Data</th><th>Período</th><th>Banco</th><th>Cliente</th><th>Valor</th><th>Recebido</th><th>Diferença</th><th>Status</th><th>Receber Até</th><th>Observação</th></tr></thead><tbody>`;
+        dados.forEach(l => { 
+            html += `<tr>
+                <td>${formatarData(l.dataLancamento)}</td>
+                <td>${formatarData(l.periodoIni)} a ${formatarData(l.periodoFim)}</td>
+                <td>${escapeHtml(l.banco)}</td>
+                <td>${escapeHtml(l.cliente)}</td>
+                <td>${formatarMoeda(l.valor)}</td>
+                <td>${formatarMoeda(l.valorRecebido)}</td>
+                <td>${formatarMoeda(l.valor - l.valorRecebido)}</td>
+                <td>${l.status}</td>
+                <td>${formatarData(l.receberAte)}</td>
+                <td>${escapeHtml(l.obs || '')}</td>
+            </tr>`; 
+        });
         html += `</tbody></table></body></html>`;
-        const w = window.open('', '_blank'); w.document.write(html); w.document.close(); w.print();
+        const w = window.open('', '_blank'); 
+        w.document.write(html); 
+        w.document.close(); 
+        w.print();
     }
-    function novoClientePix() { const novo = prompt('Nome do novo cliente:'); if (novo && !clientesPix.includes(novo)) { clientesPix.push(novo); ordenarClientes(); salvarDadosPix(); atualizarSelectsPix(); mostrarFeedback('Cliente adicionado!'); } }
-    function novoBancoPix() { const novo = prompt('Nome do novo banco/conta:'); if (novo && !bancosPix.includes(novo)) { bancosPix.push(novo); ordenarBancos(); salvarDadosPix(); atualizarSelectsPix(); mostrarFeedback('Banco adicionado!'); } }
-    function gerenciarClientes() { const container = document.getElementById('listaContainer'); container.innerHTML = '<ul style="list-style:none; padding:0">' + clientesPix.map((c, i) => `<li style="margin-bottom:8px; display:flex; justify-content:space-between; align-items:center"><span>${escapeHtml(c)}</span><div><button class="btn btn-primary btn-sm" onclick="editarClientePix(${i})">✏️</button><button class="btn btn-danger btn-sm" onclick="excluirClientePix(${i})">🗑️</button></div></li>`).join('') + '</ul>'; document.getElementById('modalListaTitle').innerText = 'Gerenciar Clientes'; document.getElementById('modalLista').style.display = 'flex'; window.excluirClientePix = (idx) => { if (confirm('Excluir cliente?')) { clientesPix.splice(idx, 1); ordenarClientes(); salvarDadosPix(); atualizarSelectsPix(); gerenciarClientes(); } }; window.editarClientePix = (idx) => { const novo = prompt('Novo nome:', clientesPix[idx]); if (novo && novo.trim()) { clientesPix[idx] = novo.trim(); ordenarClientes(); salvarDadosPix(); atualizarSelectsPix(); gerenciarClientes(); } }; }
-    function gerenciarBancos() { const container = document.getElementById('listaContainer'); container.innerHTML = '<ul style="list-style:none; padding:0">' + bancosPix.map((b, i) => `<li style="margin-bottom:8px; display:flex; justify-content:space-between; align-items:center"><span>${escapeHtml(b)}</span><div><button class="btn btn-primary btn-sm" onclick="editarBancoPix(${i})">✏️</button><button class="btn btn-danger btn-sm" onclick="excluirBancoPix(${i})">🗑️</button></div></li>`).join('') + '</ul>'; document.getElementById('modalListaTitle').innerText = 'Gerenciar Bancos'; document.getElementById('modalLista').style.display = 'flex'; window.excluirBancoPix = (idx) => { if (confirm('Excluir banco?')) { bancosPix.splice(idx, 1); ordenarBancos(); salvarDadosPix(); atualizarSelectsPix(); gerenciarBancos(); } }; window.editarBancoPix = (idx) => { const novo = prompt('Novo nome:', bancosPix[idx]); if (novo && novo.trim()) { bancosPix[idx] = novo.trim(); ordenarBancos(); salvarDadosPix(); atualizarSelectsPix(); gerenciarBancos(); } }; }
+    
+    function novoClientePix() { 
+        const novo = prompt('Nome do novo cliente:'); 
+        if (novo && !clientesPix.includes(novo)) { 
+            clientesPix.push(novo); 
+            ordenarClientes(); 
+            salvarDadosPix(); 
+            atualizarSelectsPix(); 
+            mostrarFeedback('Cliente adicionado!'); 
+        } 
+    }
+    
+    function novoBancoPix() { 
+        const novo = prompt('Nome do novo banco/conta:'); 
+        if (novo && !bancosPix.includes(novo)) { 
+            bancosPix.push(novo); 
+            ordenarBancos(); 
+            salvarDadosPix(); 
+            atualizarSelectsPix(); 
+            mostrarFeedback('Banco adicionado!'); 
+        } 
+    }
+    
+    function gerenciarClientes() { 
+        const container = document.getElementById('listaContainer'); 
+        container.innerHTML = '<ul style="list-style:none; padding:0">' + clientesPix.map((c, i) => `<li style="margin-bottom:8px; display:flex; justify-content:space-between; align-items:center"><span>${escapeHtml(c)}</span><div><button class="btn btn-primary btn-sm" onclick="editarClientePix(${i})">✏️</button><button class="btn btn-danger btn-sm" onclick="excluirClientePix(${i})">🗑️</button></div></li>`).join('') + '</ul>'; 
+        document.getElementById('modalListaTitle').innerText = 'Gerenciar Clientes'; 
+        document.getElementById('modalLista').style.display = 'flex'; 
+        window.excluirClientePix = (idx) => { 
+            if (confirm('Excluir cliente?')) { 
+                clientesPix.splice(idx, 1); 
+                ordenarClientes(); 
+                salvarDadosPix(); 
+                atualizarSelectsPix(); 
+                gerenciarClientes(); 
+            } 
+        }; 
+        window.editarClientePix = (idx) => { 
+            const novo = prompt('Novo nome:', clientesPix[idx]); 
+            if (novo && novo.trim()) { 
+                clientesPix[idx] = novo.trim(); 
+                ordenarClientes(); 
+                salvarDadosPix(); 
+                atualizarSelectsPix(); 
+                gerenciarClientes(); 
+            } 
+        }; 
+    }
+    
+    function gerenciarBancos() { 
+        const container = document.getElementById('listaContainer'); 
+        container.innerHTML = '<ul style="list-style:none; padding:0">' + bancosPix.map((b, i) => `<li style="margin-bottom:8px; display:flex; justify-content:space-between; align-items:center"><span>${escapeHtml(b)}</span><div><button class="btn btn-primary btn-sm" onclick="editarBancoPix(${i})">✏️</button><button class="btn btn-danger btn-sm" onclick="excluirBancoPix(${i})">🗑️</button></div></li>`).join('') + '</ul>'; 
+        document.getElementById('modalListaTitle').innerText = 'Gerenciar Bancos'; 
+        document.getElementById('modalLista').style.display = 'flex'; 
+        window.excluirBancoPix = (idx) => { 
+            if (confirm('Excluir banco?')) { 
+                bancosPix.splice(idx, 1); 
+                ordenarBancos(); 
+                salvarDadosPix(); 
+                atualizarSelectsPix(); 
+                gerenciarBancos(); 
+            } 
+        }; 
+        window.editarBancoPix = (idx) => { 
+            const novo = prompt('Novo nome:', bancosPix[idx]); 
+            if (novo && novo.trim()) { 
+                bancosPix[idx] = novo.trim(); 
+                ordenarBancos(); 
+                salvarDadosPix(); 
+                atualizarSelectsPix(); 
+                gerenciarBancos(); 
+            } 
+        }; 
+    }
 
     // ==================== LISTENERS ====================
     onSnapshot(query(rocasCol, orderBy("codigo")), (snapshot) => { rocas = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); atualizarSelects(); renderizarRocas(); });
@@ -942,7 +1191,19 @@
     onSnapshot(prestacoesCol, () => { getDocs(prestacoesCol).then(snapshot => { prestacoes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); renderizarPrestacoes(); atualizarResumo(); }); });
 
     // ==================== TABS ====================
-    document.querySelectorAll('.tab-btn').forEach(btn => { btn.addEventListener('click', () => { document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); document.querySelectorAll('.panel').forEach(p => p.classList.remove('active')); btn.classList.add('active'); document.getElementById(btn.dataset.tab).classList.add('active'); if (btn.dataset.tab === 'tab3') atualizarResumo(); if (btn.dataset.tab === 'tab4') { carregarLancamentosPix(); aplicarFiltrosPix(); } }); });
+    document.querySelectorAll('.tab-btn').forEach(btn => { 
+        btn.addEventListener('click', () => { 
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); 
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active')); 
+            btn.classList.add('active'); 
+            document.getElementById(btn.dataset.tab).classList.add('active'); 
+            if (btn.dataset.tab === 'tab3') atualizarResumo(); 
+            if (btn.dataset.tab === 'tab4') { 
+                carregarLancamentosPix(); 
+                aplicarFiltrosPix(); 
+            } 
+        }); 
+    });
 
     // ==================== INICIALIZAÇÃO ====================
     const hoje = new Date().toISOString().split('T')[0];
