@@ -615,13 +615,18 @@
 
     let rocas = [], entradas = [], despesas = [], prestacoes = [];
     let lancamentosPix = [];
-    let clientesPix = ["Carlos Souza", "Empresa XPTO", "João Silva", "Maria Oliveira"];
-    let bancosPix = ["BRADESCO", "BRASIL PF", "BRASIL PJ", "Itaú", "Nubank", "SICREDI AGRO", "SICREDI PJ"];
+    let clientesPix = [];
+    let bancosPix = [];
     let pixFiltered = [];
     let currentPixPage = 1;
     let tabelaPixVisible = true;
     let paginaRocas = 1, paginaEntradas = 1, paginaDespesas = 1, paginaPrestacoes = 1;
     const ITENS_POR_PAGINA = 15;
+
+    // REFERÊNCIAS PIX PARA FIREBASE
+    const pixCol = collection(db, "pix");
+    const pixClientesCol = collection(db, "pix_clientes");
+    const pixBancosCol = collection(db, "pix_bancos");
 
     function ordenarClientes() { clientesPix.sort((a, b) => a.localeCompare(b, 'pt-BR')); }
     function ordenarBancos() { bancosPix.sort((a, b) => a.localeCompare(b, 'pt-BR')); }
@@ -800,37 +805,194 @@
     function limparFiltros() { document.getElementById('filtroRoca').value = ''; document.getElementById('filtroDataInicio').value = ''; document.getElementById('filtroDataFim').value = ''; paginaEntradas = 1; paginaDespesas = 1; renderizarEntradas(); renderizarDespesas(); }
     function exportarResumo() { alert('Exportação de relatório disponível na versão completa'); }
 
-    // ==================== PIX (ORDEM DO MAIS RECENTE PARA O MAIS ANTIGO) ====================
-    function carregarLancamentosPix() {
+    // ==================== PIX COM FIREBASE ====================
+
+    async function carregarLancamentosPix() {
+        try {
+            // 1. Carregar lançamentos PIX
+            const pixSnapshot = await getDocs(query(pixCol, orderBy('dataLancamento', 'desc')));
+            lancamentosPix = [];
+            pixSnapshot.forEach(doc => {
+                lancamentosPix.push({ id: doc.id, ...doc.data() });
+            });
+            
+            // 2. Carregar clientes
+            const clientesSnapshot = await getDocs(pixClientesCol);
+            clientesPix = [];
+            clientesSnapshot.forEach(doc => {
+                clientesPix.push(doc.data().nome);
+            });
+            if (clientesPix.length === 0) {
+                clientesPix = ["Carlos Souza", "Empresa XPTO", "João Silva", "Maria Oliveira"];
+            }
+            ordenarClientes();
+            
+            // 3. Carregar bancos
+            const bancosSnapshot = await getDocs(pixBancosCol);
+            bancosPix = [];
+            bancosSnapshot.forEach(doc => {
+                bancosPix.push(doc.data().nome);
+            });
+            if (bancosPix.length === 0) {
+                bancosPix = ["BRADESCO", "BRASIL PF", "BRASIL PJ", "Itaú", "Nubank", "SICREDI AGRO", "SICREDI PJ"];
+            }
+            ordenarBancos();
+            
+            atualizarSelectsPix();
+            aplicarFiltrosPix();
+            
+        } catch (error) {
+            console.error('Erro ao carregar do Firebase:', error);
+            mostrarFeedback('⚠️ Erro ao carregar dados. Verifique sua conexão.');
+            // Fallback: tenta carregar do localStorage
+            carregarDoLocalStorage();
+        }
+    }
+
+    function carregarDoLocalStorage() {
         const dadosSalvos = localStorage.getItem('lancamentosPix');
         if (dadosSalvos) {
             lancamentosPix = JSON.parse(dadosSalvos);
+            lancamentosPix.sort((a, b) => new Date(b.dataLancamento) - new Date(a.dataLancamento));
         } else {
-            lancamentosPix = [
-                { id: 1001, dataLancamento: "2026-05-01", periodoIni: "2026-05-01", periodoFim: "2026-05-10", receberAte: "2026-05-20", cliente: "João Silva", banco: "SICREDI PJ", valor: 1500, valorRecebido: 1500, status: "Recebido", obs: "Pagamento à vista" },
-                { id: 1002, dataLancamento: "2026-05-02", periodoIni: "2026-05-02", periodoFim: "2026-05-11", receberAte: "2026-05-21", cliente: "Maria Oliveira", banco: "BRADESCO", valor: 2300, valorRecebido: 1000, status: "Parcial", obs: "Entrada de R$ 1.000" },
-                { id: 1003, dataLancamento: "2026-05-30", periodoIni: "2026-05-30", periodoFim: "2026-06-08", receberAte: "2026-06-15", cliente: "Lucas Ferreira", banco: "Nubank", valor: 1800, valorRecebido: 0, status: "Pendente", obs: "Aguardando pagamento" }
-            ];
+            lancamentosPix = [];
         }
-        // ORDENAR DO MAIS RECENTE PARA O MAIS ANTIGO (data decrescente)
-        lancamentosPix.sort((a, b) => new Date(b.dataLancamento) - new Date(a.dataLancamento));
         
         const clientesSalvos = localStorage.getItem('clientesPix');
         if (clientesSalvos) clientesPix = JSON.parse(clientesSalvos);
+        else clientesPix = ["Carlos Souza", "Empresa XPTO", "João Silva", "Maria Oliveira"];
         ordenarClientes();
         
         const bancosSalvos = localStorage.getItem('bancosPix');
         if (bancosSalvos) bancosPix = JSON.parse(bancosSalvos);
+        else bancosPix = ["BRADESCO", "BRASIL PF", "BRASIL PJ", "Itaú", "Nubank", "SICREDI AGRO", "SICREDI PJ"];
         ordenarBancos();
         
         atualizarSelectsPix();
         aplicarFiltrosPix();
     }
 
-    function salvarDadosPix() { 
-        localStorage.setItem('lancamentosPix', JSON.stringify(lancamentosPix)); 
-        localStorage.setItem('clientesPix', JSON.stringify(clientesPix)); 
-        localStorage.setItem('bancosPix', JSON.stringify(bancosPix)); 
+    async function salvarLancamentoPix() {
+        const id = document.getElementById('pixEditId').value;
+        const dataLancamento = document.getElementById('pixData').value;
+        const periodoIni = document.getElementById('pixPeriodoIni').value;
+        const periodoFim = document.getElementById('pixPeriodoFim').value;
+        const receberAte = document.getElementById('pixReceberAte').value;
+        const cliente = document.getElementById('pixCliente').value;
+        const banco = document.getElementById('pixBanco').value;
+        const valor = parseFloat(document.getElementById('pixValor').value) || 0;
+        let valorRecebido = parseFloat(document.getElementById('pixValorRecebido').value) || 0;
+        const obs = document.getElementById('pixObs').value;
+        let status = document.getElementById('pixStatus').value;
+        
+        if (!dataLancamento || !periodoIni || !periodoFim || !receberAte || !cliente || !banco || valor <= 0) {
+            alert('Preencha todos os campos obrigatórios!');
+            return;
+        }
+        
+        const hoje = new Date().toISOString().slice(0, 10);
+        if (new Date(receberAte) < new Date(hoje) && status !== 'Recebido') status = 'Atrasado';
+        if (valorRecebido >= valor) status = 'Recebido';
+        else if (valorRecebido > 0 && valorRecebido < valor) status = 'Parcial';
+        else if (valorRecebido === 0 && status !== 'Recebido') status = 'Pendente';
+        
+        const dados = {
+            dataLancamento,
+            periodoIni,
+            periodoFim,
+            receberAte,
+            cliente,
+            banco,
+            valor,
+            valorRecebido,
+            obs,
+            status,
+            dataAtualizacao: new Date().toISOString()
+        };
+        
+        try {
+            if (id) {
+                await updateDoc(doc(pixCol, id), dados);
+                const idx = lancamentosPix.findIndex(l => l.id === id);
+                if (idx !== -1) {
+                    lancamentosPix[idx] = { ...lancamentosPix[idx], ...dados };
+                }
+                mostrarFeedback('✅ Lançamento atualizado no Firebase!');
+            } else {
+                const docRef = await addDoc(pixCol, dados);
+                lancamentosPix.push({ id: docRef.id, ...dados });
+                mostrarFeedback('✅ Lançamento salvo no Firebase!');
+            }
+            
+            lancamentosPix.sort((a, b) => new Date(b.dataLancamento) - new Date(a.dataLancamento));
+            fecharModal('modalPix');
+            aplicarFiltrosPix();
+            
+        } catch (error) {
+            alert('❌ Erro ao salvar no Firebase: ' + error.message);
+        }
+    }
+
+    async function excluirLancamentoPix(id) {
+        if (confirm('Excluir este lançamento?')) {
+            try {
+                await deleteDoc(doc(pixCol, id));
+                lancamentosPix = lancamentosPix.filter(l => l.id !== id);
+                aplicarFiltrosPix();
+                mostrarFeedback('🗑️ Lançamento excluído do Firebase!');
+            } catch (error) {
+                alert('❌ Erro ao excluir: ' + error.message);
+            }
+        }
+    }
+
+    function editarLancamentoPix(id) {
+        const lancamento = lancamentosPix.find(l => l.id === id);
+        if (lancamento) abrirModalPix(lancamento);
+    }
+
+    async function clonarLancamentoPix(id) {
+        const original = lancamentosPix.find(l => l.id === id);
+        if (original) {
+            const clone = {
+                dataLancamento: new Date().toISOString().split('T')[0],
+                periodoIni: original.periodoIni,
+                periodoFim: original.periodoFim,
+                receberAte: original.receberAte,
+                cliente: original.cliente,
+                banco: original.banco,
+                valor: original.valor,
+                valorRecebido: 0,
+                status: "Pendente",
+                obs: original.obs ? `(Clone) ${original.obs}` : `Clone de ${original.cliente}`,
+                dataAtualizacao: new Date().toISOString()
+            };
+            
+            try {
+                const docRef = await addDoc(pixCol, clone);
+                lancamentosPix.push({ id: docRef.id, ...clone });
+                lancamentosPix.sort((a, b) => new Date(b.dataLancamento) - new Date(a.dataLancamento));
+                aplicarFiltrosPix();
+                mostrarFeedback('📋 Lançamento clonado com sucesso!');
+            } catch (error) {
+                alert('❌ Erro ao clonar: ' + error.message);
+            }
+        }
+    }
+
+    function abrirModalPix(lancamento = null) {
+        document.getElementById('pixEditId').value = lancamento?.id || '';
+        document.getElementById('pixData').value = lancamento?.dataLancamento || new Date().toISOString().split('T')[0];
+        document.getElementById('pixPeriodoIni').value = lancamento?.periodoIni || '';
+        document.getElementById('pixPeriodoFim').value = lancamento?.periodoFim || '';
+        document.getElementById('pixReceberAte').value = lancamento?.receberAte || '';
+        document.getElementById('pixCliente').value = lancamento?.cliente || '';
+        document.getElementById('pixBanco').value = lancamento?.banco || '';
+        document.getElementById('pixValor').value = lancamento?.valor || '';
+        document.getElementById('pixValorRecebido').value = lancamento?.valorRecebido || 0;
+        document.getElementById('pixObs').value = lancamento?.obs || '';
+        document.getElementById('pixStatus').value = lancamento?.status || 'Pendente';
+        document.getElementById('modalPix').style.display = 'flex';
     }
 
     function aplicarFiltrosPix() {
@@ -851,22 +1013,20 @@
             return true;
         });
         
-        // GARANTIR ORDEM DECRESCENTE (MAIS RECENTE PRIMEIRO)
         pixFiltered.sort((a, b) => new Date(b.dataLancamento) - new Date(a.dataLancamento));
-        
         currentPixPage = 1;
         renderPixTabela();
         atualizarResumoPix();
     }
 
-    function limparFiltrosPix() { 
-        document.getElementById('pixDataIni').value = ''; 
-        document.getElementById('pixDataFim').value = ''; 
-        document.getElementById('pixPeriodoRocaIni').value = ''; 
-        document.getElementById('pixPeriodoRocaFim').value = ''; 
-        document.getElementById('pixSearchNome').value = ''; 
-        document.getElementById('pixFiltroStatus').value = ''; 
-        aplicarFiltrosPix(); 
+    function limparFiltrosPix() {
+        document.getElementById('pixDataIni').value = '';
+        document.getElementById('pixDataFim').value = '';
+        document.getElementById('pixPeriodoRocaIni').value = '';
+        document.getElementById('pixPeriodoRocaFim').value = '';
+        document.getElementById('pixSearchNome').value = '';
+        document.getElementById('pixFiltroStatus').value = '';
+        aplicarFiltrosPix();
     }
 
     function renderPixTabela() {
@@ -907,9 +1067,9 @@
                 <td style="text-align:center">${formatarData(l.receberAte)}</td>
                 <td class="obs-cell" style="text-align:left">${escapeHtml(l.obs || '')}</td>
                 <td class="acoes-cell">
-                    <button class="btn btn-primary btn-sm" onclick="editarLancamentoPix(${l.id})">✏️</button>
-                    <button class="btn btn-warning btn-sm" onclick="clonarLancamentoPix(${l.id})">📋</button>
-                    <button class="btn btn-danger btn-sm" onclick="excluirLancamentoPix(${l.id})">🗑️</button>
+                    <button class="btn btn-primary btn-sm" onclick="editarLancamentoPix('${l.id}')">✏️</button>
+                    <button class="btn btn-warning btn-sm" onclick="clonarLancamentoPix('${l.id}')">📋</button>
+                    <button class="btn btn-danger btn-sm" onclick="excluirLancamentoPix('${l.id}')">🗑️</button>
                 </td>
             `;
         });
@@ -929,12 +1089,12 @@
         }
     }
 
-    function mudarPaginaPix(pagina) { 
-        const itemsPorPagina = 20; 
-        const total = Math.ceil(pixFiltered.length / itemsPorPagina); 
-        if (pagina < 1 || pagina > total) return; 
-        currentPixPage = pagina; 
-        renderPixTabela(); 
+    function mudarPaginaPix(pagina) {
+        const itemsPorPagina = 20;
+        const total = Math.ceil(pixFiltered.length / itemsPorPagina);
+        if (pagina < 1 || pagina > total) return;
+        currentPixPage = pagina;
+        renderPixTabela();
     }
 
     function atualizarResumoPix() {
@@ -981,107 +1141,91 @@
         }
     }
 
-    function abrirModalPix(lancamento = null) {
-        document.getElementById('pixEditId').value = lancamento?.id || '';
-        document.getElementById('pixData').value = lancamento?.dataLancamento || new Date().toISOString().split('T')[0];
-        document.getElementById('pixPeriodoIni').value = lancamento?.periodoIni || '';
-        document.getElementById('pixPeriodoFim').value = lancamento?.periodoFim || '';
-        document.getElementById('pixReceberAte').value = lancamento?.receberAte || '';
-        document.getElementById('pixCliente').value = lancamento?.cliente || '';
-        document.getElementById('pixBanco').value = lancamento?.banco || '';
-        document.getElementById('pixValor').value = lancamento?.valor || '';
-        document.getElementById('pixValorRecebido').value = lancamento?.valorRecebido || 0;
-        document.getElementById('pixObs').value = lancamento?.obs || '';
-        document.getElementById('pixStatus').value = lancamento?.status || 'Pendente';
-        document.getElementById('modalPix').style.display = 'flex';
-    }
-
-    function clonarLancamentoPix(id) {
-        const original = lancamentosPix.find(l => l.id === id);
-        if (original) {
-            const novoId = Date.now();
-            const clone = { 
-                ...original, 
-                id: novoId, 
-                dataLancamento: new Date().toISOString().split('T')[0], 
-                valorRecebido: 0, 
-                status: "Pendente", 
-                obs: original.obs ? `(Clone de ${original.id}) ${original.obs}` : `Clone de ${original.id}` 
-            };
-            lancamentosPix.push(clone);
-            lancamentosPix.sort((a, b) => new Date(b.dataLancamento) - new Date(a.dataLancamento));
-            salvarDadosPix();
-            aplicarFiltrosPix();
-            mostrarFeedback('Lançamento clonado com sucesso!');
+    function novoClientePix() {
+        const novo = prompt('Nome do novo cliente:');
+        if (novo && !clientesPix.includes(novo)) {
+            clientesPix.push(novo);
+            ordenarClientes();
+            addDoc(pixClientesCol, { nome: novo, dataCriacao: new Date().toISOString() })
+                .then(() => mostrarFeedback('✅ Cliente adicionado ao Firebase!'))
+                .catch(() => mostrarFeedback('⚠️ Cliente adicionado, mas não salvo no Firebase'));
+            atualizarSelectsPix();
         }
     }
 
-    async function salvarLancamentoPix() {
-        const id = document.getElementById('pixEditId').value;
-        const dataLancamento = document.getElementById('pixData').value;
-        const periodoIni = document.getElementById('pixPeriodoIni').value;
-        const periodoFim = document.getElementById('pixPeriodoFim').value;
-        const receberAte = document.getElementById('pixReceberAte').value;
-        const cliente = document.getElementById('pixCliente').value;
-        const banco = document.getElementById('pixBanco').value;
-        const valor = parseFloat(document.getElementById('pixValor').value) || 0;
-        let valorRecebido = parseFloat(document.getElementById('pixValorRecebido').value) || 0;
-        const obs = document.getElementById('pixObs').value;
-        let status = document.getElementById('pixStatus').value;
-        
-        if (!dataLancamento || !periodoIni || !periodoFim || !receberAte || !cliente || !banco || valor <= 0) { 
-            alert('Preencha todos os campos obrigatórios!'); 
-            return; 
+    function novoBancoPix() {
+        const novo = prompt('Nome do novo banco/conta:');
+        if (novo && !bancosPix.includes(novo)) {
+            bancosPix.push(novo);
+            ordenarBancos();
+            addDoc(pixBancosCol, { nome: novo, dataCriacao: new Date().toISOString() })
+                .then(() => mostrarFeedback('✅ Banco adicionado ao Firebase!'))
+                .catch(() => mostrarFeedback('⚠️ Banco adicionado, mas não salvo no Firebase'));
+            atualizarSelectsPix();
         }
-        
-        const hoje = new Date().toISOString().slice(0, 10);
-        if (new Date(receberAte) < new Date(hoje) && status !== 'Recebido') status = 'Atrasado';
-        if (valorRecebido >= valor) status = 'Recebido';
-        else if (valorRecebido > 0 && valorRecebido < valor) status = 'Parcial';
-        else if (valorRecebido === 0 && status !== 'Recebido') status = 'Pendente';
-        
-        if (id) { 
-            const idx = lancamentosPix.findIndex(l => l.id == id); 
-            if (idx !== -1) lancamentosPix[idx] = { ...lancamentosPix[idx], dataLancamento, periodoIni, periodoFim, receberAte, cliente, banco, valor, valorRecebido, obs, status }; 
-        } else { 
-            const newId = Date.now(); 
-            lancamentosPix.push({ id: newId, dataLancamento, periodoIni, periodoFim, receberAte, cliente, banco, valor, valorRecebido, status, obs }); 
-        }
-        
-        lancamentosPix.sort((a, b) => new Date(b.dataLancamento) - new Date(a.dataLancamento));
-        salvarDadosPix();
-        fecharModal('modalPix');
-        aplicarFiltrosPix();
-        mostrarFeedback('Lançamento salvo!');
     }
 
-    function editarLancamentoPix(id) { 
-        const lancamento = lancamentosPix.find(l => l.id === id); 
-        if (lancamento) abrirModalPix(lancamento); 
+    function gerenciarClientes() {
+        const container = document.getElementById('listaContainer');
+        container.innerHTML = '<ul style="list-style:none; padding:0">' + clientesPix.map((c, i) => `<li style="margin-bottom:8px; display:flex; justify-content:space-between; align-items:center"><span>${escapeHtml(c)}</span><div><button class="btn btn-primary btn-sm" onclick="editarClientePix(${i})">✏️</button><button class="btn btn-danger btn-sm" onclick="excluirClientePix(${i})">🗑️</button></div></li>`).join('') + '</ul>';
+        document.getElementById('modalListaTitle').innerText = 'Gerenciar Clientes';
+        document.getElementById('modalLista').style.display = 'flex';
+        window.excluirClientePix = (idx) => {
+            if (confirm('Excluir cliente?')) {
+                clientesPix.splice(idx, 1);
+                ordenarClientes();
+                atualizarSelectsPix();
+                gerenciarClientes();
+            }
+        };
+        window.editarClientePix = (idx) => {
+            const novo = prompt('Novo nome:', clientesPix[idx]);
+            if (novo && novo.trim()) {
+                clientesPix[idx] = novo.trim();
+                ordenarClientes();
+                atualizarSelectsPix();
+                gerenciarClientes();
+            }
+        };
     }
-    
-    function excluirLancamentoPix(id) { 
-        if (confirm('Excluir este lançamento?')) { 
-            lancamentosPix = lancamentosPix.filter(l => l.id !== id); 
-            salvarDadosPix(); 
-            aplicarFiltrosPix(); 
-            mostrarFeedback('Lançamento excluído!'); 
-        } 
+
+    function gerenciarBancos() {
+        const container = document.getElementById('listaContainer');
+        container.innerHTML = '<ul style="list-style:none; padding:0">' + bancosPix.map((b, i) => `<li style="margin-bottom:8px; display:flex; justify-content:space-between; align-items:center"><span>${escapeHtml(b)}</span><div><button class="btn btn-primary btn-sm" onclick="editarBancoPix(${i})">✏️</button><button class="btn btn-danger btn-sm" onclick="excluirBancoPix(${i})">🗑️</button></div></li>`).join('') + '</ul>';
+        document.getElementById('modalListaTitle').innerText = 'Gerenciar Bancos';
+        document.getElementById('modalLista').style.display = 'flex';
+        window.excluirBancoPix = (idx) => {
+            if (confirm('Excluir banco?')) {
+                bancosPix.splice(idx, 1);
+                ordenarBancos();
+                atualizarSelectsPix();
+                gerenciarBancos();
+            }
+        };
+        window.editarBancoPix = (idx) => {
+            const novo = prompt('Novo nome:', bancosPix[idx]);
+            if (novo && novo.trim()) {
+                bancosPix[idx] = novo.trim();
+                ordenarBancos();
+                atualizarSelectsPix();
+                gerenciarBancos();
+            }
+        };
     }
-    
-    function toggleTabelaPix() { 
-        const card = document.getElementById('cardTabelaPix'); 
-        const btn = document.querySelector('#tab4 .card-header .btn-sm'); 
-        if (tabelaPixVisible) { 
-            card.style.display = 'none'; 
-            if (btn) btn.textContent = 'EXIBIR TABELA'; 
-        } else { 
-            card.style.display = 'block'; 
-            if (btn) btn.textContent = 'RECOLHER TABELA'; 
-        } 
-        tabelaPixVisible = !tabelaPixVisible; 
+
+    function toggleTabelaPix() {
+        const card = document.getElementById('cardTabelaPix');
+        const btn = document.querySelector('#tab4 .card-header .btn-sm');
+        if (tabelaPixVisible) {
+            card.style.display = 'none';
+            if (btn) btn.textContent = 'EXIBIR TABELA';
+        } else {
+            card.style.display = 'block';
+            if (btn) btn.textContent = 'RECOLHER TABELA';
+        }
+        tabelaPixVisible = !tabelaPixVisible;
     }
-    
+
     function gerarPDFPix() {
         const dados = pixFiltered.length ? pixFiltered : lancamentosPix;
         let html = `<html><head><title>Relatório PIX</title><style>body{font-family:Arial;padding:20px} h1{color:#1a4a2a} table{width:100%;border-collapse:collapse} th{background:#1a4a2a;color:white;padding:8px} td{padding:6px;border:1px solid #ccc}</style></head><body>
@@ -1089,7 +1233,7 @@
         <p>Gerado em ${new Date().toLocaleString()}</p>
         <p><strong>Ordenado do mais recente para o mais antigo</strong></p>
         <table border="1"><thead><tr><th>Data</th><th>Período</th><th>Banco</th><th>Cliente</th><th>Valor</th><th>Recebido</th><th>Diferença</th><th>Status</th><th>Receber Até</th><th>Observação</th></tr></thead><tbody>`;
-        dados.forEach(l => { 
+        dados.forEach(l => {
             html += `<tr>
                 <td>${formatarData(l.dataLancamento)}</td>
                 <td>${formatarData(l.periodoIni)} a ${formatarData(l.periodoFim)}</td>
@@ -1101,87 +1245,13 @@
                 <td>${l.status}</td>
                 <td>${formatarData(l.receberAte)}</td>
                 <td>${escapeHtml(l.obs || '')}</td>
-            </tr>`; 
+            </tr>`;
         });
         html += `</tbody></table></body></html>`;
-        const w = window.open('', '_blank'); 
-        w.document.write(html); 
-        w.document.close(); 
+        const w = window.open('', '_blank');
+        w.document.write(html);
+        w.document.close();
         w.print();
-    }
-    
-    function novoClientePix() { 
-        const novo = prompt('Nome do novo cliente:'); 
-        if (novo && !clientesPix.includes(novo)) { 
-            clientesPix.push(novo); 
-            ordenarClientes(); 
-            salvarDadosPix(); 
-            atualizarSelectsPix(); 
-            mostrarFeedback('Cliente adicionado!'); 
-        } 
-    }
-    
-    function novoBancoPix() { 
-        const novo = prompt('Nome do novo banco/conta:'); 
-        if (novo && !bancosPix.includes(novo)) { 
-            bancosPix.push(novo); 
-            ordenarBancos(); 
-            salvarDadosPix(); 
-            atualizarSelectsPix(); 
-            mostrarFeedback('Banco adicionado!'); 
-        } 
-    }
-    
-    function gerenciarClientes() { 
-        const container = document.getElementById('listaContainer'); 
-        container.innerHTML = '<ul style="list-style:none; padding:0">' + clientesPix.map((c, i) => `<li style="margin-bottom:8px; display:flex; justify-content:space-between; align-items:center"><span>${escapeHtml(c)}</span><div><button class="btn btn-primary btn-sm" onclick="editarClientePix(${i})">✏️</button><button class="btn btn-danger btn-sm" onclick="excluirClientePix(${i})">🗑️</button></div></li>`).join('') + '</ul>'; 
-        document.getElementById('modalListaTitle').innerText = 'Gerenciar Clientes'; 
-        document.getElementById('modalLista').style.display = 'flex'; 
-        window.excluirClientePix = (idx) => { 
-            if (confirm('Excluir cliente?')) { 
-                clientesPix.splice(idx, 1); 
-                ordenarClientes(); 
-                salvarDadosPix(); 
-                atualizarSelectsPix(); 
-                gerenciarClientes(); 
-            } 
-        }; 
-        window.editarClientePix = (idx) => { 
-            const novo = prompt('Novo nome:', clientesPix[idx]); 
-            if (novo && novo.trim()) { 
-                clientesPix[idx] = novo.trim(); 
-                ordenarClientes(); 
-                salvarDadosPix(); 
-                atualizarSelectsPix(); 
-                gerenciarClientes(); 
-            } 
-        }; 
-    }
-    
-    function gerenciarBancos() { 
-        const container = document.getElementById('listaContainer'); 
-        container.innerHTML = '<ul style="list-style:none; padding:0">' + bancosPix.map((b, i) => `<li style="margin-bottom:8px; display:flex; justify-content:space-between; align-items:center"><span>${escapeHtml(b)}</span><div><button class="btn btn-primary btn-sm" onclick="editarBancoPix(${i})">✏️</button><button class="btn btn-danger btn-sm" onclick="excluirBancoPix(${i})">🗑️</button></div></li>`).join('') + '</ul>'; 
-        document.getElementById('modalListaTitle').innerText = 'Gerenciar Bancos'; 
-        document.getElementById('modalLista').style.display = 'flex'; 
-        window.excluirBancoPix = (idx) => { 
-            if (confirm('Excluir banco?')) { 
-                bancosPix.splice(idx, 1); 
-                ordenarBancos(); 
-                salvarDadosPix(); 
-                atualizarSelectsPix(); 
-                gerenciarBancos(); 
-            } 
-        }; 
-        window.editarBancoPix = (idx) => { 
-            const novo = prompt('Novo nome:', bancosPix[idx]); 
-            if (novo && novo.trim()) { 
-                bancosPix[idx] = novo.trim(); 
-                ordenarBancos(); 
-                salvarDadosPix(); 
-                atualizarSelectsPix(); 
-                gerenciarBancos(); 
-            } 
-        }; 
     }
 
     // ==================== LISTENERS ====================
@@ -1191,18 +1261,17 @@
     onSnapshot(prestacoesCol, () => { getDocs(prestacoesCol).then(snapshot => { prestacoes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); renderizarPrestacoes(); atualizarResumo(); }); });
 
     // ==================== TABS ====================
-    document.querySelectorAll('.tab-btn').forEach(btn => { 
-        btn.addEventListener('click', () => { 
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); 
-            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active')); 
-            btn.classList.add('active'); 
-            document.getElementById(btn.dataset.tab).classList.add('active'); 
-            if (btn.dataset.tab === 'tab3') atualizarResumo(); 
-            if (btn.dataset.tab === 'tab4') { 
-                carregarLancamentosPix(); 
-                aplicarFiltrosPix(); 
-            } 
-        }); 
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(btn.dataset.tab).classList.add('active');
+            if (btn.dataset.tab === 'tab3') atualizarResumo();
+            if (btn.dataset.tab === 'tab4') {
+                carregarLancamentosPix();
+            }
+        });
     });
 
     // ==================== INICIALIZAÇÃO ====================
