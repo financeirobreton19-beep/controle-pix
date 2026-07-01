@@ -78,6 +78,14 @@
             color: white;
         }
 
+        .tab-btn.recovery {
+            background: #f59e0b;
+            color: white;
+        }
+        .tab-btn.recovery:hover {
+            background: #d97706;
+        }
+
         .panel {
             display: none;
         }
@@ -171,8 +179,10 @@
         .btn-danger:hover { background: #b91c1c; }
         .btn-warning { background: #f59e0b; color: white; }
         .btn-warning:hover { background: #d97706; }
+        .btn-success { background: #16a34a; color: white; }
+        .btn-success:hover { background: #15803d; }
         .btn-sm { padding: 5px 12px; font-size: 12px; }
-        .btn-group { display: flex; gap: 12px; justify-content: flex-end; }
+        .btn-group { display: flex; gap: 12px; justify-content: flex-end; flex-wrap: wrap; }
 
         .filters, .pix-filters {
             display: flex;
@@ -409,6 +419,67 @@
             text-align: center;
         }
 
+        .recovery-box {
+            background: #fef3c7;
+            border: 2px solid #f59e0b;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 16px 0;
+        }
+
+        .recovery-box h3 {
+            color: #92400e;
+            margin-bottom: 12px;
+        }
+
+        .recovery-box p {
+            color: #78350f;
+            margin-bottom: 8px;
+        }
+
+        .status-box {
+            padding: 12px;
+            border-radius: 10px;
+            margin: 12px 0;
+            font-weight: 600;
+        }
+
+        .status-box.success {
+            background: #bbf7d0;
+            color: #166534;
+        }
+
+        .status-box.error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-box.waiting {
+            background: #f0f6f0;
+            color: #4a6741;
+        }
+
+        .status-box.info {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e0eae0;
+            border-radius: 3px;
+            margin: 12px 0;
+            overflow: hidden;
+        }
+
+        .progress-bar .fill {
+            height: 100%;
+            background: #1a4a2a;
+            transition: width 0.3s;
+            width: 0%;
+        }
+
         @media (max-width: 700px) {
             body { padding: 12px; }
             .resumo-cards { grid-template-columns: 1fr; }
@@ -434,6 +505,7 @@
         <button class="tab-btn" data-tab="tab2">📥 ENTRADAS / DESPESAS</button>
         <button class="tab-btn" data-tab="tab3">💰 PRESTAÇÃO + RESUMO</button>
         <button class="tab-btn" data-tab="tab4">💳 CONTROLE PIX</button>
+        <button class="tab-btn recovery" data-tab="tab5">🔄 RECUPERAR DADOS</button>
     </div>
 
     <!-- GUIA 1: CADASTRO DE ROÇAS -->
@@ -577,6 +649,47 @@
             </div>
         </div>
     </div>
+
+    <!-- GUIA 5: RECUPERAR DADOS -->
+    <div id="tab5" class="panel">
+        <div class="card">
+            <div class="card-header">
+                <h2>🔄 RECUPERAR DADOS ANTIGOS</h2>
+                <span class="status" style="background:#f59e0b;">⚠️ IMPORTANTE</span>
+            </div>
+
+            <div class="recovery-box">
+                <h3>📌 Seus dados antigos sumiram?</h3>
+                <p>Se você tinha lançamentos PIX antes da atualização e eles <strong>desapareceram</strong>, é porque estavam salvos apenas no seu computador.</p>
+                <p><strong>Clique no botão abaixo</strong> para recuperar todos os dados antigos e salvá-los na nuvem.</p>
+                <p style="font-size:12px; color:#92400e; margin-top:8px;">⚠️ Faça isso no computador onde você fez os lançamentos originais.</p>
+            </div>
+
+            <div id="recoveryStatus" class="status-box waiting">
+                ⏳ Aguardando ação...
+            </div>
+
+            <div class="progress-bar">
+                <div id="recoveryProgress" class="fill" style="width:0%"></div>
+            </div>
+
+            <div id="recoveryInfo" style="padding:12px; background:#f0f6f0; border-radius:10px; margin:12px 0;">
+                <strong>📊 Status dos dados:</strong><br>
+                <span id="recoveryDadosLocal">🔍 Clique em "Verificar" para buscar dados antigos</span>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="verificarDadosAntigos()">🔍 VERIFICAR DADOS NO COMPUTADOR</button>
+                <button class="btn btn-success" onclick="recuperarDadosAntigos()" id="btnRecuperar" disabled>
+                    📤 RECUPERAR DADOS PARA A NUVEM
+                </button>
+                <button class="btn btn-danger" onclick="limparRecuperacao()">🗑️ LIMPAR MENSAGENS</button>
+            </div>
+
+            <div id="recoveryLog" style="margin-top:16px; background:#1e1e1e; color:#d4d4d4; padding:16px; border-radius:12px; max-height:200px; overflow-y:auto; font-family:'Courier New', monospace; font-size:12px; display:none;">
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- MODAIS -->
@@ -623,7 +736,6 @@
     let paginaRocas = 1, paginaEntradas = 1, paginaDespesas = 1, paginaPrestacoes = 1;
     const ITENS_POR_PAGINA = 15;
 
-    // REFERÊNCIAS PIX PARA FIREBASE
     const pixCol = collection(db, "pix");
     const pixClientesCol = collection(db, "pix_clientes");
     const pixBancosCol = collection(db, "pix_bancos");
@@ -632,7 +744,7 @@
     function ordenarBancos() { bancosPix.sort((a, b) => a.localeCompare(b, 'pt-BR')); }
     function formatarMoeda(valor) { return (valor || 0).toLocaleString('pt-br', { style: 'currency', currency: 'BRL' }); }
     function formatarData(data) { if (!data) return ''; const [ano, mes, dia] = data.split('-'); return `${dia}/${mes}/${ano}`; }
-    function mostrarFeedback(msg) { const fb = document.getElementById('feedback'); fb.textContent = msg; fb.style.display = 'block'; setTimeout(() => fb.style.display = 'none', 2000); }
+    function mostrarFeedback(msg) { const fb = document.getElementById('feedback'); fb.textContent = msg; fb.style.display = 'block'; setTimeout(() => fb.style.display = 'none', 3000); }
     function fecharModal(id) { document.getElementById(id).style.display = 'none'; }
     function escapeHtml(text) { if (!text) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
 
@@ -809,14 +921,12 @@
 
     async function carregarLancamentosPix() {
         try {
-            // 1. Carregar lançamentos PIX
             const pixSnapshot = await getDocs(query(pixCol, orderBy('dataLancamento', 'desc')));
             lancamentosPix = [];
             pixSnapshot.forEach(doc => {
                 lancamentosPix.push({ id: doc.id, ...doc.data() });
             });
             
-            // 2. Carregar clientes
             const clientesSnapshot = await getDocs(pixClientesCol);
             clientesPix = [];
             clientesSnapshot.forEach(doc => {
@@ -827,7 +937,6 @@
             }
             ordenarClientes();
             
-            // 3. Carregar bancos
             const bancosSnapshot = await getDocs(pixBancosCol);
             bancosPix = [];
             bancosSnapshot.forEach(doc => {
@@ -844,7 +953,6 @@
         } catch (error) {
             console.error('Erro ao carregar do Firebase:', error);
             mostrarFeedback('⚠️ Erro ao carregar dados. Verifique sua conexão.');
-            // Fallback: tenta carregar do localStorage
             carregarDoLocalStorage();
         }
     }
@@ -1254,6 +1362,202 @@
         w.print();
     }
 
+    // ==================== RECUPERAÇÃO DE DADOS ====================
+
+    let dadosEncontrados = null;
+
+    window.verificarDadosAntigos = function() {
+        const statusDiv = document.getElementById('recoveryStatus');
+        const infoDiv = document.getElementById('recoveryDadosLocal');
+        const btnRecuperar = document.getElementById('btnRecuperar');
+        const logDiv = document.getElementById('recoveryLog');
+        const progress = document.getElementById('recoveryProgress');
+        
+        logDiv.style.display = 'block';
+        logDiv.innerHTML = '';
+        
+        function addLog(msg, type = 'info') {
+            const colors = {
+                info: '#d4d4d4',
+                success: '#4ade80',
+                error: '#f87171',
+                warning: '#fbbf24'
+            };
+            logDiv.innerHTML += `<div style="color:${colors[type] || colors.info}">${msg}</div>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+        
+        addLog('🔍 Verificando dados no localStorage...', 'info');
+        progress.style.width = '30%';
+        
+        const lancamentos = localStorage.getItem('lancamentosPix');
+        const clientes = localStorage.getItem('clientesPix');
+        const bancos = localStorage.getItem('bancosPix');
+        
+        let temDados = false;
+        let info = '';
+        let totalLancamentos = 0;
+        
+        if (lancamentos) {
+            const dados = JSON.parse(lancamentos);
+            totalLancamentos = dados.length;
+            info += `📊 Lançamentos PIX: <strong>${dados.length}</strong><br>`;
+            addLog(`✅ Encontrados ${dados.length} lançamentos PIX`, 'success');
+            temDados = true;
+        } else {
+            info += `❌ Nenhum lançamento PIX encontrado<br>`;
+            addLog('❌ Nenhum lançamento PIX encontrado', 'error');
+        }
+        
+        if (clientes) {
+            const dados = JSON.parse(clientes);
+            info += `👤 Clientes: <strong>${dados.length}</strong><br>`;
+            addLog(`✅ Encontrados ${dados.length} clientes`, 'success');
+        }
+        
+        if (bancos) {
+            const dados = JSON.parse(bancos);
+            info += `🏦 Bancos: <strong>${dados.length}</strong><br>`;
+            addLog(`✅ Encontrados ${dados.length} bancos`, 'success');
+        }
+        
+        progress.style.width = '100%';
+        
+        if (temDados) {
+            statusDiv.className = 'status-box success';
+            statusDiv.innerHTML = `✅ Dados encontrados! ${totalLancamentos} lançamentos prontos para recuperar.`;
+            btnRecuperar.disabled = false;
+            dadosEncontrados = {
+                lancamentos: lancamentos ? JSON.parse(lancamentos) : [],
+                clientes: clientes ? JSON.parse(clientes) : [],
+                bancos: bancos ? JSON.parse(bancos) : []
+            };
+            addLog(`🎉 ${totalLancamentos} lançamentos encontrados! Clique em "RECUPERAR" para salvar na nuvem.`, 'success');
+        } else {
+            statusDiv.className = 'status-box error';
+            statusDiv.innerHTML = '❌ Nenhum dado antigo encontrado neste computador.';
+            btnRecuperar.disabled = true;
+            addLog('❌ Nenhum dado para recuperar', 'error');
+        }
+        
+        infoDiv.innerHTML = info;
+    };
+
+    window.recuperarDadosAntigos = async function() {
+        if (!dadosEncontrados || dadosEncontrados.lancamentos.length === 0) {
+            alert('❌ Nenhum dado encontrado para recuperar. Clique em "Verificar" primeiro.');
+            return;
+        }
+        
+        const btn = document.getElementById('btnRecuperar');
+        const statusDiv = document.getElementById('recoveryStatus');
+        const logDiv = document.getElementById('recoveryLog');
+        const progress = document.getElementById('recoveryProgress');
+        
+        btn.disabled = true;
+        btn.textContent = '⏳ RECUPERANDO...';
+        logDiv.style.display = 'block';
+        
+        function addLog(msg, type = 'info') {
+            const colors = {
+                info: '#d4d4d4',
+                success: '#4ade80',
+                error: '#f87171',
+                warning: '#fbbf24'
+            };
+            logDiv.innerHTML += `<div style="color:${colors[type] || colors.info}">${msg}</div>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+        
+        try {
+            addLog('🚀 INICIANDO RECUPERAÇÃO...', 'info');
+            progress.style.width = '10%';
+            
+            const lancamentos = dadosEncontrados.lancamentos;
+            let count = 0;
+            
+            for (const l of lancamentos) {
+                try {
+                    const { id, ...dados } = l;
+                    await addDoc(pixCol, {
+                        ...dados,
+                        dataRecuperacao: new Date().toISOString(),
+                        recuperadoDe: 'localStorage'
+                    });
+                    count++;
+                    const progressPercent = 10 + (count / lancamentos.length) * 70;
+                    progress.style.width = `${progressPercent}%`;
+                    if (count % 5 === 0) {
+                        addLog(`⏳ ${count} de ${lancamentos.length} lançamentos recuperados...`, 'info');
+                    }
+                } catch (e) {
+                    addLog(`⚠️ Erro ao recuperar lançamento: ${e.message}`, 'warning');
+                }
+            }
+            
+            progress.style.width = '85%';
+            
+            // Recuperar clientes
+            for (const c of dadosEncontrados.clientes) {
+                try {
+                    await addDoc(pixClientesCol, {
+                        nome: c,
+                        dataRecuperacao: new Date().toISOString()
+                    });
+                } catch (e) {
+                    addLog(`⚠️ Erro ao recuperar cliente ${c}: ${e.message}`, 'warning');
+                }
+            }
+            
+            // Recuperar bancos
+            for (const b of dadosEncontrados.bancos) {
+                try {
+                    await addDoc(pixBancosCol, {
+                        nome: b,
+                        dataRecuperacao: new Date().toISOString()
+                    });
+                } catch (e) {
+                    addLog(`⚠️ Erro ao recuperar banco ${b}: ${e.message}`, 'warning');
+                }
+            }
+            
+            progress.style.width = '100%';
+            
+            addLog(`🎉 RECUPERAÇÃO CONCLUÍDA! ${count} lançamentos salvos no Firebase!`, 'success');
+            
+            statusDiv.className = 'status-box success';
+            statusDiv.innerHTML = `✅ RECUPERAÇÃO CONCLUÍDA! ${count} lançamentos recuperados com sucesso! Atualize a página (F5).`;
+            
+            // Atualizar a lista
+            setTimeout(() => {
+                carregarLancamentosPix();
+            }, 1000);
+            
+            // Mostrar botão para atualizar
+            addLog('🔄 Atualize a página (F5) para ver os dados recuperados.', 'info');
+            
+        } catch (error) {
+            addLog(`❌ ERRO: ${error.message}`, 'error');
+            statusDiv.className = 'status-box error';
+            statusDiv.innerHTML = '❌ Erro na recuperação: ' + error.message;
+        } finally {
+            btn.disabled = false;
+            btn.textContent = '📤 RECUPERAR DADOS PARA A NUVEM';
+        }
+    };
+
+    window.limparRecuperacao = function() {
+        const logDiv = document.getElementById('recoveryLog');
+        logDiv.style.display = 'none';
+        logDiv.innerHTML = '';
+        document.getElementById('recoveryProgress').style.width = '0%';
+        document.getElementById('recoveryStatus').className = 'status-box waiting';
+        document.getElementById('recoveryStatus').innerHTML = '⏳ Aguardando ação...';
+        document.getElementById('recoveryDadosLocal').innerHTML = '🔍 Clique em "Verificar" para buscar dados antigos';
+        document.getElementById('btnRecuperar').disabled = true;
+        dadosEncontrados = null;
+    };
+
     // ==================== LISTENERS ====================
     onSnapshot(query(rocasCol, orderBy("codigo")), (snapshot) => { rocas = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); atualizarSelects(); renderizarRocas(); });
     onSnapshot(entradasCol, () => { getDocs(entradasCol).then(snapshot => { entradas = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); renderizarEntradas(); atualizarResumo(); }); });
@@ -1271,6 +1575,10 @@
             if (btn.dataset.tab === 'tab4') {
                 carregarLancamentosPix();
             }
+            if (btn.dataset.tab === 'tab5') {
+                document.getElementById('recoveryStatus').className = 'status-box info';
+                document.getElementById('recoveryStatus').innerHTML = '💡 Clique em "Verificar" para buscar dados antigos no seu computador.';
+            }
         });
     });
 
@@ -1287,6 +1595,7 @@
     window.abrirModalPrestacao = abrirModalPrestacao; window.salvarPrestacao = salvarPrestacao; window.editarPrestacao = editarPrestacao; window.excluirPrestacao = excluirPrestacao; window.mudarPaginaPrestacoes = mudarPaginaPrestacoes;
     window.aplicarFiltros = aplicarFiltros; window.limparFiltros = limparFiltros; window.atualizarResumo = atualizarResumo; window.exportarResumo = exportarResumo; window.fecharModal = fecharModal;
     window.aplicarFiltrosPix = aplicarFiltrosPix; window.limparFiltrosPix = limparFiltrosPix; window.abrirModalPix = abrirModalPix; window.salvarLancamentoPix = salvarLancamentoPix; window.editarLancamentoPix = editarLancamentoPix; window.excluirLancamentoPix = excluirLancamentoPix; window.clonarLancamentoPix = clonarLancamentoPix; window.mudarPaginaPix = mudarPaginaPix; window.toggleTabelaPix = toggleTabelaPix; window.gerarPDFPix = gerarPDFPix; window.novoClientePix = novoClientePix; window.novoBancoPix = novoBancoPix; window.gerenciarClientes = gerenciarClientes; window.gerenciarBancos = gerenciarBancos;
+    window.verificarDadosAntigos = verificarDadosAntigos; window.recuperarDadosAntigos = recuperarDadosAntigos; window.limparRecuperacao = limparRecuperacao;
 </script>
 </body>
 </html>
