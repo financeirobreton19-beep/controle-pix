@@ -893,24 +893,102 @@
     }
     function mudarPaginaPrestacoes(delta) { paginaPrestacoes += delta; renderizarPrestacoes(); }
 
-    // ==================== RESUMO FINANCEIRO ====================
+    // ==================== RESUMO FINANCEIRO (CORRIGIDO) ====================
     function atualizarResumo() {
-        const rocaFiltro = document.getElementById('filtroResumoRoca').value, dataInicio = document.getElementById('filtroResumoInicio').value, dataFim = document.getElementById('filtroResumoFim').value;
-        let entradasFilt = [...entradas], despesasFilt = [...despesas], prestacoesFilt = [...prestacoes];
-        if (rocaFiltro) { entradasFilt = entradasFilt.filter(e => e.rocaId === rocaFiltro); despesasFilt = despesasFilt.filter(d => d.rocaId === rocaFiltro); prestacoesFilt = prestacoesFilt.filter(p => p.rocaId === rocaFiltro); }
-        if (dataInicio) { entradasFilt = entradasFilt.filter(e => e.data >= dataInicio); despesasFilt = despesasFilt.filter(d => d.data >= dataInicio); prestacoesFilt = prestacoesFilt.filter(p => p.data >= dataInicio); }
-        if (dataFim) { entradasFilt = entradasFilt.filter(e => e.data <= dataFim); despesasFilt = despesasFilt.filter(d => d.data <= dataFim); prestacoesFilt = prestacoesFilt.filter(p => p.data <= dataFim); }
-        const receitas = entradasFilt.reduce((a,b) => a + (b.valor || 0), 0);
-        const despesasTotal = despesasFilt.reduce((a,b) => a + (b.valor || 0), 0);
+        const rocaFiltro = document.getElementById('filtroResumoRoca').value;
+        const dataInicio = document.getElementById('filtroResumoInicio').value;
+        const dataFim = document.getElementById('filtroResumoFim').value;
+        
+        let entradasFilt = [...entradas];
+        let despesasFilt = [...despesas];
+        let prestacoesFilt = [...prestacoes];
+        
+        if (rocaFiltro) {
+            entradasFilt = entradasFilt.filter(e => e.rocaId === rocaFiltro);
+            despesasFilt = despesasFilt.filter(d => d.rocaId === rocaFiltro);
+            prestacoesFilt = prestacoesFilt.filter(p => p.rocaId === rocaFiltro);
+        }
+        if (dataInicio) {
+            entradasFilt = entradasFilt.filter(e => e.data >= dataInicio);
+            despesasFilt = despesasFilt.filter(d => d.data >= dataInicio);
+            prestacoesFilt = prestacoesFilt.filter(p => p.data >= dataInicio);
+        }
+        if (dataFim) {
+            entradasFilt = entradasFilt.filter(e => e.data <= dataFim);
+            despesasFilt = despesasFilt.filter(d => d.data <= dataFim);
+            prestacoesFilt = prestacoesFilt.filter(p => p.data <= dataFim);
+        }
+        
+        const receitas = entradasFilt.reduce((a, b) => a + (b.valor || 0), 0);
+        const despesasTotal = despesasFilt.reduce((a, b) => a + (b.valor || 0), 0);
         const lucro = receitas - despesasTotal;
-        const direito = lucro / 2, despGerais = despesasTotal / 2;
-        const repNene = prestacoesFilt.filter(p => p.responsavel === 'Nene').reduce((a,b) => a + (b.valor || 0), 0);
-        const repLeandro = prestacoesFilt.filter(p => p.responsavel === 'Leandro').reduce((a,b) => a + (b.valor || 0), 0);
+        
+        // ✅ CORREÇÃO: Direito é 50% da RECEITA, não do lucro
+        const direito = receitas / 2;
+        const despGerais = despesasTotal / 2;
+        
+        const repNene = prestacoesFilt
+            .filter(p => p.responsavel === 'Nene')
+            .reduce((a, b) => a + (b.valor || 0), 0);
+        const repLeandro = prestacoesFilt
+            .filter(p => p.responsavel === 'Leandro')
+            .reduce((a, b) => a + (b.valor || 0), 0);
+        
         const saldoNene = direito - despGerais - repNene;
         const saldoLeandro = direito - despGerais - repLeandro;
+        
         const container = document.getElementById('resumoContainer');
         if (!container) return;
-        container.innerHTML = `<div class="resumo-cards"><div class="resumo-card"><h3>📈 RECEITAS</h3><div class="valor">${formatarMoeda(receitas)}</div></div><div class="resumo-card"><h3>📉 DESPESAS</h3><div class="valor">${formatarMoeda(despesasTotal)}</div></div><div class="resumo-card"><h3>💰 LUCRO TOTAL</h3><div class="valor">${formatarMoeda(lucro)}</div></div></div><div class="socio-table-wrapper"><table class="socio-table"><thead><tr><th>SÓCIO</th><th>DIREITO (50%)</th><th>DESPESAS GERAIS (50%)</th><th>REPASSES</th><th>SALDO</th></tr></thead><tbody><tr><td><strong>👨‍🌾 NENE</strong></td><td>${formatarMoeda(direito)}</td><td>${formatarMoeda(despGerais)}</td><td>${formatarMoeda(repNene)}</td><td style="color: ${saldoNene >= 0 ? '#166534' : '#dc2626'}; font-weight: 700;">${formatarMoeda(saldoNene)}</td></tr><tr><td><strong>👨‍🌾 LEANDRO</strong></td><td>${formatarMoeda(direito)}</td><td>${formatarMoeda(despGerais)}</td><td>${formatarMoeda(repLeandro)}</td><td style="color: ${saldoLeandro >= 0 ? '#166534' : '#dc2626'}; font-weight: 700;">${formatarMoeda(saldoLeandro)}</td></tr></tbody></table></div>`;
+        
+        container.innerHTML = `
+            <div class="resumo-cards">
+                <div class="resumo-card">
+                    <h3>📈 RECEITAS</h3>
+                    <div class="valor">${formatarMoeda(receitas)}</div>
+                </div>
+                <div class="resumo-card">
+                    <h3>📉 DESPESAS</h3>
+                    <div class="valor">${formatarMoeda(despesasTotal)}</div>
+                </div>
+                <div class="resumo-card">
+                    <h3>💰 LUCRO TOTAL</h3>
+                    <div class="valor">${formatarMoeda(lucro)}</div>
+                </div>
+            </div>
+            <div class="socio-table-wrapper">
+                <table class="socio-table">
+                    <thead>
+                        <tr>
+                            <th>SÓCIO</th>
+                            <th>DIREITO (50% da Receita)</th>
+                            <th>DESPESAS GERAIS (50%)</th>
+                            <th>REPASSES</th>
+                            <th>SALDO</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>👨‍🌾 NENE</strong></td>
+                            <td>${formatarMoeda(direito)}</td>
+                            <td>${formatarMoeda(despGerais)}</td>
+                            <td>${formatarMoeda(repNene)}</td>
+                            <td style="color: ${saldoNene >= 0 ? '#166534' : '#dc2626'}; font-weight: 700;">
+                                ${formatarMoeda(saldoNene)}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>👨‍🌾 LEANDRO</strong></td>
+                            <td>${formatarMoeda(direito)}</td>
+                            <td>${formatarMoeda(despGerais)}</td>
+                            <td>${formatarMoeda(repLeandro)}</td>
+                            <td style="color: ${saldoLeandro >= 0 ? '#166534' : '#dc2626'}; font-weight: 700;">
+                                ${formatarMoeda(saldoLeandro)}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        `;
     }
 
     function aplicarFiltros() { paginaEntradas = 1; paginaDespesas = 1; renderizarEntradas(); renderizarDespesas(); }
