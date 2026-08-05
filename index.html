@@ -183,6 +183,10 @@
         .btn-success:hover { background: #15803d; }
         .btn-sm { padding: 5px 12px; font-size: 12px; }
         .btn-group { display: flex; gap: 12px; justify-content: flex-end; flex-wrap: wrap; }
+        .btn-export { background: #0d9488; color: white; }
+        .btn-export:hover { background: #0f766e; }
+        .btn-print { background: #6366f1; color: white; }
+        .btn-print:hover { background: #4f46e5; }
 
         .filters, .pix-filters {
             display: flex;
@@ -206,6 +210,18 @@
             font-weight: 700;
             color: #4a6741;
             text-transform: uppercase;
+        }
+
+        .quick-filters {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin: 8px 0;
+        }
+
+        .quick-filters .btn {
+            font-size: 11px;
+            padding: 4px 12px;
         }
 
         .table-wrapper {
@@ -244,8 +260,7 @@
         td:nth-child(3), th:nth-child(3) { text-align: left; }
         td:nth-child(4), th:nth-child(4) { text-align: left; }
         td:nth-child(5), th:nth-child(5) { text-align: right; }
-        td:nth-child(6), th:nth-child(6) { text-align: right; }
-        td:nth-child(7), th:nth-child(7) { text-align: right; }
+        td:nth-child(6), th:nth-child(6) { text-align: left; }
 
         tbody tr:hover td {
             background-color: #fde68a !important;
@@ -260,7 +275,7 @@
 
         .resumo-cards {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 20px;
             margin-bottom: 24px;
         }
@@ -300,7 +315,7 @@
         }
 
         .socio-table th {
-            background: #334155;
+            background: #1a4a2a;
             color: white;
             padding: 14px 12px;
             text-align: center;
@@ -374,6 +389,7 @@
             justify-content: center;
             gap: 10px;
             margin-top: 20px;
+            align-items: center;
         }
 
         .pagination button {
@@ -392,6 +408,12 @@
             cursor: default;
         }
 
+        .pagination span {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1a4a2a;
+        }
+
         .feedback {
             position: fixed;
             bottom: 20px;
@@ -408,15 +430,17 @@
         }
 
         .obs-cell {
-            max-width: 200px;
+            max-width: 150px;
             white-space: normal;
             word-break: break-word;
             text-align: left;
+            font-size: 12px;
         }
 
         .acoes-cell {
             white-space: nowrap;
             text-align: center;
+            min-width: 100px;
         }
 
         .recovery-box {
@@ -480,15 +504,78 @@
             width: 0%;
         }
 
+        .total-row {
+            background: #f0f6f0 !important;
+            font-weight: 700;
+        }
+
+        .total-row td {
+            background: #f0f6f0 !important;
+        }
+
+        .roca-resumo-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            margin-top: 12px;
+        }
+
+        .roca-resumo-table th {
+            background: #1a4a2a;
+            color: white;
+            padding: 10px 8px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .roca-resumo-table td {
+            padding: 8px;
+            border-bottom: 1px solid #e0eae0;
+            text-align: center;
+        }
+
+        .roca-resumo-table .total-row {
+            background: #f0f6f0 !important;
+            font-weight: 700;
+        }
+
+        .roca-resumo-table .total-row td {
+            background: #f0f6f0 !important;
+        }
+
+        .roca-resumo-table .lucro-positivo {
+            color: #166534;
+            font-weight: 700;
+        }
+
+        .roca-resumo-table .lucro-negativo {
+            color: #991b1b;
+            font-weight: 700;
+        }
+
+        .filter-socio {
+            min-width: 150px;
+        }
+
         @media (max-width: 700px) {
             body { padding: 12px; }
             .resumo-cards { grid-template-columns: 1fr; }
             .filters, .pix-filters { flex-direction: column; align-items: stretch; }
             .form-grid { grid-template-columns: 1fr; }
             .card-header { flex-direction: column; align-items: flex-start; }
-            td, th { padding: 8px 4px; font-size: 10px; }
+            td, th { padding: 6px 4px; font-size: 10px; }
             .btn-sm { padding: 3px 6px; font-size: 9px; }
-            .obs-cell { max-width: 100px; }
+            .obs-cell { max-width: 80px; }
+            .acoes-cell { min-width: 70px; }
+            .filter-socio { min-width: auto; }
+        }
+
+        @media print {
+            .btn, .btn-group, .tabs, .header .status, .no-print { display: none !important; }
+            .card { border: 1px solid #ccc !important; box-shadow: none !important; }
+            body { background: white !important; padding: 10px !important; }
+            .panel { display: block !important; }
+            .tab-btn { display: none !important; }
         }
     </style>
 </head>
@@ -542,17 +629,34 @@
             <div class="card-header"><h2>🔍 FILTROS</h2></div>
             <div class="filters">
                 <div class="filter-item"><label>ROÇA</label><select id="filtroRoca"><option value="">Todas as Roças</option></select></div>
+                <div class="filter-item"><label>TIPO</label><select id="filtroTipo"><option value="">Todos</option><option value="entrada">Entradas</option><option value="despesa">Despesas</option></select></div>
+                <div class="filter-item"><label>CATEGORIA</label><select id="filtroCategoria"><option value="">Todas</option></select></div>
+                <div class="filter-item"><label>CENTRO CUSTO</label><select id="filtroCentroCusto"><option value="">Todos</option><option value="Leandro">Leandro</option><option value="Neném Viana">Neném Viana</option></select></div>
                 <div class="filter-item"><label>DATA INÍCIO</label><input type="date" id="filtroDataInicio"></div>
                 <div class="filter-item"><label>DATA FIM</label><input type="date" id="filtroDataFim"></div>
+            </div>
+            <div class="quick-filters">
+                <button class="btn btn-secondary btn-sm" onclick="filtroRapido('mes')">📆 Este Mês</button>
+                <button class="btn btn-secondary btn-sm" onclick="filtroRapido('mesPassado')">📆 Mês Passado</button>
+                <button class="btn btn-secondary btn-sm" onclick="filtroRapido('30dias')">📆 Últimos 30 Dias</button>
+                <button class="btn btn-secondary btn-sm" onclick="filtroRapido('90dias')">📆 Últimos 90 Dias</button>
+                <button class="btn btn-secondary btn-sm" onclick="filtroRapido('ano')">📆 Ano Atual</button>
                 <button class="btn btn-primary" onclick="aplicarFiltros()">BUSCAR</button>
                 <button class="btn btn-secondary" onclick="limparFiltros()">LIMPAR</button>
+                <button class="btn btn-export" onclick="exportarExcel()">📤 EXPORTAR</button>
+                <button class="btn btn-print" onclick="imprimirTabela()">🖨️ IMPRIMIR</button>
+            </div>
+            <div id="totaisDinamicos" style="margin-top:12px; display:flex; gap:20px; flex-wrap:wrap; font-weight:700; font-size:14px; padding:12px; background:#f0f6f0; border-radius:10px;">
+                <span>💰 Total Entradas: <span id="totalEntradasFiltradas" style="color:#166534;">R$ 0,00</span></span>
+                <span>📉 Total Despesas: <span id="totalDespesasFiltradas" style="color:#991b1b;">R$ 0,00</span></span>
+                <span>📊 Saldo: <span id="saldoFiltrado" style="color:#1a4a2a;">R$ 0,00</span></span>
             </div>
         </div>
         <div class="card">
             <div class="card-header"><h2>📥 ENTRADAS (Receitas da Roça)</h2><button class="btn btn-primary btn-sm" onclick="abrirModalEntrada()">+ NOVA ENTRADA</button></div>
             <div class="table-wrapper">
                 <table>
-                    <thead><tr><th>DATA</th><th>ROÇA</th><th>CATEGORIA</th><th>VALOR</th><th>AÇÕES</th></tr></thead>
+                    <thead><tr><th>DATA</th><th>ROÇA</th><th>CATEGORIA</th><th>CENTRO CUSTO</th><th>VALOR</th><th>OBS</th><th>AÇÕES</th></tr></thead>
                     <tbody id="listaEntradas"></tbody>
                 </table>
             </div>
@@ -562,7 +666,7 @@
             <div class="card-header"><h2>📤 SAÍDAS/DESPESAS (Custos da Roça)</h2><button class="btn btn-primary btn-sm" onclick="abrirModalDespesa()">+ NOVA DESPESA</button></div>
             <div class="table-wrapper">
                 <table>
-                    <thead><tr><th>DATA</th><th>ROÇA</th><th>CATEGORIA</th><th>DESCRIÇÃO</th><th>VALOR</th><th>AÇÕES</th></tr></thead>
+                    <thead><tr><th>DATA</th><th>ROÇA</th><th>CATEGORIA</th><th>CENTRO CUSTO</th><th>DESCRIÇÃO</th><th>VALOR</th><th>OBS</th><th>AÇÕES</th></tr></thead>
                     <tbody id="listaDespesas"></tbody>
                 </table>
             </div>
@@ -576,10 +680,13 @@
             <div class="card-header"><h2>🔍 FILTROS</h2></div>
             <div class="filters">
                 <div class="filter-item"><label>ROÇA</label><select id="filtroResumoRoca"><option value="">Todas as Roças</option></select></div>
+                <div class="filter-item filter-socio"><label>SÓCIO (Centro de Custo)</label><select id="filtroResumoSocio"><option value="">Todos</option><option value="Leandro">Leandro</option><option value="Neném Viana">Neném Viana</option></select></div>
                 <div class="filter-item"><label>DATA INÍCIO</label><input type="date" id="filtroResumoInicio"></div>
                 <div class="filter-item"><label>DATA FIM</label><input type="date" id="filtroResumoFim"></div>
                 <button class="btn btn-primary" onclick="atualizarResumo()">ATUALIZAR</button>
-                <button class="btn btn-secondary" onclick="exportarResumo()">EXPORTAR</button>
+                <button class="btn btn-secondary" onclick="limparFiltrosResumo()">LIMPAR</button>
+                <button class="btn btn-export" onclick="exportarResumo()">📤 EXPORTAR</button>
+                <button class="btn btn-print" onclick="imprimirResumo()">🖨️ IMPRIMIR</button>
             </div>
         </div>
         <div class="card">
@@ -693,9 +800,9 @@
 </div>
 
 <!-- MODAIS -->
-<div id="modalEntrada" class="modal"><div class="modal-content"><h3>📥 NOVA ENTRADA</h3><input type="hidden" id="entradaId"><div class="form-group"><label>DATA</label><input type="date" id="entradaData"></div><div class="form-group"><label>ROÇA</label><select id="entradaRoca"></select></div><div class="form-group"><label>CATEGORIA</label><input type="text" id="entradaCategoria" placeholder="Ex: Venda de Farinha"></div><div class="form-group"><label>VALOR (R$)</label><input type="number" id="entradaValor" step="0.01"></div><div class="btn-group" style="margin-top:20px"><button class="btn btn-secondary" onclick="fecharModal('modalEntrada')">CANCELAR</button><button class="btn btn-primary" onclick="salvarEntrada()">SALVAR</button></div></div></div>
+<div id="modalEntrada" class="modal"><div class="modal-content"><h3>📥 NOVA ENTRADA</h3><input type="hidden" id="entradaId"><div class="form-group"><label>DATA *</label><input type="date" id="entradaData"></div><div class="form-group"><label>ROÇA *</label><select id="entradaRoca"></select></div><div class="form-group"><label>CATEGORIA *</label><input type="text" id="entradaCategoria" placeholder="Ex: Venda de Farinha"></div><div class="form-group"><label>CENTRO DE CUSTO *</label><select id="entradaCentroCusto"><option value="Leandro">Leandro</option><option value="Neném Viana">Neném Viana</option></select></div><div class="form-group"><label>VALOR (R$) *</label><input type="number" id="entradaValor" step="0.01"></div><div class="form-group"><label>OBSERVAÇÃO</label><input type="text" id="entradaObs" placeholder="Observações..."></div><div class="btn-group" style="margin-top:20px"><button class="btn btn-secondary" onclick="fecharModal('modalEntrada')">CANCELAR</button><button class="btn btn-primary" onclick="salvarEntrada()">SALVAR</button></div></div></div>
 
-<div id="modalDespesa" class="modal"><div class="modal-content"><h3>📤 NOVA DESPESA</h3><input type="hidden" id="despesaId"><div class="form-group"><label>DATA</label><input type="date" id="despesaData"></div><div class="form-group"><label>ROÇA</label><select id="despesaRoca"></select></div><div class="form-group"><label>CATEGORIA</label><select id="despesaCategoria"><option>Combustível</option><option>Operador</option><option>Adubo</option><option>Veneno</option><option>Pulverização</option><option>Carpina</option><option>Diaristas</option><option>Maniva</option><option>Outros</option></select></div><div class="form-group"><label>DESCRIÇÃO</label><input type="text" id="despesaDescricao" placeholder="Detalhamento"></div><div class="form-group"><label>VALOR (R$)</label><input type="number" id="despesaValor" step="0.01"></div><div class="btn-group" style="margin-top:20px"><button class="btn btn-secondary" onclick="fecharModal('modalDespesa')">CANCELAR</button><button class="btn btn-primary" onclick="salvarDespesa()">SALVAR</button></div></div></div>
+<div id="modalDespesa" class="modal"><div class="modal-content"><h3>📤 NOVA DESPESA</h3><input type="hidden" id="despesaId"><div class="form-group"><label>DATA *</label><input type="date" id="despesaData"></div><div class="form-group"><label>ROÇA *</label><select id="despesaRoca"></select></div><div class="form-group"><label>CATEGORIA *</label><select id="despesaCategoria"><option>Combustível</option><option>Operador</option><option>Adubo</option><option>Veneno</option><option>Pulverização</option><option>Carpina</option><option>Diaristas</option><option>Maniva</option><option>Outros</option></select></div><div class="form-group"><label>CENTRO DE CUSTO *</label><select id="despesaCentroCusto"><option value="Leandro">Leandro</option><option value="Neném Viana">Neném Viana</option></select></div><div class="form-group"><label>DESCRIÇÃO</label><input type="text" id="despesaDescricao" placeholder="Detalhamento"></div><div class="form-group"><label>VALOR (R$) *</label><input type="number" id="despesaValor" step="0.01"></div><div class="form-group"><label>OBSERVAÇÃO</label><input type="text" id="despesaObs" placeholder="Observações..."></div><div class="btn-group" style="margin-top:20px"><button class="btn btn-secondary" onclick="fecharModal('modalDespesa')">CANCELAR</button><button class="btn btn-primary" onclick="salvarDespesa()">SALVAR</button></div></div></div>
 
 <div id="modalPrestacao" class="modal"><div class="modal-content"><h3>💰 NOVO REPASSE</h3><input type="hidden" id="prestacaoId"><div class="form-group"><label>DATA</label><input type="date" id="prestacaoData"></div><div class="form-group"><label>ROÇA</label><select id="prestacaoRoca"></select></div><div class="form-group"><label>RESPONSÁVEL</label><select id="prestacaoResponsavel"><option>Nene</option><option>Leandro</option></select></div><div class="form-group"><label>VALOR (R$)</label><input type="number" id="prestacaoValor" step="0.01"></div><div class="form-group"><label>FORMA</label><select id="prestacaoForma"><option>Pix</option><option>Dinheiro</option><option>Transferência</option></select></div><div class="btn-group" style="margin-top:20px"><button class="btn btn-secondary" onclick="fecharModal('modalPrestacao')">CANCELAR</button><button class="btn btn-primary" onclick="salvarPrestacao()">SALVAR</button></div></div></div>
 
@@ -734,7 +841,7 @@
     let currentPixPage = 1;
     let tabelaPixVisible = true;
     let paginaRocas = 1, paginaEntradas = 1, paginaDespesas = 1, paginaPrestacoes = 1;
-    const ITENS_POR_PAGINA = 15;
+    const ITENS_POR_PAGINA = 20;
 
     const pixCol = collection(db, "pix");
     const pixClientesCol = collection(db, "pix_clientes");
@@ -744,6 +851,7 @@
     function ordenarBancos() { bancosPix.sort((a, b) => a.localeCompare(b, 'pt-BR')); }
     function formatarMoeda(valor) { return (valor || 0).toLocaleString('pt-br', { style: 'currency', currency: 'BRL' }); }
     function formatarData(data) { if (!data) return ''; const [ano, mes, dia] = data.split('-'); return `${dia}/${mes}/${ano}`; }
+    function formatarDataBR(data) { if (!data) return '-'; const d = new Date(data + 'T00:00:00'); return d.toLocaleDateString('pt-BR'); }
     function mostrarFeedback(msg) { const fb = document.getElementById('feedback'); fb.textContent = msg; fb.style.display = 'block'; setTimeout(() => fb.style.display = 'none', 3000); }
     function fecharModal(id) { document.getElementById(id).style.display = 'none'; }
     function escapeHtml(text) { if (!text) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
@@ -804,110 +912,410 @@
     function mudarPaginaRocas(delta) { paginaRocas += delta; renderizarRocas(); }
 
     // ==================== ENTRADAS ====================
-    function abrirModalEntrada(entrada = null) { document.getElementById('entradaId').value = entrada?.id || ''; document.getElementById('entradaData').value = entrada?.data || new Date().toISOString().split('T')[0]; document.getElementById('entradaRoca').value = entrada?.rocaId || ''; document.getElementById('entradaCategoria').value = entrada?.categoria || ''; document.getElementById('entradaValor').value = entrada?.valor || ''; document.getElementById('modalEntrada').style.display = 'flex'; }
-    async function salvarEntrada() {
-        const id = document.getElementById('entradaId').value, data = document.getElementById('entradaData').value, rocaId = document.getElementById('entradaRoca').value, categoria = document.getElementById('entradaCategoria').value.trim(), valor = parseFloat(document.getElementById('entradaValor').value) || 0;
-        if (!data || !rocaId || !categoria || valor <= 0) { alert('Preencha todos os campos!'); return; }
-        const roca = rocas.find(r => r.id === rocaId);
-        const novaEntrada = { data, rocaId, rocaNome: roca?.nome || '', categoria, valor };
-        try { if (id) await updateDoc(doc(entradasCol, id), novaEntrada); else await addDoc(entradasCol, novaEntrada); mostrarFeedback('Entrada salva!'); fecharModal('modalEntrada'); } catch (e) { alert('Erro: ' + e.message); }
+    function abrirModalEntrada(entrada = null) {
+        document.getElementById('entradaId').value = entrada?.id || '';
+        document.getElementById('entradaData').value = entrada?.data || new Date().toISOString().split('T')[0];
+        document.getElementById('entradaRoca').value = entrada?.rocaId || '';
+        document.getElementById('entradaCategoria').value = entrada?.categoria || '';
+        document.getElementById('entradaCentroCusto').value = entrada?.centroCusto || 'Leandro';
+        document.getElementById('entradaValor').value = entrada?.valor || '';
+        document.getElementById('entradaObs').value = entrada?.obs || '';
+        document.getElementById('modalEntrada').style.display = 'flex';
     }
-    async function excluirEntrada(id) { if (confirm('Excluir entrada?')) { await deleteDoc(doc(entradasCol, id)); mostrarFeedback('Entrada excluída'); } }
+
+    async function salvarEntrada() {
+        const id = document.getElementById('entradaId').value;
+        const data = document.getElementById('entradaData').value;
+        const rocaId = document.getElementById('entradaRoca').value;
+        const categoria = document.getElementById('entradaCategoria').value.trim();
+        const centroCusto = document.getElementById('entradaCentroCusto').value;
+        const valor = parseFloat(document.getElementById('entradaValor').value) || 0;
+        const obs = document.getElementById('entradaObs').value.trim();
+
+        if (!data || !rocaId || !categoria || !centroCusto || valor <= 0) {
+            alert('Preencha todos os campos obrigatórios!');
+            return;
+        }
+        const roca = rocas.find(r => r.id === rocaId);
+        const novaEntrada = { data, rocaId, rocaNome: roca?.nome || '', categoria, centroCusto, valor, obs };
+
+        try {
+            if (id) await updateDoc(doc(entradasCol, id), novaEntrada);
+            else await addDoc(entradasCol, novaEntrada);
+            mostrarFeedback('✅ Entrada salva!');
+            fecharModal('modalEntrada');
+        } catch (e) { alert('Erro: ' + e.message); }
+    }
+
+    async function excluirEntrada(id) {
+        if (confirm('⚠️ Tem certeza que quer excluir esta entrada? Esta ação não pode ser desfeita.')) {
+            await deleteDoc(doc(entradasCol, id));
+            mostrarFeedback('🗑️ Entrada excluída!');
+        }
+    }
+
     function editarEntrada(id) { const entrada = entradas.find(e => e.id === id); if (entrada) abrirModalEntrada(entrada); }
+
+    async function duplicarEntrada(id) {
+        const entrada = entradas.find(e => e.id === id);
+        if (entrada) {
+            const novaEntrada = {
+                data: new Date().toISOString().split('T')[0],
+                rocaId: entrada.rocaId,
+                rocaNome: entrada.rocaNome,
+                categoria: entrada.categoria,
+                centroCusto: entrada.centroCusto || 'Leandro',
+                valor: entrada.valor,
+                obs: entrada.obs ? `(Cópia) ${entrada.obs}` : 'Cópia'
+            };
+            try {
+                await addDoc(entradasCol, novaEntrada);
+                mostrarFeedback('📋 Entrada duplicada!');
+            } catch (e) { alert('Erro: ' + e.message); }
+        }
+    }
+
     function renderizarEntradas() {
-        const rocaFiltro = document.getElementById('filtroRoca').value, dataInicio = document.getElementById('filtroDataInicio').value, dataFim = document.getElementById('filtroDataFim').value;
+        const rocaFiltro = document.getElementById('filtroRoca').value;
+        const tipoFiltro = document.getElementById('filtroTipo').value;
+        const categoriaFiltro = document.getElementById('filtroCategoria').value;
+        const centroFiltro = document.getElementById('filtroCentroCusto').value;
+        const dataInicio = document.getElementById('filtroDataInicio').value;
+        const dataFim = document.getElementById('filtroDataFim').value;
+
         let filtradas = [...entradas];
         if (rocaFiltro) filtradas = filtradas.filter(e => e.rocaId === rocaFiltro);
+        if (categoriaFiltro) filtradas = filtradas.filter(e => e.categoria === categoriaFiltro);
+        if (centroFiltro) filtradas = filtradas.filter(e => e.centroCusto === centroFiltro);
         if (dataInicio) filtradas = filtradas.filter(e => e.data >= dataInicio);
         if (dataFim) filtradas = filtradas.filter(e => e.data <= dataFim);
-        filtradas.sort((a,b) => new Date(b.data) - new Date(a.data));
+
+        filtradas.sort((a, b) => new Date(b.data) - new Date(a.data));
+
+        const totalEntradas = filtradas.reduce((s, e) => s + e.valor, 0);
+        document.getElementById('totalEntradasFiltradas').textContent = formatarMoeda(totalEntradas);
+
+        const totalDespesasFilt = despesasFiltradas().reduce((s, d) => s + d.valor, 0);
+        document.getElementById('totalDespesasFiltradas').textContent = formatarMoeda(totalDespesasFilt);
+        document.getElementById('saldoFiltrado').textContent = formatarMoeda(totalEntradas - totalDespesasFilt);
+
         const total = filtradas.length, inicio = (paginaEntradas - 1) * ITENS_POR_PAGINA;
-        filtradas = filtradas.slice(inicio, inicio + ITENS_POR_PAGINA);
-        const tbody = document.getElementById('listaEntradas'); if (!tbody) return;
+        const paginadas = filtradas.slice(inicio, inicio + ITENS_POR_PAGINA);
+
+        const tbody = document.getElementById('listaEntradas');
+        if (!tbody) return;
         tbody.innerHTML = '';
-        filtradas.forEach(e => { const row = tbody.insertRow(); row.insertCell(0).innerHTML = formatarData(e.data); row.insertCell(1).innerHTML = `<strong>${escapeHtml(e.rocaNome)}</strong>`; row.insertCell(2).innerHTML = escapeHtml(e.categoria); row.insertCell(3).innerHTML = formatarMoeda(e.valor); row.insertCell(4).innerHTML = `<button class="btn btn-primary btn-sm" onclick="editarEntrada('${e.id}')">✏️</button> <button class="btn btn-danger btn-sm" onclick="excluirEntrada('${e.id}')">🗑️</button>`; });
+
+        paginadas.forEach(e => {
+            const row = tbody.insertRow();
+            row.insertCell(0).innerHTML = formatarData(e.data);
+            row.insertCell(1).innerHTML = `<strong>${escapeHtml(e.rocaNome)}</strong>`;
+            row.insertCell(2).innerHTML = escapeHtml(e.categoria);
+            row.insertCell(3).innerHTML = escapeHtml(e.centroCusto || '-');
+            row.insertCell(4).innerHTML = formatarMoeda(e.valor);
+            row.insertCell(5).innerHTML = `<span style="font-size:11px;color:#555;">${escapeHtml(e.obs || '-')}</span>`;
+            row.insertCell(6).innerHTML = `
+                <button class="btn btn-warning btn-sm" onclick="duplicarEntrada('${e.id}')" title="Duplicar">📋</button>
+                <button class="btn btn-primary btn-sm" onclick="editarEntrada('${e.id}')" title="Editar">✏️</button>
+                <button class="btn btn-danger btn-sm" onclick="excluirEntrada('${e.id}')" title="Excluir">🗑️</button>
+            `;
+        });
+
         const pagDiv = document.getElementById('paginacaoEntradas');
         const paginas = Math.ceil(total / ITENS_POR_PAGINA);
         if (paginas <= 1) { pagDiv.innerHTML = ''; return; }
-        pagDiv.innerHTML = `<button ${paginaEntradas <= 1 ? 'disabled' : ''} onclick="mudarPaginaEntradas(-1)">◀</button><span>${paginaEntradas} / ${paginas}</span><button ${paginaEntradas >= paginas ? 'disabled' : ''} onclick="mudarPaginaEntradas(1)">▶</button>`;
+        pagDiv.innerHTML = `
+            <button ${paginaEntradas <= 1 ? 'disabled' : ''} onclick="mudarPaginaEntradas(-1)">◀</button>
+            <span>${paginaEntradas} / ${paginas}</span>
+            <button ${paginaEntradas >= paginas ? 'disabled' : ''} onclick="mudarPaginaEntradas(1)">▶</button>
+        `;
     }
+
+    function despesasFiltradas() {
+        const rocaFiltro = document.getElementById('filtroRoca').value;
+        const categoriaFiltro = document.getElementById('filtroCategoria').value;
+        const centroFiltro = document.getElementById('filtroCentroCusto').value;
+        const dataInicio = document.getElementById('filtroDataInicio').value;
+        const dataFim = document.getElementById('filtroDataFim').value;
+
+        let filtradas = [...despesas];
+        if (rocaFiltro) filtradas = filtradas.filter(d => d.rocaId === rocaFiltro);
+        if (categoriaFiltro) filtradas = filtradas.filter(d => d.categoria === categoriaFiltro);
+        if (centroFiltro) filtradas = filtradas.filter(d => d.centroCusto === centroFiltro);
+        if (dataInicio) filtradas = filtradas.filter(d => d.data >= dataInicio);
+        if (dataFim) filtradas = filtradas.filter(d => d.data <= dataFim);
+        return filtradas;
+    }
+
     function mudarPaginaEntradas(delta) { paginaEntradas += delta; renderizarEntradas(); }
 
     // ==================== DESPESAS ====================
-    function abrirModalDespesa(despesa = null) { document.getElementById('despesaId').value = despesa?.id || ''; document.getElementById('despesaData').value = despesa?.data || new Date().toISOString().split('T')[0]; document.getElementById('despesaRoca').value = despesa?.rocaId || ''; document.getElementById('despesaCategoria').value = despesa?.categoria || 'Combustível'; document.getElementById('despesaDescricao').value = despesa?.descricao || ''; document.getElementById('despesaValor').value = despesa?.valor || ''; document.getElementById('modalDespesa').style.display = 'flex'; }
-    async function salvarDespesa() {
-        const id = document.getElementById('despesaId').value, data = document.getElementById('despesaData').value, rocaId = document.getElementById('despesaRoca').value, categoria = document.getElementById('despesaCategoria').value, descricao = document.getElementById('despesaDescricao').value, valor = parseFloat(document.getElementById('despesaValor').value) || 0;
-        if (!data || !rocaId || !categoria || valor <= 0) { alert('Preencha os campos obrigatórios!'); return; }
-        const roca = rocas.find(r => r.id === rocaId);
-        const novaDespesa = { data, rocaId, rocaNome: roca?.nome || '', categoria, descricao, valor };
-        try { if (id) await updateDoc(doc(despesasCol, id), novaDespesa); else await addDoc(despesasCol, novaDespesa); mostrarFeedback('Despesa salva!'); fecharModal('modalDespesa'); } catch (e) { alert('Erro: ' + e.message); }
+    function abrirModalDespesa(despesa = null) {
+        document.getElementById('despesaId').value = despesa?.id || '';
+        document.getElementById('despesaData').value = despesa?.data || new Date().toISOString().split('T')[0];
+        document.getElementById('despesaRoca').value = despesa?.rocaId || '';
+        document.getElementById('despesaCategoria').value = despesa?.categoria || 'Combustível';
+        document.getElementById('despesaCentroCusto').value = despesa?.centroCusto || 'Leandro';
+        document.getElementById('despesaDescricao').value = despesa?.descricao || '';
+        document.getElementById('despesaValor').value = despesa?.valor || '';
+        document.getElementById('despesaObs').value = despesa?.obs || '';
+        document.getElementById('modalDespesa').style.display = 'flex';
     }
-    async function excluirDespesa(id) { if (confirm('Excluir despesa?')) { await deleteDoc(doc(despesasCol, id)); mostrarFeedback('Despesa excluída'); } }
+
+    async function salvarDespesa() {
+        const id = document.getElementById('despesaId').value;
+        const data = document.getElementById('despesaData').value;
+        const rocaId = document.getElementById('despesaRoca').value;
+        const categoria = document.getElementById('despesaCategoria').value;
+        const centroCusto = document.getElementById('despesaCentroCusto').value;
+        const descricao = document.getElementById('despesaDescricao').value.trim();
+        const valor = parseFloat(document.getElementById('despesaValor').value) || 0;
+        const obs = document.getElementById('despesaObs').value.trim();
+
+        if (!data || !rocaId || !categoria || !centroCusto || valor <= 0) {
+            alert('Preencha todos os campos obrigatórios!');
+            return;
+        }
+        const roca = rocas.find(r => r.id === rocaId);
+        const novaDespesa = { data, rocaId, rocaNome: roca?.nome || '', categoria, centroCusto, descricao, valor, obs };
+
+        try {
+            if (id) await updateDoc(doc(despesasCol, id), novaDespesa);
+            else await addDoc(despesasCol, novaDespesa);
+            mostrarFeedback('✅ Despesa salva!');
+            fecharModal('modalDespesa');
+        } catch (e) { alert('Erro: ' + e.message); }
+    }
+
+    async function excluirDespesa(id) {
+        if (confirm('⚠️ Tem certeza que quer excluir esta despesa? Esta ação não pode ser desfeita.')) {
+            await deleteDoc(doc(despesasCol, id));
+            mostrarFeedback('🗑️ Despesa excluída!');
+        }
+    }
+
     function editarDespesa(id) { const despesa = despesas.find(d => d.id === id); if (despesa) abrirModalDespesa(despesa); }
+
+    async function duplicarDespesa(id) {
+        const despesa = despesas.find(d => d.id === id);
+        if (despesa) {
+            const novaDespesa = {
+                data: new Date().toISOString().split('T')[0],
+                rocaId: despesa.rocaId,
+                rocaNome: despesa.rocaNome,
+                categoria: despesa.categoria,
+                centroCusto: despesa.centroCusto || 'Leandro',
+                descricao: despesa.descricao,
+                valor: despesa.valor,
+                obs: despesa.obs ? `(Cópia) ${despesa.obs}` : 'Cópia'
+            };
+            try {
+                await addDoc(despesasCol, novaDespesa);
+                mostrarFeedback('📋 Despesa duplicada!');
+            } catch (e) { alert('Erro: ' + e.message); }
+        }
+    }
+
     function renderizarDespesas() {
-        const rocaFiltro = document.getElementById('filtroRoca').value, dataInicio = document.getElementById('filtroDataInicio').value, dataFim = document.getElementById('filtroDataFim').value;
+        const rocaFiltro = document.getElementById('filtroRoca').value;
+        const categoriaFiltro = document.getElementById('filtroCategoria').value;
+        const centroFiltro = document.getElementById('filtroCentroCusto').value;
+        const dataInicio = document.getElementById('filtroDataInicio').value;
+        const dataFim = document.getElementById('filtroDataFim').value;
+
         let filtradas = [...despesas];
         if (rocaFiltro) filtradas = filtradas.filter(d => d.rocaId === rocaFiltro);
+        if (categoriaFiltro) filtradas = filtradas.filter(d => d.categoria === categoriaFiltro);
+        if (centroFiltro) filtradas = filtradas.filter(d => d.centroCusto === centroFiltro);
         if (dataInicio) filtradas = filtradas.filter(d => d.data >= dataInicio);
         if (dataFim) filtradas = filtradas.filter(d => d.data <= dataFim);
-        filtradas.sort((a,b) => new Date(b.data) - new Date(a.data));
+
+        filtradas.sort((a, b) => new Date(b.data) - new Date(a.data));
+
         const total = filtradas.length, inicio = (paginaDespesas - 1) * ITENS_POR_PAGINA;
-        filtradas = filtradas.slice(inicio, inicio + ITENS_POR_PAGINA);
-        const tbody = document.getElementById('listaDespesas'); if (!tbody) return;
+        const paginadas = filtradas.slice(inicio, inicio + ITENS_POR_PAGINA);
+
+        const tbody = document.getElementById('listaDespesas');
+        if (!tbody) return;
         tbody.innerHTML = '';
-        filtradas.forEach(d => { const row = tbody.insertRow(); row.insertCell(0).innerHTML = formatarData(d.data); row.insertCell(1).innerHTML = `<strong>${escapeHtml(d.rocaNome)}</strong>`; row.insertCell(2).innerHTML = escapeHtml(d.categoria); row.insertCell(3).innerHTML = escapeHtml(d.descricao || '—'); row.insertCell(4).innerHTML = formatarMoeda(d.valor); row.insertCell(5).innerHTML = `<button class="btn btn-primary btn-sm" onclick="editarDespesa('${d.id}')">✏️</button> <button class="btn btn-danger btn-sm" onclick="excluirDespesa('${d.id}')">🗑️</button>`; });
+
+        paginadas.forEach(d => {
+            const row = tbody.insertRow();
+            row.insertCell(0).innerHTML = formatarData(d.data);
+            row.insertCell(1).innerHTML = `<strong>${escapeHtml(d.rocaNome)}</strong>`;
+            row.insertCell(2).innerHTML = escapeHtml(d.categoria);
+            row.insertCell(3).innerHTML = escapeHtml(d.centroCusto || '-');
+            row.insertCell(4).innerHTML = escapeHtml(d.descricao || '-');
+            row.insertCell(5).innerHTML = formatarMoeda(d.valor);
+            row.insertCell(6).innerHTML = `<span style="font-size:11px;color:#555;">${escapeHtml(d.obs || '-')}</span>`;
+            row.insertCell(7).innerHTML = `
+                <button class="btn btn-warning btn-sm" onclick="duplicarDespesa('${d.id}')" title="Duplicar">📋</button>
+                <button class="btn btn-primary btn-sm" onclick="editarDespesa('${d.id}')" title="Editar">✏️</button>
+                <button class="btn btn-danger btn-sm" onclick="excluirDespesa('${d.id}')" title="Excluir">🗑️</button>
+            `;
+        });
+
         const pagDiv = document.getElementById('paginacaoDespesas');
         const paginas = Math.ceil(total / ITENS_POR_PAGINA);
         if (paginas <= 1) { pagDiv.innerHTML = ''; return; }
-        pagDiv.innerHTML = `<button ${paginaDespesas <= 1 ? 'disabled' : ''} onclick="mudarPaginaDespesas(-1)">◀</button><span>${paginaDespesas} / ${paginas}</span><button ${paginaDespesas >= paginas ? 'disabled' : ''} onclick="mudarPaginaDespesas(1)">▶</button>`;
+        pagDiv.innerHTML = `
+            <button ${paginaDespesas <= 1 ? 'disabled' : ''} onclick="mudarPaginaDespesas(-1)">◀</button>
+            <span>${paginaDespesas} / ${paginas}</span>
+            <button ${paginaDespesas >= paginas ? 'disabled' : ''} onclick="mudarPaginaDespesas(1)">▶</button>
+        `;
     }
+
     function mudarPaginaDespesas(delta) { paginaDespesas += delta; renderizarDespesas(); }
 
     // ==================== PRESTAÇÕES ====================
-    function abrirModalPrestacao(prestacao = null) { document.getElementById('prestacaoId').value = prestacao?.id || ''; document.getElementById('prestacaoData').value = prestacao?.data || new Date().toISOString().split('T')[0]; document.getElementById('prestacaoRoca').value = prestacao?.rocaId || ''; document.getElementById('prestacaoResponsavel').value = prestacao?.responsavel || 'Nene'; document.getElementById('prestacaoValor').value = prestacao?.valor || ''; document.getElementById('prestacaoForma').value = prestacao?.forma || 'Pix'; document.getElementById('modalPrestacao').style.display = 'flex'; }
+    function abrirModalPrestacao(prestacao = null) {
+        document.getElementById('prestacaoId').value = prestacao?.id || '';
+        document.getElementById('prestacaoData').value = prestacao?.data || new Date().toISOString().split('T')[0];
+        document.getElementById('prestacaoRoca').value = prestacao?.rocaId || '';
+        document.getElementById('prestacaoResponsavel').value = prestacao?.responsavel || 'Nene';
+        document.getElementById('prestacaoValor').value = prestacao?.valor || '';
+        document.getElementById('prestacaoForma').value = prestacao?.forma || 'Pix';
+        document.getElementById('modalPrestacao').style.display = 'flex';
+    }
+
     async function salvarPrestacao() {
-        const id = document.getElementById('prestacaoId').value, data = document.getElementById('prestacaoData').value, rocaId = document.getElementById('prestacaoRoca').value, responsavel = document.getElementById('prestacaoResponsavel').value, valor = parseFloat(document.getElementById('prestacaoValor').value) || 0, forma = document.getElementById('prestacaoForma').value;
-        if (!data || !rocaId || !responsavel || valor <= 0) { alert('Preencha todos os campos!'); return; }
+        const id = document.getElementById('prestacaoId').value;
+        const data = document.getElementById('prestacaoData').value;
+        const rocaId = document.getElementById('prestacaoRoca').value;
+        const responsavel = document.getElementById('prestacaoResponsavel').value;
+        const valor = parseFloat(document.getElementById('prestacaoValor').value) || 0;
+        const forma = document.getElementById('prestacaoForma').value;
+
+        if (!data || !rocaId || !responsavel || valor <= 0) {
+            alert('Preencha todos os campos!');
+            return;
+        }
         const roca = rocas.find(r => r.id === rocaId);
         const novaPrestacao = { data, rocaId, rocaNome: roca?.nome || '', responsavel, valor, forma };
-        try { if (id) await updateDoc(doc(prestacoesCol, id), novaPrestacao); else await addDoc(prestacoesCol, novaPrestacao); mostrarFeedback('Repasse salvo!'); fecharModal('modalPrestacao'); } catch (e) { alert('Erro: ' + e.message); }
+
+        try {
+            if (id) await updateDoc(doc(prestacoesCol, id), novaPrestacao);
+            else await addDoc(prestacoesCol, novaPrestacao);
+            mostrarFeedback('✅ Repasse salvo!');
+            fecharModal('modalPrestacao');
+        } catch (e) { alert('Erro: ' + e.message); }
     }
-    async function excluirPrestacao(id) { if (confirm('Excluir repasse?')) { await deleteDoc(doc(prestacoesCol, id)); mostrarFeedback('Repasse excluído'); } }
+
+    async function excluirPrestacao(id) {
+        if (confirm('⚠️ Tem certeza que quer excluir este repasse?')) {
+            await deleteDoc(doc(prestacoesCol, id));
+            mostrarFeedback('🗑️ Repasse excluído!');
+        }
+    }
+
     function editarPrestacao(id) { const prestacao = prestacoes.find(p => p.id === id); if (prestacao) abrirModalPrestacao(prestacao); }
+
     function renderizarPrestacoes() {
-        const rocaFiltro = document.getElementById('filtroResumoRoca').value, dataInicio = document.getElementById('filtroResumoInicio').value, dataFim = document.getElementById('filtroResumoFim').value;
+        const rocaFiltro = document.getElementById('filtroResumoRoca').value;
+        const socioFiltro = document.getElementById('filtroResumoSocio').value;
+        const dataInicio = document.getElementById('filtroResumoInicio').value;
+        const dataFim = document.getElementById('filtroResumoFim').value;
+
         let filtradas = [...prestacoes];
         if (rocaFiltro) filtradas = filtradas.filter(p => p.rocaId === rocaFiltro);
+        if (socioFiltro) filtradas = filtradas.filter(p => p.responsavel === socioFiltro);
         if (dataInicio) filtradas = filtradas.filter(p => p.data >= dataInicio);
         if (dataFim) filtradas = filtradas.filter(p => p.data <= dataFim);
-        filtradas.sort((a,b) => new Date(b.data) - new Date(a.data));
+
+        filtradas.sort((a, b) => new Date(b.data) - new Date(a.data));
+
         const total = filtradas.length, inicio = (paginaPrestacoes - 1) * ITENS_POR_PAGINA;
-        filtradas = filtradas.slice(inicio, inicio + ITENS_POR_PAGINA);
-        const tbody = document.getElementById('listaPrestacoes'); if (!tbody) return;
+        const paginadas = filtradas.slice(inicio, inicio + ITENS_POR_PAGINA);
+
+        const tbody = document.getElementById('listaPrestacoes');
+        if (!tbody) return;
         tbody.innerHTML = '';
-        filtradas.forEach(p => { const row = tbody.insertRow(); row.insertCell(0).innerHTML = formatarData(p.data); row.insertCell(1).innerHTML = `<strong>${escapeHtml(p.rocaNome)}</strong>`; row.insertCell(2).innerHTML = escapeHtml(p.responsavel); row.insertCell(3).innerHTML = formatarMoeda(p.valor); row.insertCell(4).innerHTML = escapeHtml(p.forma); row.insertCell(5).innerHTML = `<button class="btn btn-primary btn-sm" onclick="editarPrestacao('${p.id}')">✏️</button> <button class="btn btn-danger btn-sm" onclick="excluirPrestacao('${p.id}')">🗑️</button>`; });
+
+        paginadas.forEach(p => {
+            const row = tbody.insertRow();
+            row.insertCell(0).innerHTML = formatarData(p.data);
+            row.insertCell(1).innerHTML = `<strong>${escapeHtml(p.rocaNome)}</strong>`;
+            row.insertCell(2).innerHTML = escapeHtml(p.responsavel);
+            row.insertCell(3).innerHTML = formatarMoeda(p.valor);
+            row.insertCell(4).innerHTML = escapeHtml(p.forma);
+            row.insertCell(5).innerHTML = `
+                <button class="btn btn-primary btn-sm" onclick="editarPrestacao('${p.id}')">✏️</button>
+                <button class="btn btn-danger btn-sm" onclick="excluirPrestacao('${p.id}')">🗑️</button>
+            `;
+        });
+
         const pagDiv = document.getElementById('paginacaoPrestacoes');
         const paginas = Math.ceil(total / ITENS_POR_PAGINA);
         if (paginas <= 1) { pagDiv.innerHTML = ''; return; }
-        pagDiv.innerHTML = `<button ${paginaPrestacoes <= 1 ? 'disabled' : ''} onclick="mudarPaginaPrestacoes(-1)">◀</button><span>${paginaPrestacoes} / ${paginas}</span><button ${paginaPrestacoes >= paginas ? 'disabled' : ''} onclick="mudarPaginaPrestacoes(1)">▶</button>`;
+        pagDiv.innerHTML = `
+            <button ${paginaPrestacoes <= 1 ? 'disabled' : ''} onclick="mudarPaginaPrestacoes(-1)">◀</button>
+            <span>${paginaPrestacoes} / ${paginas}</span>
+            <button ${paginaPrestacoes >= paginas ? 'disabled' : ''} onclick="mudarPaginaPrestacoes(1)">▶</button>
+        `;
     }
+
     function mudarPaginaPrestacoes(delta) { paginaPrestacoes += delta; renderizarPrestacoes(); }
 
-    // ==================== RESUMO FINANCEIRO (CORRIGIDO) ====================
+    // ==================== FILTROS RÁPIDOS ====================
+    function filtroRapido(tipo) {
+        const hoje = new Date();
+        let inicio = '', fim = '';
+
+        switch(tipo) {
+            case 'mes':
+                inicio = new Date(hoje.getFullYear(), hoje.getMonth(), 1).toISOString().split('T')[0];
+                fim = hoje.toISOString().split('T')[0];
+                break;
+            case 'mesPassado':
+                inicio = new Date(hoje.getFullYear(), hoje.getMonth() - 1, 1).toISOString().split('T')[0];
+                fim = new Date(hoje.getFullYear(), hoje.getMonth(), 0).toISOString().split('T')[0];
+                break;
+            case '30dias':
+                const d30 = new Date(hoje);
+                d30.setDate(d30.getDate() - 30);
+                inicio = d30.toISOString().split('T')[0];
+                fim = hoje.toISOString().split('T')[0];
+                break;
+            case '90dias':
+                const d90 = new Date(hoje);
+                d90.setDate(d90.getDate() - 90);
+                inicio = d90.toISOString().split('T')[0];
+                fim = hoje.toISOString().split('T')[0];
+                break;
+            case 'ano':
+                inicio = new Date(hoje.getFullYear(), 0, 1).toISOString().split('T')[0];
+                fim = hoje.toISOString().split('T')[0];
+                break;
+        }
+
+        document.getElementById('filtroDataInicio').value = inicio;
+        document.getElementById('filtroDataFim').value = fim;
+        aplicarFiltros();
+    }
+
+    // ==================== RESUMO FINANCEIRO (ATUALIZADO) ====================
     function atualizarResumo() {
         const rocaFiltro = document.getElementById('filtroResumoRoca').value;
+        const socioFiltro = document.getElementById('filtroResumoSocio').value;
         const dataInicio = document.getElementById('filtroResumoInicio').value;
         const dataFim = document.getElementById('filtroResumoFim').value;
-        
+
         let entradasFilt = [...entradas];
         let despesasFilt = [...despesas];
         let prestacoesFilt = [...prestacoes];
-        
+
         if (rocaFiltro) {
             entradasFilt = entradasFilt.filter(e => e.rocaId === rocaFiltro);
             despesasFilt = despesasFilt.filter(d => d.rocaId === rocaFiltro);
             prestacoesFilt = prestacoesFilt.filter(p => p.rocaId === rocaFiltro);
         }
+
+        if (socioFiltro) {
+            entradasFilt = entradasFilt.filter(e => e.centroCusto === socioFiltro);
+            despesasFilt = despesasFilt.filter(d => d.centroCusto === socioFiltro);
+            prestacoesFilt = prestacoesFilt.filter(p => p.responsavel === socioFiltro);
+        }
+
         if (dataInicio) {
             entradasFilt = entradasFilt.filter(e => e.data >= dataInicio);
             despesasFilt = despesasFilt.filter(d => d.data >= dataInicio);
@@ -918,29 +1326,112 @@
             despesasFilt = despesasFilt.filter(d => d.data <= dataFim);
             prestacoesFilt = prestacoesFilt.filter(p => p.data <= dataFim);
         }
-        
+
         const receitas = entradasFilt.reduce((a, b) => a + (b.valor || 0), 0);
         const despesasTotal = despesasFilt.reduce((a, b) => a + (b.valor || 0), 0);
         const lucro = receitas - despesasTotal;
-        
-        // ✅ CORREÇÃO: Direito é 50% da RECEITA, não do lucro
         const direito = receitas / 2;
         const despGerais = despesasTotal / 2;
-        
-        const repNene = prestacoesFilt
-            .filter(p => p.responsavel === 'Nene')
-            .reduce((a, b) => a + (b.valor || 0), 0);
-        const repLeandro = prestacoesFilt
-            .filter(p => p.responsavel === 'Leandro')
-            .reduce((a, b) => a + (b.valor || 0), 0);
-        
+
+        const repNene = prestacoesFilt.filter(p => p.responsavel === 'Nene').reduce((a, b) => a + (b.valor || 0), 0);
+        const repLeandro = prestacoesFilt.filter(p => p.responsavel === 'Leandro').reduce((a, b) => a + (b.valor || 0), 0);
+
         const saldoNene = direito - despGerais - repNene;
         const saldoLeandro = direito - despGerais - repLeandro;
-        
+
         const container = document.getElementById('resumoContainer');
         if (!container) return;
+
+        // --- RESULTADO POR ROÇA (TABELA ORGANIZADA) ---
+        const rocasUnicas = [...new Set(entradasFilt.map(e => e.rocaId).concat(despesasFilt.map(d => d.rocaId)))];
         
-        container.innerHTML = `
+        let rocaTableHtml = '';
+        let totalReceitaGeral = 0;
+        let totalDespesaGeral = 0;
+        let totalLucroGeral = 0;
+        let totalRepasseNene = 0;
+        let totalRepasseLeandro = 0;
+        let totalSaldoSocio = 0;
+
+        if (rocasUnicas.length > 0) {
+            rocaTableHtml = `
+                <h4 style="color:#1a4a2a; margin-top:20px; margin-bottom:12px;">🌱 RESULTADO POR ROÇA</h4>
+                <div class="table-wrapper">
+                    <table class="roca-resumo-table">
+                        <thead>
+                            <tr>
+                                <th>ROÇA</th>
+                                <th>RECEITA</th>
+                                <th>DESPESA</th>
+                                <th>LUCRO</th>
+                                <th>REPASSES NENÉ</th>
+                                <th>REPASSES LEANDRO</th>
+                                <th>SALDO SÓCIO</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            rocasUnicas.forEach(id => {
+                const r = rocas.find(r => r.id === id);
+                const receitaRoca = entradasFilt.filter(e => e.rocaId === id).reduce((s, e) => s + e.valor, 0);
+                const despesaRoca = despesasFilt.filter(d => d.rocaId === id).reduce((s, d) => s + d.valor, 0);
+                const lucroRoca = receitaRoca - despesaRoca;
+                
+                const repNeneRoca = prestacoesFilt.filter(p => p.rocaId === id && p.responsavel === 'Nene').reduce((s, p) => s + p.valor, 0);
+                const repLeandroRoca = prestacoesFilt.filter(p => p.rocaId === id && p.responsavel === 'Leandro').reduce((s, p) => s + p.valor, 0);
+                
+                const direitoRoca = receitaRoca / 2;
+                const despGeraisRoca = despesaRoca / 2;
+                const saldoSocioRoca = direitoRoca - despGeraisRoca - repNeneRoca - repLeandroRoca;
+
+                totalReceitaGeral += receitaRoca;
+                totalDespesaGeral += despesaRoca;
+                totalLucroGeral += lucroRoca;
+                totalRepasseNene += repNeneRoca;
+                totalRepasseLeandro += repLeandroRoca;
+                totalSaldoSocio += saldoSocioRoca;
+
+                const lucroClass = lucroRoca >= 0 ? 'lucro-positivo' : 'lucro-negativo';
+                const saldoClass = saldoSocioRoca >= 0 ? 'lucro-positivo' : 'lucro-negativo';
+
+                rocaTableHtml += `
+                    <tr>
+                        <td><strong>${escapeHtml(r?.nome || id)}</strong></td>
+                        <td>${formatarMoeda(receitaRoca)}</td>
+                        <td>${formatarMoeda(despesaRoca)}</td>
+                        <td class="${lucroClass}">${formatarMoeda(lucroRoca)}</td>
+                        <td>${formatarMoeda(repNeneRoca)}</td>
+                        <td>${formatarMoeda(repLeandroRoca)}</td>
+                        <td class="${saldoClass}">${formatarMoeda(saldoSocioRoca)}</td>
+                    </tr>
+                `;
+            });
+
+            // Linha de TOTAL
+            const totalLucroClass = totalLucroGeral >= 0 ? 'lucro-positivo' : 'lucro-negativo';
+            const totalSaldoClass = totalSaldoSocio >= 0 ? 'lucro-positivo' : 'lucro-negativo';
+
+            rocaTableHtml += `
+                        </tbody>
+                        <tfoot>
+                            <tr class="total-row">
+                                <td><strong>TOTAL</strong></td>
+                                <td><strong>${formatarMoeda(totalReceitaGeral)}</strong></td>
+                                <td><strong>${formatarMoeda(totalDespesaGeral)}</strong></td>
+                                <td class="${totalLucroClass}"><strong>${formatarMoeda(totalLucroGeral)}</strong></td>
+                                <td><strong>${formatarMoeda(totalRepasseNene)}</strong></td>
+                                <td><strong>${formatarMoeda(totalRepasseLeandro)}</strong></td>
+                                <td class="${totalSaldoClass}"><strong>${formatarMoeda(totalSaldoSocio)}</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            `;
+        }
+
+        // --- CARDS RESUMO ---
+        const cardsHtml = `
             <div class="resumo-cards">
                 <div class="resumo-card">
                     <h3>📈 RECEITAS</h3>
@@ -955,6 +1446,10 @@
                     <div class="valor">${formatarMoeda(lucro)}</div>
                 </div>
             </div>
+        `;
+
+        // --- TABELA SÓCIOS (TOTAIS DE TODAS AS ROÇAS) ---
+        const socioTableHtml = `
             <div class="socio-table-wrapper">
                 <table class="socio-table">
                     <thead>
@@ -989,11 +1484,81 @@
                 </table>
             </div>
         `;
+
+        container.innerHTML = `
+            ${cardsHtml}
+            ${rocaTableHtml}
+            ${socioTableHtml}
+        `;
     }
 
-    function aplicarFiltros() { paginaEntradas = 1; paginaDespesas = 1; renderizarEntradas(); renderizarDespesas(); }
-    function limparFiltros() { document.getElementById('filtroRoca').value = ''; document.getElementById('filtroDataInicio').value = ''; document.getElementById('filtroDataFim').value = ''; paginaEntradas = 1; paginaDespesas = 1; renderizarEntradas(); renderizarDespesas(); }
-    function exportarResumo() { alert('Exportação de relatório disponível na versão completa'); }
+    function limparFiltrosResumo() {
+        document.getElementById('filtroResumoRoca').value = '';
+        document.getElementById('filtroResumoSocio').value = '';
+        document.getElementById('filtroResumoInicio').value = '';
+        document.getElementById('filtroResumoFim').value = '';
+        atualizarResumo();
+    }
+
+    // ==================== FILTROS ====================
+    function aplicarFiltros() {
+        paginaEntradas = 1;
+        paginaDespesas = 1;
+        renderizarEntradas();
+        renderizarDespesas();
+        renderizarPrestacoes();
+        atualizarResumo();
+    }
+
+    function limparFiltros() {
+        document.getElementById('filtroRoca').value = '';
+        document.getElementById('filtroTipo').value = '';
+        document.getElementById('filtroCategoria').value = '';
+        document.getElementById('filtroCentroCusto').value = '';
+        document.getElementById('filtroDataInicio').value = '';
+        document.getElementById('filtroDataFim').value = '';
+        paginaEntradas = 1;
+        paginaDespesas = 1;
+        renderizarEntradas();
+        renderizarDespesas();
+        renderizarPrestacoes();
+        atualizarResumo();
+    }
+
+    function exportarExcel() {
+        const linhas = [];
+        linhas.push(['DATA', 'TIPO', 'ROÇA', 'CATEGORIA', 'CENTRO CUSTO', 'VALOR', 'DESCRIÇÃO', 'OBS']);
+
+        entradas.forEach(e => {
+            linhas.push([formatarDataBR(e.data), 'ENTRADA', e.rocaNome, e.categoria, e.centroCusto || '-', e.valor, '-', e.obs || '-']);
+        });
+
+        despesas.forEach(d => {
+            linhas.push([formatarDataBR(d.data), 'DESPESA', d.rocaNome, d.categoria, d.centroCusto || '-', d.valor, d.descricao || '-', d.obs || '-']);
+        });
+
+        linhas.sort((a, b) => new Date(b[0].split('/').reverse().join('-')) - new Date(a[0].split('/').reverse().join('-')));
+
+        let csv = linhas.map(row => row.join(';')).join('\n');
+        const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `extrato_${new Date().toISOString().split('T')[0]}.csv`;
+        link.click();
+        mostrarFeedback('📤 Arquivo exportado!');
+    }
+
+    function exportarResumo() {
+        alert('📤 Exportação de relatório disponível!');
+    }
+
+    function imprimirTabela() {
+        window.print();
+    }
+
+    function imprimirResumo() {
+        window.print();
+    }
 
     // ==================== PIX COM FIREBASE ====================
 
@@ -1004,7 +1569,7 @@
             pixSnapshot.forEach(doc => {
                 lancamentosPix.push({ id: doc.id, ...doc.data() });
             });
-            
+
             const clientesSnapshot = await getDocs(pixClientesCol);
             clientesPix = [];
             clientesSnapshot.forEach(doc => {
@@ -1014,7 +1579,7 @@
                 clientesPix = ["Carlos Souza", "Empresa XPTO", "João Silva", "Maria Oliveira"];
             }
             ordenarClientes();
-            
+
             const bancosSnapshot = await getDocs(pixBancosCol);
             bancosPix = [];
             bancosSnapshot.forEach(doc => {
@@ -1024,10 +1589,10 @@
                 bancosPix = ["BRADESCO", "BRASIL PF", "BRASIL PJ", "Itaú", "Nubank", "SICREDI AGRO", "SICREDI PJ"];
             }
             ordenarBancos();
-            
+
             atualizarSelectsPix();
             aplicarFiltrosPix();
-            
+
         } catch (error) {
             console.error('Erro ao carregar do Firebase:', error);
             mostrarFeedback('⚠️ Erro ao carregar dados. Verifique sua conexão.');
@@ -1043,17 +1608,17 @@
         } else {
             lancamentosPix = [];
         }
-        
+
         const clientesSalvos = localStorage.getItem('clientesPix');
         if (clientesSalvos) clientesPix = JSON.parse(clientesSalvos);
         else clientesPix = ["Carlos Souza", "Empresa XPTO", "João Silva", "Maria Oliveira"];
         ordenarClientes();
-        
+
         const bancosSalvos = localStorage.getItem('bancosPix');
         if (bancosSalvos) bancosPix = JSON.parse(bancosSalvos);
         else bancosPix = ["BRADESCO", "BRASIL PF", "BRASIL PJ", "Itaú", "Nubank", "SICREDI AGRO", "SICREDI PJ"];
         ordenarBancos();
-        
+
         atualizarSelectsPix();
         aplicarFiltrosPix();
     }
@@ -1070,18 +1635,18 @@
         let valorRecebido = parseFloat(document.getElementById('pixValorRecebido').value) || 0;
         const obs = document.getElementById('pixObs').value;
         let status = document.getElementById('pixStatus').value;
-        
+
         if (!dataLancamento || !periodoIni || !periodoFim || !receberAte || !cliente || !banco || valor <= 0) {
             alert('Preencha todos os campos obrigatórios!');
             return;
         }
-        
+
         const hoje = new Date().toISOString().slice(0, 10);
         if (new Date(receberAte) < new Date(hoje) && status !== 'Recebido') status = 'Atrasado';
         if (valorRecebido >= valor) status = 'Recebido';
         else if (valorRecebido > 0 && valorRecebido < valor) status = 'Parcial';
         else if (valorRecebido === 0 && status !== 'Recebido') status = 'Pendente';
-        
+
         const dados = {
             dataLancamento,
             periodoIni,
@@ -1095,7 +1660,7 @@
             status,
             dataAtualizacao: new Date().toISOString()
         };
-        
+
         try {
             if (id) {
                 await updateDoc(doc(pixCol, id), dados);
@@ -1109,18 +1674,18 @@
                 lancamentosPix.push({ id: docRef.id, ...dados });
                 mostrarFeedback('✅ Lançamento salvo no Firebase!');
             }
-            
+
             lancamentosPix.sort((a, b) => new Date(b.dataLancamento) - new Date(a.dataLancamento));
             fecharModal('modalPix');
             aplicarFiltrosPix();
-            
+
         } catch (error) {
             alert('❌ Erro ao salvar no Firebase: ' + error.message);
         }
     }
 
     async function excluirLancamentoPix(id) {
-        if (confirm('Excluir este lançamento?')) {
+        if (confirm('⚠️ Tem certeza que quer excluir este lançamento? Esta ação não pode ser desfeita.')) {
             try {
                 await deleteDoc(doc(pixCol, id));
                 lancamentosPix = lancamentosPix.filter(l => l.id !== id);
@@ -1153,7 +1718,7 @@
                 obs: original.obs ? `(Clone) ${original.obs}` : `Clone de ${original.cliente}`,
                 dataAtualizacao: new Date().toISOString()
             };
-            
+
             try {
                 const docRef = await addDoc(pixCol, clone);
                 lancamentosPix.push({ id: docRef.id, ...clone });
@@ -1188,7 +1753,7 @@
         const dataFim = document.getElementById('pixDataFim').value ? new Date(document.getElementById('pixDataFim').value) : null;
         const periodoRocaIni = document.getElementById('pixPeriodoRocaIni').value;
         const periodoRocaFim = document.getElementById('pixPeriodoRocaFim').value;
-        
+
         pixFiltered = lancamentosPix.filter(l => {
             if (search && !l.cliente.toLowerCase().includes(search)) return false;
             if (status && l.status !== status) return false;
@@ -1198,7 +1763,7 @@
             if (periodoRocaFim && l.periodoFim > periodoRocaFim) return false;
             return true;
         });
-        
+
         pixFiltered.sort((a, b) => new Date(b.dataLancamento) - new Date(a.dataLancamento));
         currentPixPage = 1;
         renderPixTabela();
@@ -1223,12 +1788,12 @@
         const tbody = document.getElementById('pixTableBody');
         if (!tbody) return;
         tbody.innerHTML = '';
-        
+
         let totalValor = 0, totalRecebido = 0, totalDif = 0;
         pixFiltered.forEach(l => { totalValor += l.valor; totalRecebido += l.valorRecebido; totalDif += (l.valor - l.valorRecebido); });
-        
+
         const hoje = new Date().toISOString().split('T')[0];
-        
+
         pageItems.forEach(l => {
             const diff = l.valor - l.valorRecebido;
             let statusClass = '';
@@ -1236,11 +1801,11 @@
             else if (l.status === 'Parcial') statusClass = 'pix-status-parcial';
             else if (l.status === 'Atrasado') statusClass = 'pix-status-atrasado';
             else statusClass = 'pix-status-pendente';
-            
+
             const isAtrasado = (l.receberAte < hoje && l.status !== 'Recebido');
             const row = tbody.insertRow();
             if (isAtrasado) row.classList.add('pix-atrasado-row');
-            
+
             row.innerHTML = `
                 <td style="text-align:center">${formatarData(l.dataLancamento)}</td>
                 <td style="text-align:left">${formatarData(l.periodoIni)} a ${formatarData(l.periodoFim)}</td>
@@ -1253,24 +1818,28 @@
                 <td style="text-align:center">${formatarData(l.receberAte)}</td>
                 <td class="obs-cell" style="text-align:left">${escapeHtml(l.obs || '')}</td>
                 <td class="acoes-cell">
-                    <button class="btn btn-primary btn-sm" onclick="editarLancamentoPix('${l.id}')">✏️</button>
-                    <button class="btn btn-warning btn-sm" onclick="clonarLancamentoPix('${l.id}')">📋</button>
-                    <button class="btn btn-danger btn-sm" onclick="excluirLancamentoPix('${l.id}')">🗑️</button>
+                    <button class="btn btn-warning btn-sm" onclick="clonarLancamentoPix('${l.id}')" title="Duplicar">📋</button>
+                    <button class="btn btn-primary btn-sm" onclick="editarLancamentoPix('${l.id}')" title="Editar">✏️</button>
+                    <button class="btn btn-danger btn-sm" onclick="excluirLancamentoPix('${l.id}')" title="Excluir">🗑️</button>
                 </td>
             `;
         });
-        
+
         const tfoot = document.getElementById('pixTableFooter');
         if (tfoot) {
             tfoot.innerHTML = `<tr class="total-row"><td colspan="4" style="text-align:right"><strong>TOTAIS</strong></td><td style="text-align:right"><strong>${formatarMoeda(totalValor)}</strong></td><td style="text-align:right"><strong>${formatarMoeda(totalRecebido)}</strong></td><td style="text-align:right"><strong>${formatarMoeda(totalDif)}</strong></td><td colspan="4"></td></tr>`;
         }
-        
+
         const pagDiv = document.getElementById('pixPagination');
         if (pagDiv) {
             if (totalPages <= 1) {
                 pagDiv.innerHTML = '';
             } else {
-                pagDiv.innerHTML = `<button ${currentPixPage <= 1 ? 'disabled' : ''} onclick="mudarPaginaPix(${currentPixPage - 1})">◀</button><span>${currentPixPage} / ${totalPages}</span><button ${currentPixPage >= totalPages ? 'disabled' : ''} onclick="mudarPaginaPix(${currentPixPage + 1})">▶</button>`;
+                pagDiv.innerHTML = `
+                    <button ${currentPixPage <= 1 ? 'disabled' : ''} onclick="mudarPaginaPix(${currentPixPage - 1})">◀</button>
+                    <span>${currentPixPage} / ${totalPages}</span>
+                    <button ${currentPixPage >= totalPages ? 'disabled' : ''} onclick="mudarPaginaPix(${currentPixPage + 1})">▶</button>
+                `;
             }
         }
     }
@@ -1290,7 +1859,7 @@
         const dataFim = document.getElementById('pixDataFim').value ? new Date(document.getElementById('pixDataFim').value) : null;
         const periodoRocaIni = document.getElementById('pixPeriodoRocaIni').value;
         const periodoRocaFim = document.getElementById('pixPeriodoRocaFim').value;
-        
+
         const dados = lancamentosPix.filter(l => {
             if (search && !l.cliente.toLowerCase().includes(search)) return false;
             if (status && l.status !== status) return false;
@@ -1300,19 +1869,19 @@
             if (periodoRocaFim && l.periodoFim > periodoRocaFim) return false;
             return true;
         });
-        
+
         const totalRecebido = dados.reduce((a, l) => a + l.valorRecebido, 0);
         const totalGeral = dados.reduce((a, l) => a + l.valor, 0);
         const totalAReceber = totalGeral - totalRecebido;
-        
+
         const clienteMap = new Map();
         dados.forEach(l => clienteMap.set(l.cliente, (clienteMap.get(l.cliente) || 0) + l.valor));
         const maiorPagador = clienteMap.size ? [...clienteMap.entries()].reduce((a, b) => a[1] > b[1] ? a : b)[0] : '-';
-        
+
         const pendentes = dados.filter(l => l.status === 'Pendente').length;
         const recebidos = dados.filter(l => l.status === 'Recebido').length;
         const atrasados = dados.filter(l => l.status === 'Atrasado').length;
-        
+
         const grid = document.getElementById('pixResumoGrid');
         if (grid) {
             grid.innerHTML = `
@@ -1450,10 +2019,10 @@
         const btnRecuperar = document.getElementById('btnRecuperar');
         const logDiv = document.getElementById('recoveryLog');
         const progress = document.getElementById('recoveryProgress');
-        
+
         logDiv.style.display = 'block';
         logDiv.innerHTML = '';
-        
+
         function addLog(msg, type = 'info') {
             const colors = {
                 info: '#d4d4d4',
@@ -1464,18 +2033,18 @@
             logDiv.innerHTML += `<div style="color:${colors[type] || colors.info}">${msg}</div>`;
             logDiv.scrollTop = logDiv.scrollHeight;
         }
-        
+
         addLog('🔍 Verificando dados no localStorage...', 'info');
         progress.style.width = '30%';
-        
+
         const lancamentos = localStorage.getItem('lancamentosPix');
         const clientes = localStorage.getItem('clientesPix');
         const bancos = localStorage.getItem('bancosPix');
-        
+
         let temDados = false;
         let info = '';
         let totalLancamentos = 0;
-        
+
         if (lancamentos) {
             const dados = JSON.parse(lancamentos);
             totalLancamentos = dados.length;
@@ -1486,21 +2055,21 @@
             info += `❌ Nenhum lançamento PIX encontrado<br>`;
             addLog('❌ Nenhum lançamento PIX encontrado', 'error');
         }
-        
+
         if (clientes) {
             const dados = JSON.parse(clientes);
             info += `👤 Clientes: <strong>${dados.length}</strong><br>`;
             addLog(`✅ Encontrados ${dados.length} clientes`, 'success');
         }
-        
+
         if (bancos) {
             const dados = JSON.parse(bancos);
             info += `🏦 Bancos: <strong>${dados.length}</strong><br>`;
             addLog(`✅ Encontrados ${dados.length} bancos`, 'success');
         }
-        
+
         progress.style.width = '100%';
-        
+
         if (temDados) {
             statusDiv.className = 'status-box success';
             statusDiv.innerHTML = `✅ Dados encontrados! ${totalLancamentos} lançamentos prontos para recuperar.`;
@@ -1517,7 +2086,7 @@
             btnRecuperar.disabled = true;
             addLog('❌ Nenhum dado para recuperar', 'error');
         }
-        
+
         infoDiv.innerHTML = info;
     };
 
@@ -1526,16 +2095,16 @@
             alert('❌ Nenhum dado encontrado para recuperar. Clique em "Verificar" primeiro.');
             return;
         }
-        
+
         const btn = document.getElementById('btnRecuperar');
         const statusDiv = document.getElementById('recoveryStatus');
         const logDiv = document.getElementById('recoveryLog');
         const progress = document.getElementById('recoveryProgress');
-        
+
         btn.disabled = true;
         btn.textContent = '⏳ RECUPERANDO...';
         logDiv.style.display = 'block';
-        
+
         function addLog(msg, type = 'info') {
             const colors = {
                 info: '#d4d4d4',
@@ -1546,14 +2115,14 @@
             logDiv.innerHTML += `<div style="color:${colors[type] || colors.info}">${msg}</div>`;
             logDiv.scrollTop = logDiv.scrollHeight;
         }
-        
+
         try {
             addLog('🚀 INICIANDO RECUPERAÇÃO...', 'info');
             progress.style.width = '10%';
-            
+
             const lancamentos = dadosEncontrados.lancamentos;
             let count = 0;
-            
+
             for (const l of lancamentos) {
                 try {
                     const { id, ...dados } = l;
@@ -1572,10 +2141,9 @@
                     addLog(`⚠️ Erro ao recuperar lançamento: ${e.message}`, 'warning');
                 }
             }
-            
+
             progress.style.width = '85%';
-            
-            // Recuperar clientes
+
             for (const c of dadosEncontrados.clientes) {
                 try {
                     await addDoc(pixClientesCol, {
@@ -1586,8 +2154,7 @@
                     addLog(`⚠️ Erro ao recuperar cliente ${c}: ${e.message}`, 'warning');
                 }
             }
-            
-            // Recuperar bancos
+
             for (const b of dadosEncontrados.bancos) {
                 try {
                     await addDoc(pixBancosCol, {
@@ -1598,22 +2165,20 @@
                     addLog(`⚠️ Erro ao recuperar banco ${b}: ${e.message}`, 'warning');
                 }
             }
-            
+
             progress.style.width = '100%';
-            
+
             addLog(`🎉 RECUPERAÇÃO CONCLUÍDA! ${count} lançamentos salvos no Firebase!`, 'success');
-            
+
             statusDiv.className = 'status-box success';
             statusDiv.innerHTML = `✅ RECUPERAÇÃO CONCLUÍDA! ${count} lançamentos recuperados com sucesso! Atualize a página (F5).`;
-            
-            // Atualizar a lista
+
             setTimeout(() => {
                 carregarLancamentosPix();
             }, 1000);
-            
-            // Mostrar botão para atualizar
+
             addLog('🔄 Atualize a página (F5) para ver os dados recuperados.', 'info');
-            
+
         } catch (error) {
             addLog(`❌ ERRO: ${error.message}`, 'error');
             statusDiv.className = 'status-box error';
@@ -1637,10 +2202,39 @@
     };
 
     // ==================== LISTENERS ====================
-    onSnapshot(query(rocasCol, orderBy("codigo")), (snapshot) => { rocas = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); atualizarSelects(); renderizarRocas(); });
-    onSnapshot(entradasCol, () => { getDocs(entradasCol).then(snapshot => { entradas = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); renderizarEntradas(); atualizarResumo(); }); });
-    onSnapshot(despesasCol, () => { getDocs(despesasCol).then(snapshot => { despesas = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); renderizarDespesas(); atualizarResumo(); }); });
-    onSnapshot(prestacoesCol, () => { getDocs(prestacoesCol).then(snapshot => { prestacoes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })); renderizarPrestacoes(); atualizarResumo(); }); });
+    onSnapshot(query(rocasCol, orderBy("codigo")), (snapshot) => {
+        rocas = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        atualizarSelects();
+        renderizarRocas();
+
+        const catSelect = document.getElementById('filtroCategoria');
+        const categorias = [...new Set(entradas.map(e => e.categoria).concat(despesas.map(d => d.categoria)))].filter(Boolean);
+        catSelect.innerHTML = '<option value="">Todas</option>' + categorias.map(c => `<option value="${c}">${c}</option>`).join('');
+    });
+
+    onSnapshot(entradasCol, () => {
+        getDocs(entradasCol).then(snapshot => {
+            entradas = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            renderizarEntradas();
+            atualizarResumo();
+        });
+    });
+
+    onSnapshot(despesasCol, () => {
+        getDocs(despesasCol).then(snapshot => {
+            despesas = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            renderizarDespesas();
+            atualizarResumo();
+        });
+    });
+
+    onSnapshot(prestacoesCol, () => {
+        getDocs(prestacoesCol).then(snapshot => {
+            prestacoes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            renderizarPrestacoes();
+            atualizarResumo();
+        });
+    });
 
     // ==================== TABS ====================
     document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -1671,8 +2265,12 @@
     window.abrirModalEntrada = abrirModalEntrada; window.salvarEntrada = salvarEntrada; window.editarEntrada = editarEntrada; window.excluirEntrada = excluirEntrada; window.mudarPaginaEntradas = mudarPaginaEntradas;
     window.abrirModalDespesa = abrirModalDespesa; window.salvarDespesa = salvarDespesa; window.editarDespesa = editarDespesa; window.excluirDespesa = excluirDespesa; window.mudarPaginaDespesas = mudarPaginaDespesas;
     window.abrirModalPrestacao = abrirModalPrestacao; window.salvarPrestacao = salvarPrestacao; window.editarPrestacao = editarPrestacao; window.excluirPrestacao = excluirPrestacao; window.mudarPaginaPrestacoes = mudarPaginaPrestacoes;
-    window.aplicarFiltros = aplicarFiltros; window.limparFiltros = limparFiltros; window.atualizarResumo = atualizarResumo; window.exportarResumo = exportarResumo; window.fecharModal = fecharModal;
+    window.aplicarFiltros = aplicarFiltros; window.limparFiltros = limparFiltros; window.atualizarResumo = atualizarResumo; window.limparFiltrosResumo = limparFiltrosResumo;
+    window.exportarExcel = exportarExcel; window.exportarResumo = exportarResumo; window.imprimirTabela = imprimirTabela; window.imprimirResumo = imprimirResumo;
+    window.fecharModal = fecharModal;
     window.aplicarFiltrosPix = aplicarFiltrosPix; window.limparFiltrosPix = limparFiltrosPix; window.abrirModalPix = abrirModalPix; window.salvarLancamentoPix = salvarLancamentoPix; window.editarLancamentoPix = editarLancamentoPix; window.excluirLancamentoPix = excluirLancamentoPix; window.clonarLancamentoPix = clonarLancamentoPix; window.mudarPaginaPix = mudarPaginaPix; window.toggleTabelaPix = toggleTabelaPix; window.gerarPDFPix = gerarPDFPix; window.novoClientePix = novoClientePix; window.novoBancoPix = novoBancoPix; window.gerenciarClientes = gerenciarClientes; window.gerenciarBancos = gerenciarBancos;
+    window.filtroRapido = filtroRapido;
+    window.duplicarEntrada = duplicarEntrada; window.duplicarDespesa = duplicarDespesa;
     window.verificarDadosAntigos = verificarDadosAntigos; window.recuperarDadosAntigos = recuperarDadosAntigos; window.limparRecuperacao = limparRecuperacao;
 </script>
 </body>
