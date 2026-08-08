@@ -147,6 +147,12 @@
             letter-spacing: 0.5px;
         }
 
+        .form-group label .required {
+            color: #dc2626;
+            font-weight: 700;
+            margin-left: 2px;
+        }
+
         input, select, textarea {
             padding: 10px 12px;
             border: 1px solid #cbdccb;
@@ -190,6 +196,8 @@
         .btn-group { display: flex; gap: 12px; justify-content: flex-end; flex-wrap: wrap; }
         .btn-print { background: #6366f1; color: white; }
         .btn-print:hover { background: #4f46e5; }
+        .btn-pdf { background: #dc2626; color: white; }
+        .btn-pdf:hover { background: #b91c1c; }
 
         .filters {
             display: flex;
@@ -585,6 +593,34 @@
             margin-bottom: 20px;
         }
 
+        /* Botão Voltar ao Topo */
+        .btn-top {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            background: #1a4a2a;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 999;
+            transition: all 0.3s;
+        }
+
+        .btn-top:hover {
+            background: #2d6a4f;
+            transform: scale(1.1);
+        }
+
+        .btn-top.show {
+            display: block;
+        }
+
         @media (max-width: 700px) {
             body { padding: 12px; }
             .resumo-cards { grid-template-columns: 1fr; }
@@ -599,10 +635,11 @@
             .radio-group label { font-size: 13px; }
             .resumo-table { font-size: 11px; }
             .resumo-table td, .resumo-table th { padding: 6px 4px; }
+            .btn-top { width: 40px; height: 40px; font-size: 18px; bottom: 70px; right: 10px; }
         }
 
         @media print {
-            .btn, .btn-group, .tabs, .header .status, .no-print { display: none !important; }
+            .btn, .btn-group, .tabs, .header .status, .no-print, .btn-top { display: none !important; }
             .card { border: 1px solid #ccc !important; box-shadow: none !important; }
             body { background: white !important; padding: 10px !important; }
             .panel { display: block !important; }
@@ -614,31 +651,34 @@
 
 <div class="container">
     <div class="header">
-        <h1>GESTAO DE ROCAS + CONTROLE PIX | VIANA FARINHA</h1>
+        <h1>GESTÃO DE ROÇAS + CONTROLE PIX | VIANA FARINHA</h1>
         <div class="status" id="statusOnline">CONECTADO</div>
     </div>
 
     <div class="tabs">
-        <button class="tab-btn active" data-tab="tab1">CADASTRO DE AREAS</button>
-        <button class="tab-btn" data-tab="tab2">LANCAMENTO RECEITA/DESPESA</button>
-        <button class="tab-btn" data-tab="tab3">PRESTACAO + RESUMO</button>
+        <button class="tab-btn active" data-tab="tab1">CADASTRO DE ÁREAS</button>
+        <button class="tab-btn" data-tab="tab2">LANÇAMENTO RECEITA/DESPESA</button>
+        <button class="tab-btn" data-tab="tab3">PRESTAÇÃO + RESUMO</button>
         <button class="tab-btn" data-tab="tab4">CONTROLE PIX</button>
         <button class="tab-btn recovery" data-tab="tab5">RECUPERAR DADOS</button>
     </div>
 
-    <!-- GUIA 1: CADASTRO DE AREAS -->
+    <!-- Botão Voltar ao Topo -->
+    <button class="btn-top" id="btnTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+    <!-- GUIA 1: CADASTRO DE ÁREAS -->
     <div id="tab1" class="panel active">
         <div class="card">
-            <div class="card-header"><h2>NOVA AREA</h2></div>
+            <div class="card-header"><h2>NOVA ÁREA</h2></div>
             <div class="form-grid">
-                <div class="form-group"><label>NOME DA AREA *</label><input type="text" id="areaNome" placeholder="Ex: Roca do Nene"></div>
-                <div class="form-group"><label>CODIGO</label><input type="text" id="areaCodigo" readonly placeholder="Automatico"></div>
-                <div class="form-group"><label>DATA CADASTRO *</label><input type="date" id="areaDataCadastro"></div>
-                <div class="form-group"><label>ADMINISTRADOR *</label>
+                <div class="form-group"><label>NOME DA ÁREA <span class="required">*</span></label><input type="text" id="areaNome" placeholder="Ex: Roça do Nene"></div>
+                <div class="form-group"><label>CÓDIGO</label><input type="text" id="areaCodigo" readonly placeholder="Automático"></div>
+                <div class="form-group"><label>DATA CADASTRO <span class="required">*</span></label><input type="date" id="areaDataCadastro"></div>
+                <div class="form-group"><label>ADMINISTRADOR <span class="required">*</span></label>
                     <select id="areaAdministrador">
                         <option value="Leandro">Leandro</option>
-                        <option value="Nenem Viana">Nenem Viana</option>
-                        <option value="Leandro/Nenem">Leandro / Nenem</option>
+                        <option value="Neném Viana">Neném Viana</option>
+                        <option value="Leandro/Neném">Leandro / Neném</option>
                         <option value="Outros">Outros</option>
                     </select>
                 </div>
@@ -646,14 +686,14 @@
             <input type="hidden" id="areaEditandoId">
             <div class="btn-group">
                 <button class="btn btn-secondary" onclick="limparFormArea()">LIMPAR</button>
-                <button class="btn btn-primary" onclick="salvarArea()">SALVAR AREA</button>
+                <button class="btn btn-primary" onclick="salvarArea()">SALVAR ÁREA</button>
             </div>
         </div>
         <div class="card">
-            <div class="card-header"><h2>LISTA DE AREAS</h2></div>
+            <div class="card-header"><h2>LISTA DE ÁREAS</h2></div>
             <div class="table-wrapper">
                 <table>
-                    <thead><tr><th>CODIGO</th><th>NOME</th><th>CADASTRO</th><th>ADMINISTRADOR</th><th>STATUS</th><th>ACOES</th></tr></thead>
+                    <thead><tr><th>CÓDIGO</th><th>NOME</th><th>CADASTRO</th><th>ADMINISTRADOR</th><th>STATUS</th><th>AÇÕES</th></tr></thead>
                     <tbody id="listaAreas"></tbody>
                 </table>
             </div>
@@ -661,22 +701,22 @@
         </div>
     </div>
 
-    <!-- GUIA 2: LANCAMENTO RECEITA/DESPESA -->
+    <!-- GUIA 2: LANÇAMENTO RECEITA/DESPESA -->
     <div id="tab2" class="panel">
         <div class="card">
             <div class="card-header"><h2>FILTROS</h2></div>
             <div class="filters">
-                <div class="filter-item"><label>AREA</label><select id="filtroArea"><option value="">Todas as Areas</option></select></div>
-                <div class="filter-item"><label>ADMINISTRADOR</label><select id="filtroAdministrador"><option value="">Todos</option><option value="Leandro">Leandro</option><option value="Nenem Viana">Nenem Viana</option><option value="Leandro/Nenem">Leandro / Nenem</option><option value="Outros">Outros</option></select></div>
+                <div class="filter-item"><label>ÁREA</label><select id="filtroArea"><option value="">Todas as Áreas</option></select></div>
+                <div class="filter-item"><label>ADMINISTRADOR</label><select id="filtroAdministrador"><option value="">Todos</option><option value="Leandro">Leandro</option><option value="Neném Viana">Neném Viana</option><option value="Leandro/Neném">Leandro / Neném</option><option value="Outros">Outros</option></select></div>
                 <div class="filter-item"><label>TIPO</label><select id="filtroTipo"><option value="">Todos</option><option value="receita">Receita</option><option value="despesa">Despesa</option></select></div>
                 <div class="filter-item"><label>CATEGORIA</label><select id="filtroCategoria"><option value="">Todas</option></select></div>
-                <div class="filter-item"><label>DATA INICIO</label><input type="date" id="filtroDataInicio"></div>
+                <div class="filter-item"><label>DATA INÍCIO</label><input type="date" id="filtroDataInicio"></div>
                 <div class="filter-item"><label>DATA FIM</label><input type="date" id="filtroDataFim"></div>
             </div>
             <div class="quick-filters">
-                <button class="btn btn-secondary btn-sm" onclick="filtroRapido('mes')">Este Mes</button>
-                <button class="btn btn-secondary btn-sm" onclick="filtroRapido('mesPassado')">Mes Passado</button>
-                <button class="btn btn-secondary btn-sm" onclick="filtroRapido('90dias')">Ultimos 90 Dias</button>
+                <button class="btn btn-secondary btn-sm" onclick="filtroRapido('mes')">Este Mês</button>
+                <button class="btn btn-secondary btn-sm" onclick="filtroRapido('mesPassado')">Mês Passado</button>
+                <button class="btn btn-secondary btn-sm" onclick="filtroRapido('90dias')">Últimos 90 Dias</button>
                 <button class="btn btn-secondary btn-sm" onclick="filtroRapido('ano')">Ano Atual</button>
                 <button class="btn btn-primary" onclick="aplicarFiltros()">BUSCAR</button>
                 <button class="btn btn-secondary" onclick="limparFiltros()">LIMPAR</button>
@@ -689,20 +729,20 @@
             </div>
         </div>
         <div class="card">
-            <div class="card-header"><h2>RECEITAS</h2><button class="btn btn-primary btn-sm" onclick="abrirModalLancamento()">+ LANCAMENTO</button></div>
+            <div class="card-header"><h2>RECEITAS</h2><button class="btn btn-primary btn-sm" onclick="abrirModalLancamento()">+ LANÇAMENTO</button></div>
             <div class="table-wrapper">
                 <table>
-                    <thead><tr><th>DATA</th><th>AREA</th><th>ADMIN</th><th>SERVICO</th><th>QTD</th><th>VALOR UND</th><th>TOTAL</th><th>OBS</th><th>ACOES</th></tr></thead>
+                    <thead><tr><th>DATA</th><th>ÁREA</th><th>ADMIN</th><th>SERVIÇO</th><th>QTD</th><th>VALOR UND</th><th>TOTAL</th><th>OBS</th><th>AÇÕES</th></tr></thead>
                     <tbody id="listaReceitas"></tbody>
                 </table>
             </div>
             <div id="paginacaoReceitas" class="pagination"></div>
         </div>
         <div class="card">
-            <div class="card-header"><h2>DESPESAS</h2><button class="btn btn-primary btn-sm" onclick="abrirModalLancamento()">+ LANCAMENTO</button></div>
+            <div class="card-header"><h2>DESPESAS</h2><button class="btn btn-primary btn-sm" onclick="abrirModalLancamento()">+ LANÇAMENTO</button></div>
             <div class="table-wrapper">
                 <table>
-                    <thead><tr><th>DATA</th><th>AREA</th><th>ADMIN</th><th>CATEGORIA</th><th>DESCRICAO</th><th>VALOR</th><th>OBS</th><th>ACOES</th></tr></thead>
+                    <thead><tr><th>DATA</th><th>ÁREA</th><th>ADMIN</th><th>CATEGORIA</th><th>DESCRIÇÃO</th><th>VALOR</th><th>OBS</th><th>AÇÕES</th></tr></thead>
                     <tbody id="listaDespesas"></tbody>
                 </table>
             </div>
@@ -710,17 +750,18 @@
         </div>
     </div>
 
-    <!-- GUIA 3: PRESTACAO + RESUMO -->
+    <!-- GUIA 3: PRESTAÇÃO + RESUMO -->
     <div id="tab3" class="panel">
         <div class="card">
             <div class="card-header"><h2>FILTROS</h2></div>
             <div class="filters">
-                <div class="filter-item"><label>AREA</label><select id="filtroResumoArea"><option value="">Todas as Areas</option></select></div>
-                <div class="filter-item"><label>ADMINISTRADOR</label><select id="filtroResumoAdmin"><option value="">Todos</option><option value="Leandro">Leandro</option><option value="Nenem Viana">Nenem Viana</option><option value="Leandro/Nenem">Leandro / Nenem</option><option value="Outros">Outros</option></select></div>
-                <div class="filter-item"><label>DATA INICIO</label><input type="date" id="filtroResumoInicio"></div>
+                <div class="filter-item"><label>ÁREA</label><select id="filtroResumoArea"><option value="">Todas as Áreas</option></select></div>
+                <div class="filter-item"><label>ADMINISTRADOR</label><select id="filtroResumoAdmin"><option value="">Todos</option><option value="Leandro">Leandro</option><option value="Neném Viana">Neném Viana</option><option value="Leandro/Neném">Leandro / Neném</option><option value="Outros">Outros</option></select></div>
+                <div class="filter-item"><label>DATA INÍCIO</label><input type="date" id="filtroResumoInicio"></div>
                 <div class="filter-item"><label>DATA FIM</label><input type="date" id="filtroResumoFim"></div>
                 <button class="btn btn-primary" onclick="atualizarResumo()">ATUALIZAR</button>
                 <button class="btn btn-secondary" onclick="limparFiltrosResumo()">LIMPAR</button>
+                <button class="btn btn-pdf" onclick="gerarPDFResumo()">📄 PDF RESUMO</button>
                 <button class="btn btn-print" onclick="imprimirResumo()">IMPRIMIR</button>
             </div>
         </div>
@@ -728,7 +769,7 @@
             <div class="card-header"><h2>REPASSES</h2><button class="btn btn-primary btn-sm" onclick="abrirModalRepasse()">+ NOVO REPASSE</button></div>
             <div class="table-wrapper">
                 <table>
-                    <thead><tr><th>DATA</th><th>AREA</th><th>ADMINISTRADOR</th><th>VALOR</th><th>FORMA</th><th>ACOES</th></tr></thead>
+                    <thead><tr><th>DATA</th><th>ÁREA</th><th>ADMINISTRADOR</th><th>VALOR</th><th>FORMA</th><th>AÇÕES</th></tr></thead>
                     <tbody id="listaRepasses"></tbody>
                 </table>
             </div>
@@ -745,25 +786,25 @@
         <div class="card">
             <div class="card-header"><h2>FILTROS PIX</h2></div>
             <div class="pix-filters">
-                <div class="filter-item"><label>DATA LANCAMENTO INICIO</label><input type="date" id="pixDataIni"></div>
-                <div class="filter-item"><label>DATA LANCAMENTO FIM</label><input type="date" id="pixDataFim"></div>
-                <div class="filter-item"><label>PERIODO ROCA INICIO</label><input type="date" id="pixPeriodoRocaIni"></div>
-                <div class="filter-item"><label>PERIODO ROCA FIM</label><input type="date" id="pixPeriodoRocaFim"></div>
+                <div class="filter-item"><label>DATA LANÇAMENTO INÍCIO</label><input type="date" id="pixDataIni"></div>
+                <div class="filter-item"><label>DATA LANÇAMENTO FIM</label><input type="date" id="pixDataFim"></div>
+                <div class="filter-item"><label>PERÍODO ROÇA INÍCIO</label><input type="date" id="pixPeriodoRocaIni"></div>
+                <div class="filter-item"><label>PERÍODO ROÇA FIM</label><input type="date" id="pixPeriodoRocaFim"></div>
                 <div class="filter-item"><label>CLIENTE/PAGADOR</label><input type="text" id="pixSearchNome" placeholder="Nome..."></div>
                 <div class="filter-item"><label>STATUS</label><select id="pixFiltroStatus"><option value="">Todos</option><option>Pendente</option><option>Recebido</option><option>Parcial</option><option>Atrasado</option></select></div>
                 <button class="btn btn-primary" onclick="aplicarFiltrosPix()">FILTRAR</button>
                 <button class="btn btn-secondary" onclick="limparFiltrosPix()">LIMPAR</button>
-                <button class="btn btn-primary" onclick="abrirModalPix()">+ NOVO LANCAMENTO</button>
+                <button class="btn btn-primary" onclick="abrirModalPix()">+ NOVO LANÇAMENTO</button>
                 <button class="btn btn-danger" onclick="gerarPDFPix()">GERAR PDF</button>
             </div>
         </div>
         <div class="card">
-            <div class="card-header"><h2>LANCAMENTOS PIX</h2><button class="btn btn-secondary btn-sm" onclick="toggleTabelaPix()">RECOLHER TABELA</button></div>
+            <div class="card-header"><h2>LANÇAMENTOS PIX</h2><button class="btn btn-secondary btn-sm" onclick="toggleTabelaPix()">RECOLHER TABELA</button></div>
             <div class="table-wrapper" id="cardTabelaPix">
                 <table id="tabelaPix">
                     <thead>
                         <tr>
-                            <th>DATA</th><th>PERIODO</th><th>BANCO</th><th>PAGADOR</th><th>VALOR</th><th>RECEBIDO</th><th>DIFERENCA</th><th>STATUS</th><th>RECEBER ATE</th><th>OBS</th><th>ACOES</th>
+                            <th>DATA</th><th>PERÍODO</th><th>BANCO</th><th>PAGADOR</th><th>VALOR</th><th>RECEBIDO</th><th>DIFERENÇA</th><th>STATUS</th><th>RECEBER ATÉ</th><th>OBS</th><th>AÇÕES</th>
                         </tr>
                     </thead>
                     <tbody id="pixTableBody"></tbody>
@@ -778,7 +819,7 @@
                 <div class="resumo-card"><h3>TOTAL A RECEBER</h3><div class="valor">R$ 0,00</div></div>
                 <div class="resumo-card"><h3>TOTAL GERAL</h3><div class="valor">R$ 0,00</div></div>
                 <div class="resumo-card"><h3>MAIOR PAGADOR</h3><div class="valor">-</div></div>
-                <div class="resumo-card"><h3>PENDENCIAS</h3><div class="valor">0</div></div>
+                <div class="resumo-card"><h3>PENDÊNCIAS</h3><div class="valor">0</div></div>
                 <div class="resumo-card"><h3>RECEBIDOS</h3><div class="valor">0</div></div>
                 <div class="resumo-card"><h3>ATRASADOS</h3><div class="valor">0</div></div>
             </div>
@@ -801,11 +842,11 @@
             </div>
             <div class="recovery-box">
                 <h3>Seus dados antigos sumiram?</h3>
-                <p>Se voce tinha lancamentos PIX antes da atualizacao e eles desapareceram, e porque estavam salvos apenas no seu computador.</p>
-                <p><strong>Clique no botao abaixo</strong> para recuperar todos os dados antigos e salva-los na nuvem.</p>
-                <p style="font-size:12px; color:#92400e; margin-top:8px;">Faca isso no computador onde voce fez os lancamentos originais.</p>
+                <p>Se você tinha lançamentos PIX antes da atualização e eles desapareceram, é porque estavam salvos apenas no seu computador.</p>
+                <p><strong>Clique no botão abaixo</strong> para recuperar todos os dados antigos e salvá-los na nuvem.</p>
+                <p style="font-size:12px; color:#92400e; margin-top:8px;">Faça isso no computador onde você fez os lançamentos originais.</p>
             </div>
-            <div id="recoveryStatus" class="status-box waiting">Aguardando acao...</div>
+            <div id="recoveryStatus" class="status-box waiting">Aguardando ação...</div>
             <div class="progress-bar"><div id="recoveryProgress" class="fill" style="width:0%"></div></div>
             <div id="recoveryInfo" style="padding:12px; background:#f0f6f0; border-radius:10px; margin:12px 0;">
                 <strong>Status dos dados:</strong><br>
@@ -823,45 +864,54 @@
 
 <!-- MODAIS -->
 
-<!-- MODAL LANCAMENTO (Receita/Despesa) -->
+<!-- MODAL LANÇAMENTO (Receita/Despesa) -->
 <div id="modalLancamento" class="modal">
     <div class="modal-content">
-        <h3 id="modalLancamentoTitle">NOVO LANCAMENTO</h3>
+        <h3 id="modalLancamentoTitle">NOVO LANÇAMENTO</h3>
         <input type="hidden" id="lancamentoId">
         <input type="hidden" id="lancamentoTipo">
         
         <div class="form-group">
-            <label>TIPO</label>
+            <label>TIPO <span class="required">*</span></label>
             <div class="radio-group">
                 <label><input type="radio" name="lancamentoTipoRadio" value="receita" onchange="trocarTipoLancamento('receita')"> RECEITA</label>
                 <label><input type="radio" name="lancamentoTipoRadio" value="despesa" onchange="trocarTipoLancamento('despesa')"> DESPESA</label>
             </div>
         </div>
-        <div class="form-group"><label>DATA *</label><input type="date" id="lancamentoData"></div>
-        <div class="form-group"><label>AREA *</label><select id="lancamentoArea"></select></div>
+        <div class="form-group"><label>DATA <span class="required">*</span></label><input type="date" id="lancamentoData"></div>
+        <div class="form-group"><label>ÁREA <span class="required">*</span></label><select id="lancamentoArea"></select></div>
         
         <!-- Campos de RECEITA -->
         <div id="camposReceita" class="tipo-fields">
-            <div class="form-group"><label>SERVICO *</label><input type="text" id="lancamentoServico" placeholder="Ex: Venda de Farinha"></div>
-            <div class="form-group"><label>QUANTIDADE *</label><input type="number" id="lancamentoQuantidade" step="1" min="0" oninput="calcularTotalReceita()"></div>
-            <div class="form-group"><label>VALOR UNITARIO (R$) *</label><input type="number" id="lancamentoValorUnit" step="0.01" min="0" oninput="calcularTotalReceita()"></div>
+            <div class="form-group"><label>SERVIÇO <span class="required">*</span></label><input type="text" id="lancamentoServico" placeholder="Ex: Venda de Farinha"></div>
+            <div class="form-group"><label>QUANTIDADE <span class="required">*</span></label><input type="number" id="lancamentoQuantidade" step="1" min="0" oninput="calcularTotalReceita()"></div>
+            <div class="form-group"><label>VALOR UNITÁRIO (R$) <span class="required">*</span></label><input type="number" id="lancamentoValorUnit" step="0.01" min="0" oninput="calcularTotalReceita()"></div>
             <div class="form-group"><label>VALOR TOTAL (R$) (calculado)</label><input type="text" id="lancamentoTotalReceita" readonly style="background:#f0f6f0; font-weight:700; color:#1a4a2a;"></div>
         </div>
         
         <!-- Campos de DESPESA -->
         <div id="camposDespesa" class="tipo-fields">
-            <div class="form-group"><label>CATEGORIA *</label>
-                <select id="lancamentoCategoria">
-                    <option>Combustivel</option><option>Operador</option><option>Adubo</option>
-                    <option>Veneno</option><option>Pulverizacao</option><option>Carpina</option>
-                    <option>Diaristas</option><option>Maniva</option><option>Outros</option>
+            <div class="form-group"><label>ADMINISTRADOR <span class="required">*</span></label>
+                <select id="lancamentoAdminDespesa">
+                    <option value="Leandro">Leandro</option>
+                    <option value="Neném Viana">Neném Viana</option>
+                    <option value="Leandro/Neném">Leandro / Neném</option>
+                    <option value="Outros">Outros</option>
                 </select>
             </div>
-            <div class="form-group"><label>DESCRICAO</label><input type="text" id="lancamentoDescricao" placeholder="Detalhamento"></div>
-            <div class="form-group"><label>VALOR TOTAL (R$) *</label><input type="number" id="lancamentoValorDespesa" step="0.01" min="0"></div>
+            <div class="form-group"><label>CATEGORIA <span class="required">*</span></label>
+                <select id="lancamentoCategoria">
+                    <option>Combustível</option><option>Operador</option><option>Adubo</option>
+                    <option>Veneno</option><option>Pulverização</option><option>Carpina</option>
+                    <option>Diaristas</option><option>Maniva</option><option>Outros</option>
+                    <option>Capim</option><option>Hora</option><option>Arrancação</option><option>Frete</option>
+                </select>
+            </div>
+            <div class="form-group"><label>DESCRIÇÃO</label><input type="text" id="lancamentoDescricao" placeholder="Detalhamento"></div>
+            <div class="form-group"><label>VALOR TOTAL (R$) <span class="required">*</span></label><input type="number" id="lancamentoValorDespesa" step="0.01" min="0"></div>
         </div>
         
-        <div class="form-group"><label>OBSERVACAO</label><input type="text" id="lancamentoObs" placeholder="Observacoes..."></div>
+        <div class="form-group"><label>OBSERVAÇÃO</label><input type="text" id="lancamentoObs" placeholder="Observações..."></div>
         
         <div class="btn-group" style="margin-top:20px">
             <button class="btn btn-secondary" onclick="fecharModal('modalLancamento')">CANCELAR</button>
@@ -875,18 +925,18 @@
     <div class="modal-content">
         <h3>NOVO REPASSE</h3>
         <input type="hidden" id="repasseId">
-        <div class="form-group"><label>DATA *</label><input type="date" id="repasseData"></div>
-        <div class="form-group"><label>AREA *</label><select id="repasseArea"></select></div>
-        <div class="form-group"><label>ADMINISTRADOR *</label>
+        <div class="form-group"><label>DATA <span class="required">*</span></label><input type="date" id="repasseData"></div>
+        <div class="form-group"><label>ÁREA <span class="required">*</span></label><select id="repasseArea"></select></div>
+        <div class="form-group"><label>ADMINISTRADOR <span class="required">*</span></label>
             <select id="repasseAdministrador">
                 <option value="Leandro">Leandro</option>
-                <option value="Nenem Viana">Nenem Viana</option>
+                <option value="Neném Viana">Neném Viana</option>
             </select>
         </div>
-        <div class="form-group"><label>VALOR (R$) *</label><input type="number" id="repasseValor" step="0.01"></div>
-        <div class="form-group"><label>FORMA *</label>
+        <div class="form-group"><label>VALOR (R$) <span class="required">*</span></label><input type="number" id="repasseValor" step="0.01"></div>
+        <div class="form-group"><label>FORMA <span class="required">*</span></label>
             <select id="repasseForma">
-                <option>Pix</option><option>Dinheiro</option><option>Transferencia</option>
+                <option>Pix</option><option>Dinheiro</option><option>Transferência</option>
             </select>
         </div>
         <div class="btn-group" style="margin-top:20px">
@@ -899,18 +949,18 @@
 <!-- MODAL PIX -->
 <div id="modalPix" class="modal">
     <div class="modal-content">
-        <h3>LANCAMENTO PIX</h3>
+        <h3>LANÇAMENTO PIX</h3>
         <input type="hidden" id="pixEditId">
-        <div class="form-group"><label>DATA LANCAMENTO *</label><input type="date" id="pixData"></div>
-        <div class="form-group"><label>PERIODO INICIO *</label><input type="date" id="pixPeriodoIni"></div>
-        <div class="form-group"><label>PERIODO FIM *</label><input type="date" id="pixPeriodoFim"></div>
-        <div class="form-group"><label>RECEBER ATE *</label><input type="date" id="pixReceberAte"></div>
-        <div class="form-group"><label>PAGADOR/CLIENTE *</label><select id="pixCliente"><option value="">Selecione</option></select><button class="btn btn-secondary btn-sm" style="margin-top:5px" onclick="novoClientePix()">+ NOVO CLIENTE</button></div>
-        <div class="form-group"><label>BANCO/CONTA *</label><select id="pixBanco"><option value="">Selecione</option></select><button class="btn btn-secondary btn-sm" style="margin-top:5px" onclick="novoBancoPix()">+ NOVO BANCO</button></div>
-        <div class="form-group"><label>VALOR TOTAL *</label><input type="number" id="pixValor" step="0.01"></div>
+        <div class="form-group"><label>DATA LANÇAMENTO <span class="required">*</span></label><input type="date" id="pixData"></div>
+        <div class="form-group"><label>PERÍODO INÍCIO <span class="required">*</span></label><input type="date" id="pixPeriodoIni"></div>
+        <div class="form-group"><label>PERÍODO FIM <span class="required">*</span></label><input type="date" id="pixPeriodoFim"></div>
+        <div class="form-group"><label>RECEBER ATÉ <span class="required">*</span></label><input type="date" id="pixReceberAte"></div>
+        <div class="form-group"><label>PAGADOR/CLIENTE <span class="required">*</span></label><select id="pixCliente"><option value="">Selecione</option></select><button class="btn btn-secondary btn-sm" style="margin-top:5px" onclick="novoClientePix()">+ NOVO CLIENTE</button></div>
+        <div class="form-group"><label>BANCO/CONTA <span class="required">*</span></label><select id="pixBanco"><option value="">Selecione</option></select><button class="btn btn-secondary btn-sm" style="margin-top:5px" onclick="novoBancoPix()">+ NOVO BANCO</button></div>
+        <div class="form-group"><label>VALOR TOTAL <span class="required">*</span></label><input type="number" id="pixValor" step="0.01"></div>
         <div class="form-group"><label>VALOR RECEBIDO</label><input type="number" id="pixValorRecebido" step="0.01" value="0"></div>
         <div class="form-group"><label>STATUS</label><select id="pixStatus"><option value="Pendente">Pendente</option><option value="Parcial">Parcial</option><option value="Recebido">Recebido</option><option value="Atrasado">Atrasado</option></select></div>
-        <div class="form-group"><label>OBSERVACAO</label><textarea id="pixObs" rows="3" placeholder="Informacoes adicionais..."></textarea></div>
+        <div class="form-group"><label>OBSERVAÇÃO</label><textarea id="pixObs" rows="3" placeholder="Informações adicionais..."></textarea></div>
         <div class="btn-group" style="margin-top:20px">
             <button class="btn btn-secondary" onclick="fecharModal('modalPix')">CANCELAR</button>
             <button class="btn btn-primary" onclick="salvarLancamentoPix()">SALVAR</button>
@@ -929,7 +979,7 @@
     </div>
 </div>
 
-<div id="feedback" class="feedback">Operacao concluida</div>
+<div id="feedback" class="feedback">Operação concluída</div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
@@ -947,7 +997,7 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Colecoes
+    // Coleções
     const areasCol = collection(db, "areas");
     const receitasCol = collection(db, "receitas");
     const despesasCol = collection(db, "despesas");
@@ -962,7 +1012,7 @@
     let paginaAreas = 1, paginaReceitas = 1, paginaDespesas = 1, paginaRepasses = 1;
     const ITENS_POR_PAGINA = 15;
 
-    // ===== FUNCOES AUXILIARES =====
+    // ===== FUNÇÕES AUXILIARES =====
     function ordenarClientes() { clientesPix.sort((a, b) => a.localeCompare(b, 'pt-BR')); }
     function ordenarBancos() { bancosPix.sort((a, b) => a.localeCompare(b, 'pt-BR')); }
     function formatarMoeda(valor) { return (valor || 0).toLocaleString('pt-br', { style: 'currency', currency: 'BRL' }); }
@@ -974,7 +1024,7 @@
 
     function atualizarSelects() {
         const optsArea = '<option value="">Selecione</option>' + areas.map(a => `<option value="${a.id}">${escapeHtml(a.nome)}</option>`).join('');
-        const optsFiltro = '<option value="">Todas as Areas</option>' + areas.map(a => `<option value="${a.id}">${escapeHtml(a.nome)}</option>`).join('');
+        const optsFiltro = '<option value="">Todas as Áreas</option>' + areas.map(a => `<option value="${a.id}">${escapeHtml(a.nome)}</option>`).join('');
         document.getElementById('lancamentoArea').innerHTML = optsArea;
         document.getElementById('repasseArea').innerHTML = optsArea;
         document.getElementById('filtroArea').innerHTML = optsFiltro;
@@ -994,7 +1044,7 @@
 
     function gerarCodigoArea() { return 'A' + String(areas.length + 1).padStart(3, '0'); }
 
-    // ===== GUIA 1: AREAS =====
+    // ===== GUIA 1: ÁREAS =====
     function limparFormArea() {
         document.getElementById('areaEditandoId').value = '';
         document.getElementById('areaNome').value = '';
@@ -1011,7 +1061,7 @@
         const administrador = document.getElementById('areaAdministrador').value;
 
         if (!nome || !dataCadastro || !administrador) {
-            alert('Preencha todos os campos obrigatorios!');
+            alert('Preencha todos os campos obrigatórios!');
             return;
         }
 
@@ -1020,23 +1070,23 @@
         try {
             if (id) await updateDoc(doc(areasCol, id), novaArea);
             else await addDoc(areasCol, novaArea);
-            mostrarFeedback('Area salva!');
+            mostrarFeedback('Área salva!');
             limparFormArea();
         } catch (e) { alert('Erro: ' + e.message); }
     }
 
     async function excluirArea(id) {
-        if (confirm('Tem certeza que quer excluir esta area?')) {
+        if (confirm('Tem certeza que quer excluir esta área?')) {
             await deleteDoc(doc(areasCol, id));
-            mostrarFeedback('Area excluida!');
+            mostrarFeedback('Área excluída!');
         }
     }
 
     async function inativarArea(id) {
         const area = areas.find(a => a.id === id);
-        if (area && confirm((area.ativo ? 'Inativar' : 'Ativar') + ' a area "' + area.nome + '"?')) {
+        if (area && confirm((area.ativo ? 'Inativar' : 'Ativar') + ' a área "' + area.nome + '"?')) {
             await updateDoc(doc(areasCol, id), { ativo: !area.ativo });
-            mostrarFeedback(area.ativo ? 'Area inativada!' : 'Area ativada!');
+            mostrarFeedback(area.ativo ? 'Área inativada!' : 'Área ativada!');
         }
     }
 
@@ -1083,7 +1133,7 @@
 
     function mudarPaginaAreas(delta) { paginaAreas += delta; renderizarAreas(); }
 
-    // ===== GUIA 2: LANCAMENTOS =====
+    // ===== GUIA 2: LANÇAMENTOS =====
     function trocarTipoLancamento(tipo) {
         const elReceita = document.getElementById('camposReceita');
         const elDespesa = document.getElementById('camposDespesa');
@@ -1119,11 +1169,12 @@
         document.getElementById('lancamentoQuantidade').value = '';
         document.getElementById('lancamentoValorUnit').value = '';
         document.getElementById('lancamentoTotalReceita').value = '';
-        document.getElementById('lancamentoCategoria').value = 'Combustivel';
+        document.getElementById('lancamentoCategoria').value = 'Combustível';
         document.getElementById('lancamentoDescricao').value = '';
         document.getElementById('lancamentoValorDespesa').value = '';
+        document.getElementById('lancamentoAdminDespesa').value = 'Leandro';
 
-        // Se for edicao, preencher
+        // Se for edição, preencher
         if (lancamento) {
             if (lancamento.tipo === 'receita') {
                 document.querySelector('input[name="lancamentoTipoRadio"][value="receita"]').checked = true;
@@ -1137,7 +1188,8 @@
             } else {
                 document.querySelector('input[name="lancamentoTipoRadio"][value="despesa"]').checked = true;
                 trocarTipoLancamento('despesa');
-                document.getElementById('lancamentoCategoria').value = lancamento.categoria || 'Combustivel';
+                document.getElementById('lancamentoAdminDespesa').value = lancamento.administrador || 'Leandro';
+                document.getElementById('lancamentoCategoria').value = lancamento.categoria || 'Combustível';
                 document.getElementById('lancamentoDescricao').value = lancamento.descricao || '';
                 document.getElementById('lancamentoValorDespesa').value = lancamento.valor || '';
             }
@@ -1157,7 +1209,7 @@
         const obs = document.getElementById('lancamentoObs').value.trim();
         const area = areas.find(a => a.id === areaId);
 
-        if (!data || !areaId) { alert('Preencha DATA e AREA!'); return; }
+        if (!data || !areaId) { alert('Preencha DATA e ÁREA!'); return; }
 
         try {
             if (tipo === 'receita') {
@@ -1171,11 +1223,12 @@
                 else await addDoc(receitasCol, dados);
                 mostrarFeedback('Receita salva!');
             } else {
+                const administrador = document.getElementById('lancamentoAdminDespesa').value;
                 const categoria = document.getElementById('lancamentoCategoria').value;
                 const descricao = document.getElementById('lancamentoDescricao').value.trim();
                 const valor = parseFloat(document.getElementById('lancamentoValorDespesa').value) || 0;
                 if (!categoria || valor <= 0) { alert('Preencha todos os campos da despesa!'); return; }
-                const dados = { data, areaId, areaNome: area?.nome || '', administrador: area?.administrador || '', categoria, descricao, valor, obs, tipo: 'despesa' };
+                const dados = { data, areaId, areaNome: area?.nome || '', administrador, categoria, descricao, valor, obs, tipo: 'despesa' };
                 if (id) await updateDoc(doc(despesasCol, id), dados);
                 else await addDoc(despesasCol, dados);
                 mostrarFeedback('Despesa salva!');
@@ -1187,7 +1240,7 @@
     async function excluirLancamento(colecao, id, nome) {
         if (confirm('Tem certeza que quer excluir ' + nome + '?')) {
             await deleteDoc(doc(colecao, id));
-            mostrarFeedback(nome + ' excluido!');
+            mostrarFeedback(nome + ' excluído!');
         }
     }
 
@@ -1197,10 +1250,10 @@
         else original = despesas.find(d => d.id === id);
         if (!original) return;
 
-        const novo = { ...original, id: undefined, data: new Date().toISOString().split('T')[0], obs: original.obs ? '(Copia) ' + original.obs : 'Copia' };
+        const novo = { ...original, id: undefined, data: new Date().toISOString().split('T')[0], obs: original.obs ? '(Cópia) ' + original.obs : 'Cópia' };
         try {
             await addDoc(colecao, novo);
-            mostrarFeedback('Lancamento duplicado!');
+            mostrarFeedback('Lançamento duplicado!');
         } catch (e) { alert('Erro: ' + e.message); }
     }
 
@@ -1356,7 +1409,7 @@
 
     function mudarPaginaDespesas(delta) { paginaDespesas += delta; renderizarDespesas(); }
 
-    // ===== FILTROS RAPIDOS =====
+    // ===== FILTROS RÁPIDOS =====
     function filtroRapido(tipo) {
         const hoje = new Date();
         let inicio = '', fim = '';
@@ -1443,7 +1496,7 @@
     async function excluirRepasse(id) {
         if (confirm('Tem certeza que quer excluir este repasse?')) {
             await deleteDoc(doc(repassesCol, id));
-            mostrarFeedback('Repasse excluido!');
+            mostrarFeedback('Repasse excluído!');
         }
     }
 
@@ -1504,6 +1557,141 @@
 
     function mudarPaginaRepasses(delta) { paginaRepasses += delta; renderizarRepasses(); }
 
+    // ===== GERAR PDF DO RESUMO =====
+    function gerarPDFResumo() {
+        const areaFiltro = document.getElementById('filtroResumoArea').value;
+        const adminFiltro = document.getElementById('filtroResumoAdmin').value;
+        const dataInicio = document.getElementById('filtroResumoInicio').value;
+        const dataFim = document.getElementById('filtroResumoFim').value;
+
+        let receitasFilt = [...receitas];
+        let despesasFilt = [...despesas];
+        let repassesFilt = [...repasses];
+
+        if (areaFiltro) {
+            receitasFilt = receitasFilt.filter(r => r.areaId === areaFiltro);
+            despesasFilt = despesasFilt.filter(d => d.areaId === areaFiltro);
+            repassesFilt = repassesFilt.filter(r => r.areaId === areaFiltro);
+        }
+        if (adminFiltro) {
+            receitasFilt = receitasFilt.filter(r => r.administrador === adminFiltro);
+            despesasFilt = despesasFilt.filter(d => d.administrador === adminFiltro);
+            repassesFilt = repassesFilt.filter(r => r.administrador === adminFiltro);
+        }
+        if (dataInicio) {
+            receitasFilt = receitasFilt.filter(r => r.data >= dataInicio);
+            despesasFilt = despesasFilt.filter(d => d.data >= dataInicio);
+            repassesFilt = repassesFilt.filter(r => r.data >= dataInicio);
+        }
+        if (dataFim) {
+            receitasFilt = receitasFilt.filter(r => r.data <= dataFim);
+            despesasFilt = despesasFilt.filter(d => d.data <= dataFim);
+            repassesFilt = repassesFilt.filter(r => r.data <= dataFim);
+        }
+
+        const totalReceitas = receitasFilt.reduce((s, r) => s + (r.valor || 0), 0);
+        const totalDespesas = despesasFilt.reduce((s, d) => s + (d.valor || 0), 0);
+        const lucroTotal = totalReceitas - totalDespesas;
+
+        let html = `
+            <html><head><title>Resumo Financeiro</title>
+            <style>
+                body { font-family: Arial, sans-serif; padding: 30px; }
+                h1 { color: #1a4a2a; border-bottom: 3px solid #1a4a2a; padding-bottom: 10px; }
+                h2 { color: #1a4a2a; margin-top: 25px; }
+                table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+                th { background: #1a4a2a; color: white; padding: 10px; text-align: center; }
+                td { padding: 8px; border: 1px solid #ccc; text-align: center; }
+                .total { background: #f0f6f0; font-weight: bold; }
+                .positivo { color: #166534; font-weight: bold; }
+                .negativo { color: #991b1b; font-weight: bold; }
+                .resumo-cards { display: flex; gap: 20px; margin: 20px 0; }
+                .card { background: #1a4a2a; color: white; padding: 15px 25px; border-radius: 10px; text-align: center; flex: 1; }
+                .card .valor { font-size: 22px; font-weight: bold; }
+                .footer { margin-top: 30px; font-size: 12px; color: #666; text-align: center; border-top: 1px solid #ccc; padding-top: 15px; }
+    </style>
+    </head><body>
+    <h1>RESUMO FINANCEIRO - VIANA FARINHA</h1>
+    <p>Gerado em: ${new Date().toLocaleString()}</p>
+    <p>Período: ${dataInicio || 'Início'} a ${dataFim || 'Fim'} | Área: ${areaFiltro ? areas.find(a=>a.id===areaFiltro)?.nome || 'Todas' : 'Todas'} | Administrador: ${adminFiltro || 'Todos'}</p>
+
+    <div class="resumo-cards">
+        <div class="card"><h3>RECEITA TOTAL</h3><div class="valor">${formatarMoeda(totalReceitas)}</div></div>
+        <div class="card"><h3>DESPESA TOTAL</h3><div class="valor">${formatarMoeda(totalDespesas)}</div></div>
+        <div class="card"><h3>LUCRO TOTAL</h3><div class="valor">${formatarMoeda(lucroTotal)}</div></div>
+    </div>
+    `;
+
+        // Resumo por Área
+        const areasUnicas = [...new Set(receitasFilt.map(r => r.areaId).concat(despesasFilt.map(d => d.areaId)))];
+        if (areasUnicas.length > 0) {
+            html += `<h2>RESUMO POR ÁREA</h2><table><thead><tr><th>ÁREA</th><th>RECEITA</th><th>DESPESA</th><th>LUCRO</th><th>REPASSES NENÉM</th><th>REPASSES LEANDRO</th></tr></thead><tbody>`;
+            let totalRecArea = 0, totalDespArea = 0, totalLucroArea = 0;
+            areasUnicas.forEach(id => {
+                const area = areas.find(a => a.id === id);
+                const rec = receitasFilt.filter(r => r.areaId === id).reduce((s, r) => s + (r.valor || 0), 0);
+                const desp = despesasFilt.filter(d => d.areaId === id).reduce((s, d) => s + (d.valor || 0), 0);
+                const lucro = rec - desp;
+                const repNene = repassesFilt.filter(r => r.areaId === id && r.administrador === 'Neném Viana').reduce((s, r) => s + (r.valor || 0), 0);
+                const repLeandro = repassesFilt.filter(r => r.areaId === id && r.administrador === 'Leandro').reduce((s, r) => s + (r.valor || 0), 0);
+                totalRecArea += rec; totalDespArea += desp; totalLucroArea += lucro;
+                html += `<tr><td><strong>${area?.nome || id}</strong></td><td>${formatarMoeda(rec)}</td><td>${formatarMoeda(desp)}</td><td class="${lucro >= 0 ? 'positivo' : 'negativo'}">${formatarMoeda(lucro)}</td><td>${formatarMoeda(repNene)}</td><td>${formatarMoeda(repLeandro)}</td></tr>`;
+            });
+            html += `<tr class="total"><td><strong>TOTAL</strong></td><td><strong>${formatarMoeda(totalRecArea)}</strong></td><td><strong>${formatarMoeda(totalDespArea)}</strong></td><td class="${totalLucroArea >= 0 ? 'positivo' : 'negativo'}"><strong>${formatarMoeda(totalLucroArea)}</strong></td><td></td><td></td></tr>`;
+            html += `</tbody></table>`;
+        }
+
+        // Sociedade
+        const areasSociedade = areas.filter(a => a.administrador === 'Leandro/Neném');
+        let receitasSoc = 0, despesasSoc = 0, repNeneSoc = 0, repLeandroSoc = 0;
+        areasSociedade.forEach(a => {
+            receitasSoc += receitasFilt.filter(r => r.areaId === a.id).reduce((s, r) => s + (r.valor || 0), 0);
+            despesasSoc += despesasFilt.filter(d => d.areaId === a.id).reduce((s, d) => s + (d.valor || 0), 0);
+            repNeneSoc += repassesFilt.filter(r => r.areaId === a.id && r.administrador === 'Neném Viana').reduce((s, r) => s + (r.valor || 0), 0);
+            repLeandroSoc += repassesFilt.filter(r => r.areaId === a.id && r.administrador === 'Leandro').reduce((s, r) => s + (r.valor || 0), 0);
+        });
+        const direitoSoc = receitasSoc / 2;
+        const despSoc = despesasSoc / 2;
+        const saldoNeneSoc = direitoSoc - despSoc - repNeneSoc;
+        const saldoLeandroSoc = direitoSoc - despSoc - repLeandroSoc;
+
+        html += `<h2>RESUMO POR SÓCIO - SOCIEDADE</h2><table><thead><tr><th>SÓCIO</th><th>DIREITO 50%</th><th>DESPESAS 50%</th><th>REPASSES</th><th>SALDO</th></tr></thead><tbody>
+        <tr><td><strong>NENÉM</strong></td><td>${formatarMoeda(direitoSoc)}</td><td>${formatarMoeda(despSoc)}</td><td>${formatarMoeda(repNeneSoc)}</td><td class="${saldoNeneSoc >= 0 ? 'positivo' : 'negativo'}">${formatarMoeda(saldoNeneSoc)}</td></tr>
+        <tr><td><strong>LEANDRO</strong></td><td>${formatarMoeda(direitoSoc)}</td><td>${formatarMoeda(despSoc)}</td><td>${formatarMoeda(repLeandroSoc)}</td><td class="${saldoLeandroSoc >= 0 ? 'positivo' : 'negativo'}">${formatarMoeda(saldoLeandroSoc)}</td></tr>
+        </tbody></table>`;
+
+        // Individual
+        const areasLeandro = areas.filter(a => a.administrador === 'Leandro');
+        const areasNene = areas.filter(a => a.administrador === 'Neném Viana');
+        let recLeandroInd = 0, despLeandroInd = 0, repLeandroInd = 0;
+        areasLeandro.forEach(a => {
+            recLeandroInd += receitasFilt.filter(r => r.areaId === a.id).reduce((s, r) => s + (r.valor || 0), 0);
+            despLeandroInd += despesasFilt.filter(d => d.areaId === a.id).reduce((s, d) => s + (d.valor || 0), 0);
+            repLeandroInd += repassesFilt.filter(r => r.areaId === a.id && r.administrador === 'Leandro').reduce((s, r) => s + (r.valor || 0), 0);
+        });
+        const saldoLeandroInd = recLeandroInd - despLeandroInd - repLeandroInd;
+
+        let recNeneInd = 0, despNeneInd = 0, repNeneInd = 0;
+        areasNene.forEach(a => {
+            recNeneInd += receitasFilt.filter(r => r.areaId === a.id).reduce((s, r) => s + (r.valor || 0), 0);
+            despNeneInd += despesasFilt.filter(d => d.areaId === a.id).reduce((s, d) => s + (d.valor || 0), 0);
+            repNeneInd += repassesFilt.filter(r => r.areaId === a.id && r.administrador === 'Neném Viana').reduce((s, r) => s + (r.valor || 0), 0);
+        });
+        const saldoNeneInd = recNeneInd - despNeneInd - repNeneInd;
+
+        html += `<h2>RESUMO POR SÓCIO - INDIVIDUAL</h2><table><thead><tr><th>SÓCIO</th><th>RECEITA</th><th>DESPESA</th><th>REPASSES</th><th>SALDO</th></tr></thead><tbody>
+        <tr><td><strong>NENÉM</strong></td><td>${formatarMoeda(recNeneInd)}</td><td>${formatarMoeda(despNeneInd)}</td><td>${formatarMoeda(repNeneInd)}</td><td class="${saldoNeneInd >= 0 ? 'positivo' : 'negativo'}">${formatarMoeda(saldoNeneInd)}</td></tr>
+        <tr><td><strong>LEANDRO</strong></td><td>${formatarMoeda(recLeandroInd)}</td><td>${formatarMoeda(despLeandroInd)}</td><td>${formatarMoeda(repLeandroInd)}</td><td class="${saldoLeandroInd >= 0 ? 'positivo' : 'negativo'}">${formatarMoeda(saldoLeandroInd)}</td></tr>
+        </tbody></table>`;
+
+        html += `<div class="footer">Sistema de Gestão de Roças - VIANA FARINHA</div></body></html>`;
+
+        const w = window.open('', '_blank');
+        w.document.write(html);
+        w.document.close();
+        w.print();
+    }
+
     // ===== RESUMO FINANCEIRO =====
     function atualizarResumo() {
         const areaFiltro = document.getElementById('filtroResumoArea').value;
@@ -1552,19 +1740,19 @@
             </div>
         `;
 
-        // RESUMO POR AREA
+        // RESUMO POR ÁREA
         const areasUnicas = [...new Set(receitasFilt.map(r => r.areaId).concat(despesasFilt.map(d => d.areaId)))];
         if (areasUnicas.length > 0) {
-            html += `<div class="resumo-section-title">RESUMO POR AREA</div>`;
+            html += `<div class="resumo-section-title">RESUMO POR ÁREA</div>`;
             html += `<div class="resumo-table-wrapper"><table class="resumo-table">
-                <thead><tr><th>AREA</th><th>RECEITA</th><th>DESPESA</th><th>LUCRO</th><th>REPASSES NENEM</th><th>REPASSES LEANDRO</th></tr></thead><tbody>`;
+                <thead><tr><th>ÁREA</th><th>RECEITA</th><th>DESPESA</th><th>LUCRO</th><th>REPASSES NENÉM</th><th>REPASSES LEANDRO</th></tr></thead><tbody>`;
             let totalRecArea = 0, totalDespArea = 0, totalLucroArea = 0, totalRepNene = 0, totalRepLeandro = 0;
             areasUnicas.forEach(id => {
                 const area = areas.find(a => a.id === id);
                 const rec = receitasFilt.filter(r => r.areaId === id).reduce((s, r) => s + (r.valor || 0), 0);
                 const desp = despesasFilt.filter(d => d.areaId === id).reduce((s, d) => s + (d.valor || 0), 0);
                 const lucro = rec - desp;
-                const repNene = repassesFilt.filter(r => r.areaId === id && r.administrador === 'Nenem Viana').reduce((s, r) => s + (r.valor || 0), 0);
+                const repNene = repassesFilt.filter(r => r.areaId === id && r.administrador === 'Neném Viana').reduce((s, r) => s + (r.valor || 0), 0);
                 const repLeandro = repassesFilt.filter(r => r.areaId === id && r.administrador === 'Leandro').reduce((s, r) => s + (r.valor || 0), 0);
                 totalRecArea += rec; totalDespArea += desp; totalLucroArea += lucro; totalRepNene += repNene; totalRepLeandro += repLeandro;
                 const lucroClass = lucro >= 0 ? 'lucro-positivo' : 'lucro-negativo';
@@ -1582,13 +1770,13 @@
                 <td><strong>${formatarMoeda(totalRepLeandro)}</strong></td></tr></tfoot></table></div>`;
         }
 
-        // SOCIEDADE (Leandro/Nenem)
-        const areasSociedade = areas.filter(a => a.administrador === 'Leandro/Nenem');
+        // SOCIEDADE
+        const areasSociedade = areas.filter(a => a.administrador === 'Leandro/Neném');
         let receitasSoc = 0, despesasSoc = 0, repNeneSoc = 0, repLeandroSoc = 0;
         areasSociedade.forEach(a => {
             receitasSoc += receitasFilt.filter(r => r.areaId === a.id).reduce((s, r) => s + (r.valor || 0), 0);
             despesasSoc += despesasFilt.filter(d => d.areaId === a.id).reduce((s, d) => s + (d.valor || 0), 0);
-            repNeneSoc += repassesFilt.filter(r => r.areaId === a.id && r.administrador === 'Nenem Viana').reduce((s, r) => s + (r.valor || 0), 0);
+            repNeneSoc += repassesFilt.filter(r => r.areaId === a.id && r.administrador === 'Neném Viana').reduce((s, r) => s + (r.valor || 0), 0);
             repLeandroSoc += repassesFilt.filter(r => r.areaId === a.id && r.administrador === 'Leandro').reduce((s, r) => s + (r.valor || 0), 0);
         });
         const direitoSoc = receitasSoc / 2;
@@ -1596,17 +1784,17 @@
         const saldoNeneSoc = direitoSoc - despSoc - repNeneSoc;
         const saldoLeandroSoc = direitoSoc - despSoc - repLeandroSoc;
 
-        html += `<div class="resumo-section-title">RESUMO POR SOCIO - SOCIEDADE (Leandro/Nenem)</div>`;
+        html += `<div class="resumo-section-title">RESUMO POR SÓCIO - SOCIEDADE</div>`;
         html += `<div class="resumo-table-wrapper"><table class="resumo-table">
-            <thead><tr><th>SOCIO</th><th>DIREITO 50%</th><th>DESPESAS 50%</th><th>REPASSES</th><th>SALDO</th></tr></thead>
+            <thead><tr><th>SÓCIO</th><th>DIREITO 50%</th><th>DESPESAS 50%</th><th>REPASSES</th><th>SALDO</th></tr></thead>
             <tbody>
-                <tr><td>NENEM</td><td>${formatarMoeda(direitoSoc)}</td><td>${formatarMoeda(despSoc)}</td><td>${formatarMoeda(repNeneSoc)}</td><td class="${saldoNeneSoc >= 0 ? 'lucro-positivo' : 'lucro-negativo'}">${formatarMoeda(saldoNeneSoc)}</td></tr>
+                <tr><td>NENÉM</td><td>${formatarMoeda(direitoSoc)}</td><td>${formatarMoeda(despSoc)}</td><td>${formatarMoeda(repNeneSoc)}</td><td class="${saldoNeneSoc >= 0 ? 'lucro-positivo' : 'lucro-negativo'}">${formatarMoeda(saldoNeneSoc)}</td></tr>
                 <tr><td>LEANDRO</td><td>${formatarMoeda(direitoSoc)}</td><td>${formatarMoeda(despSoc)}</td><td>${formatarMoeda(repLeandroSoc)}</td><td class="${saldoLeandroSoc >= 0 ? 'lucro-positivo' : 'lucro-negativo'}">${formatarMoeda(saldoLeandroSoc)}</td></tr>
             </tbody></table></div>`;
 
         // INDIVIDUAL
         const areasLeandro = areas.filter(a => a.administrador === 'Leandro');
-        const areasNene = areas.filter(a => a.administrador === 'Nenem Viana');
+        const areasNene = areas.filter(a => a.administrador === 'Neném Viana');
 
         let recLeandroInd = 0, despLeandroInd = 0, repLeandroInd = 0;
         areasLeandro.forEach(a => {
@@ -1620,15 +1808,15 @@
         areasNene.forEach(a => {
             recNeneInd += receitasFilt.filter(r => r.areaId === a.id).reduce((s, r) => s + (r.valor || 0), 0);
             despNeneInd += despesasFilt.filter(d => d.areaId === a.id).reduce((s, d) => s + (d.valor || 0), 0);
-            repNeneInd += repassesFilt.filter(r => r.areaId === a.id && r.administrador === 'Nenem Viana').reduce((s, r) => s + (r.valor || 0), 0);
+            repNeneInd += repassesFilt.filter(r => r.areaId === a.id && r.administrador === 'Neném Viana').reduce((s, r) => s + (r.valor || 0), 0);
         });
         const saldoNeneInd = recNeneInd - despNeneInd - repNeneInd;
 
-        html += `<div class="resumo-section-title">RESUMO POR SOCIO - INDIVIDUAL</div>`;
+        html += `<div class="resumo-section-title">RESUMO POR SÓCIO - INDIVIDUAL</div>`;
         html += `<div class="resumo-table-wrapper"><table class="resumo-table">
-            <thead><tr><th>SOCIO</th><th>RECEITA</th><th>DESPESA</th><th>REPASSES</th><th>SALDO</th></tr></thead>
+            <thead><tr><th>SÓCIO</th><th>RECEITA</th><th>DESPESA</th><th>REPASSES</th><th>SALDO</th></tr></thead>
             <tbody>
-                <tr><td>NENEM</td><td>${formatarMoeda(recNeneInd)}</td><td>${formatarMoeda(despNeneInd)}</td><td>${formatarMoeda(repNeneInd)}</td><td class="${saldoNeneInd >= 0 ? 'lucro-positivo' : 'lucro-negativo'}">${formatarMoeda(saldoNeneInd)}</td></tr>
+                <tr><td>NENÉM</td><td>${formatarMoeda(recNeneInd)}</td><td>${formatarMoeda(despNeneInd)}</td><td>${formatarMoeda(repNeneInd)}</td><td class="${saldoNeneInd >= 0 ? 'lucro-positivo' : 'lucro-negativo'}">${formatarMoeda(saldoNeneInd)}</td></tr>
                 <tr><td>LEANDRO</td><td>${formatarMoeda(recLeandroInd)}</td><td>${formatarMoeda(despLeandroInd)}</td><td>${formatarMoeda(repLeandroInd)}</td><td class="${saldoLeandroInd >= 0 ? 'lucro-positivo' : 'lucro-negativo'}">${formatarMoeda(saldoLeandroInd)}</td></tr>
             </tbody></table></div>`;
 
@@ -1647,7 +1835,7 @@
     function imprimirTabela() { window.print(); }
     function imprimirResumo() { window.print(); }
 
-    // ===== PIX (mantido) =====
+    // ===== PIX =====
     async function carregarLancamentosPix() {
         try {
             const pixSnapshot = await getDocs(query(pixCol, orderBy('dataLancamento', 'desc')));
@@ -1656,12 +1844,12 @@
             const clientesSnapshot = await getDocs(pixClientesCol);
             clientesPix = [];
             clientesSnapshot.forEach(doc => { clientesPix.push(doc.data().nome); });
-            if (clientesPix.length === 0) clientesPix = ["Carlos Souza", "Empresa XPTO", "Joao Silva", "Maria Oliveira"];
+            if (clientesPix.length === 0) clientesPix = ["Carlos Souza", "Empresa XPTO", "João Silva", "Maria Oliveira"];
             ordenarClientes();
             const bancosSnapshot = await getDocs(pixBancosCol);
             bancosPix = [];
             bancosSnapshot.forEach(doc => { bancosPix.push(doc.data().nome); });
-            if (bancosPix.length === 0) bancosPix = ["BRADESCO", "BRASIL PF", "BRASIL PJ", "Itau", "Nubank", "SICREDI AGRO", "SICREDI PJ"];
+            if (bancosPix.length === 0) bancosPix = ["BRADESCO", "BRASIL PF", "BRASIL PJ", "Itaú", "Nubank", "SICREDI AGRO", "SICREDI PJ"];
             ordenarBancos();
             atualizarSelectsPix();
             aplicarFiltrosPix();
@@ -1679,11 +1867,11 @@
         } else lancamentosPix = [];
         const clientesSalvos = localStorage.getItem('clientesPix');
         if (clientesSalvos) clientesPix = JSON.parse(clientesSalvos);
-        else clientesPix = ["Carlos Souza", "Empresa XPTO", "Joao Silva", "Maria Oliveira"];
+        else clientesPix = ["Carlos Souza", "Empresa XPTO", "João Silva", "Maria Oliveira"];
         ordenarClientes();
         const bancosSalvos = localStorage.getItem('bancosPix');
         if (bancosSalvos) bancosPix = JSON.parse(bancosSalvos);
-        else bancosPix = ["BRADESCO", "BRASIL PF", "BRASIL PJ", "Itau", "Nubank", "SICREDI AGRO", "SICREDI PJ"];
+        else bancosPix = ["BRADESCO", "BRASIL PF", "BRASIL PJ", "Itaú", "Nubank", "SICREDI AGRO", "SICREDI PJ"];
         ordenarBancos();
         atualizarSelectsPix();
         aplicarFiltrosPix();
@@ -1702,7 +1890,7 @@
         const obs = document.getElementById('pixObs').value;
         let status = document.getElementById('pixStatus').value;
         if (!dataLancamento || !periodoIni || !periodoFim || !receberAte || !cliente || !banco || valor <= 0) {
-            alert('Preencha todos os campos obrigatorios!');
+            alert('Preencha todos os campos obrigatórios!');
             return;
         }
         const hoje = new Date().toISOString().slice(0, 10);
@@ -1716,11 +1904,11 @@
                 await updateDoc(doc(pixCol, id), dados);
                 const idx = lancamentosPix.findIndex(l => l.id === id);
                 if (idx !== -1) lancamentosPix[idx] = { ...lancamentosPix[idx], ...dados };
-                mostrarFeedback('Lancamento atualizado!');
+                mostrarFeedback('Lançamento atualizado!');
             } else {
                 const docRef = await addDoc(pixCol, dados);
                 lancamentosPix.push({ id: docRef.id, ...dados });
-                mostrarFeedback('Lancamento salvo no Firebase!');
+                mostrarFeedback('Lançamento salvo no Firebase!');
             }
             lancamentosPix.sort((a, b) => new Date(b.dataLancamento) - new Date(a.dataLancamento));
             fecharModal('modalPix');
@@ -1729,12 +1917,12 @@
     }
 
     async function excluirLancamentoPix(id) {
-        if (confirm('Tem certeza que quer excluir este lancamento?')) {
+        if (confirm('Tem certeza que quer excluir este lançamento?')) {
             try {
                 await deleteDoc(doc(pixCol, id));
                 lancamentosPix = lancamentosPix.filter(l => l.id !== id);
                 aplicarFiltrosPix();
-                mostrarFeedback('Lancamento excluido!');
+                mostrarFeedback('Lançamento excluído!');
             } catch (error) { alert('Erro: ' + error.message); }
         }
     }
@@ -1753,7 +1941,7 @@
                 lancamentosPix.push({ id: docRef.id, ...clone });
                 lancamentosPix.sort((a, b) => new Date(b.dataLancamento) - new Date(a.dataLancamento));
                 aplicarFiltrosPix();
-                mostrarFeedback('Lancamento clonado!');
+                mostrarFeedback('Lançamento clonado!');
             } catch (error) { alert('Erro: ' + error.message); }
         }
     }
@@ -1900,7 +2088,7 @@
                 <div class="resumo-card"><h3>TOTAL A RECEBER</h3><div class="valor">${formatarMoeda(totalAReceber)}</div></div>
                 <div class="resumo-card"><h3>TOTAL GERAL</h3><div class="valor">${formatarMoeda(totalGeral)}</div></div>
                 <div class="resumo-card"><h3>MAIOR PAGADOR</h3><div class="valor">${escapeHtml(maiorPagador)}</div></div>
-                <div class="resumo-card"><h3>PENDENCIAS</h3><div class="valor">${pendentes}</div></div>
+                <div class="resumo-card"><h3>PENDÊNCIAS</h3><div class="valor">${pendentes}</div></div>
                 <div class="resumo-card"><h3>RECEBIDOS</h3><div class="valor">${recebidos}</div></div>
                 <div class="resumo-card"><h3>ATRASADOS</h3><div class="valor">${atrasados}</div></div>
             `;
@@ -1972,10 +2160,10 @@
 
     function gerarPDFPix() {
         const dados = pixFiltered.length ? pixFiltered : lancamentosPix;
-        let html = `<html><head><title>Relatorio PIX</title><style>body{font-family:Arial;padding:20px} h1{color:#1a4a2a} table{width:100%;border-collapse:collapse} th{background:#1a4a2a;color:white;padding:8px} td{padding:6px;border:1px solid #ccc}</style></head><body>
+        let html = `<html><head><title>Relatório PIX</title><style>body{font-family:Arial;padding:20px} h1{color:#1a4a2a} table{width:100%;border-collapse:collapse} th{background:#1a4a2a;color:white;padding:8px} td{padding:6px;border:1px solid #ccc}</style></head><body>
         <h1>CONTROLE PIX - VIANA FARINHA</h1>
         <p>Gerado em ${new Date().toLocaleString()}</p>
-        <table border="1"><thead><tr><th>Data</th><th>Periodo</th><th>Banco</th><th>Cliente</th><th>Valor</th><th>Recebido</th><th>Diferenca</th><th>Status</th><th>Receber Ate</th><th>Observacao</th></tr></thead><tbody>`;
+        <table border="1"><thead><tr><th>Data</th><th>Período</th><th>Banco</th><th>Cliente</th><th>Valor</th><th>Recebido</th><th>Diferença</th><th>Status</th><th>Receber Até</th><th>Observação</th></tr></thead><tbody>`;
         dados.forEach(l => {
             html += `<tr><td>${formatarData(l.dataLancamento)}</td><td>${formatarData(l.periodoIni)} a ${formatarData(l.periodoFim)}</td>
                 <td>${escapeHtml(l.banco)}</td><td>${escapeHtml(l.cliente)}</td>
@@ -1991,7 +2179,7 @@
         w.print();
     }
 
-    // ===== RECUPERACAO =====
+    // ===== RECUPERAÇÃO =====
     let dadosEncontrados = null;
 
     window.verificarDadosAntigos = function() {
@@ -2016,19 +2204,19 @@
         if (lancamentos) {
             const dados = JSON.parse(lancamentos);
             totalLancamentos = dados.length;
-            info += 'Lancamentos PIX: <strong>' + dados.length + '</strong><br>';
-            addLog('Encontrados ' + dados.length + ' lancamentos PIX', 'success');
+            info += 'Lançamentos PIX: <strong>' + dados.length + '</strong><br>';
+            addLog('Encontrados ' + dados.length + ' lançamentos PIX', 'success');
             temDados = true;
-        } else { info += 'Nenhum lancamento PIX encontrado<br>'; addLog('Nenhum lancamento PIX encontrado', 'error'); }
+        } else { info += 'Nenhum lançamento PIX encontrado<br>'; addLog('Nenhum lançamento PIX encontrado', 'error'); }
         if (clientes) { const dados = JSON.parse(clientes); info += 'Clientes: <strong>' + dados.length + '</strong><br>'; addLog('Encontrados ' + dados.length + ' clientes', 'success'); }
         if (bancos) { const dados = JSON.parse(bancos); info += 'Bancos: <strong>' + dados.length + '</strong><br>'; addLog('Encontrados ' + dados.length + ' bancos', 'success'); }
         progress.style.width = '100%';
         if (temDados) {
             statusDiv.className = 'status-box success';
-            statusDiv.innerHTML = 'Dados encontrados! ' + totalLancamentos + ' lancamentos prontos para recuperar.';
+            statusDiv.innerHTML = 'Dados encontrados! ' + totalLancamentos + ' lançamentos prontos para recuperar.';
             btnRecuperar.disabled = false;
             dadosEncontrados = { lancamentos: lancamentos ? JSON.parse(lancamentos) : [], clientes: clientes ? JSON.parse(clientes) : [], bancos: bancos ? JSON.parse(bancos) : [] };
-            addLog(totalLancamentos + ' lancamentos encontrados! Clique em "RECUPERAR" para salvar na nuvem.', 'success');
+            addLog(totalLancamentos + ' lançamentos encontrados! Clique em "RECUPERAR" para salvar na nuvem.', 'success');
         } else {
             statusDiv.className = 'status-box error';
             statusDiv.innerHTML = 'Nenhum dado antigo encontrado neste computador.';
@@ -2056,7 +2244,7 @@
             logDiv.scrollTop = logDiv.scrollHeight;
         }
         try {
-            addLog('INICIANDO RECUPERACAO...', 'info');
+            addLog('INICIANDO RECUPERAÇÃO...', 'info');
             progress.style.width = '10%';
             const lancamentos = dadosEncontrados.lancamentos;
             let count = 0;
@@ -2067,8 +2255,8 @@
                     count++;
                     const progressPercent = 10 + (count / lancamentos.length) * 70;
                     progress.style.width = `${progressPercent}%`;
-                    if (count % 5 === 0) addLog(count + ' de ' + lancamentos.length + ' lancamentos recuperados...', 'info');
-                } catch (e) { addLog('Erro ao recuperar lancamento: ' + e.message, 'warning'); }
+                    if (count % 5 === 0) addLog(count + ' de ' + lancamentos.length + ' lançamentos recuperados...', 'info');
+                } catch (e) { addLog('Erro ao recuperar lançamento: ' + e.message, 'warning'); }
             }
             progress.style.width = '85%';
             for (const c of dadosEncontrados.clientes) {
@@ -2080,15 +2268,15 @@
                 catch (e) { addLog('Erro ao recuperar banco ' + b + ': ' + e.message, 'warning'); }
             }
             progress.style.width = '100%';
-            addLog('RECUPERACAO CONCLUIDA! ' + count + ' lancamentos salvos no Firebase!', 'success');
+            addLog('RECUPERAÇÃO CONCLUÍDA! ' + count + ' lançamentos salvos no Firebase!', 'success');
             statusDiv.className = 'status-box success';
-            statusDiv.innerHTML = 'RECUPERACAO CONCLUIDA! ' + count + ' lancamentos recuperados! Atualize a pagina.';
+            statusDiv.innerHTML = 'RECUPERAÇÃO CONCLUÍDA! ' + count + ' lançamentos recuperados! Atualize a página.';
             setTimeout(() => carregarLancamentosPix(), 1000);
-            addLog('Atualize a pagina (F5) para ver os dados recuperados.', 'info');
+            addLog('Atualize a página (F5) para ver os dados recuperados.', 'info');
         } catch (error) {
             addLog('ERRO: ' + error.message, 'error');
             statusDiv.className = 'status-box error';
-            statusDiv.innerHTML = 'Erro na recuperacao: ' + error.message;
+            statusDiv.innerHTML = 'Erro na recuperação: ' + error.message;
         } finally {
             btn.disabled = false;
             btn.textContent = 'RECUPERAR PARA NUVEM';
@@ -2101,7 +2289,7 @@
         logDiv.innerHTML = '';
         document.getElementById('recoveryProgress').style.width = '0%';
         document.getElementById('recoveryStatus').className = 'status-box waiting';
-        document.getElementById('recoveryStatus').innerHTML = 'Aguardando acao...';
+        document.getElementById('recoveryStatus').innerHTML = 'Aguardando ação...';
         document.getElementById('recoveryDadosLocal').innerHTML = 'Clique em "Verificar" para buscar dados antigos';
         document.getElementById('btnRecuperar').disabled = true;
         dadosEncontrados = null;
@@ -2157,13 +2345,23 @@
         });
     });
 
-    // ===== INICIALIZACAO =====
+    // ===== BOTÃO VOLTAR AO TOPO =====
+    window.addEventListener('scroll', function() {
+        const btn = document.getElementById('btnTop');
+        if (window.scrollY > 300) {
+            btn.classList.add('show');
+        } else {
+            btn.classList.remove('show');
+        }
+    });
+
+    // ===== INICIALIZAÇÃO =====
     const hoje = new Date().toISOString().split('T')[0];
     document.getElementById('areaDataCadastro').value = hoje;
     document.getElementById('areaCodigo').value = 'A001';
     carregarLancamentosPix();
 
-    // Expor funcoes globais
+    // Expor funções globais
     window.limparFormArea = limparFormArea; window.salvarArea = salvarArea; window.editarArea = editarArea; window.excluirArea = excluirArea; window.inativarArea = inativarArea; window.mudarPaginaAreas = mudarPaginaAreas;
     window.abrirModalLancamento = abrirModalLancamento; window.salvarLancamento = salvarLancamento; window.editarLancamento = editarLancamento; window.excluirLancamento = excluirLancamento; window.duplicarLancamento = duplicarLancamento;
     window.mudarPaginaReceitas = mudarPaginaReceitas; window.mudarPaginaDespesas = mudarPaginaDespesas;
@@ -2178,6 +2376,7 @@
     window.clonarLancamentoPix = clonarLancamentoPix; window.mudarPaginaPix = mudarPaginaPix; window.toggleTabelaPix = toggleTabelaPix; window.gerarPDFPix = gerarPDFPix;
     window.novoClientePix = novoClientePix; window.novoBancoPix = novoBancoPix; window.gerenciarClientes = gerenciarClientes; window.gerenciarBancos = gerenciarBancos;
     window.verificarDadosAntigos = verificarDadosAntigos; window.recuperarDadosAntigos = recuperarDadosAntigos; window.limparRecuperacao = limparRecuperacao;
+    window.gerarPDFResumo = gerarPDFResumo;
 
     window.receitasCol = receitasCol;
     window.despesasCol = despesasCol;
