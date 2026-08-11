@@ -1889,60 +1889,111 @@
         let valorRecebido = parseFloat(document.getElementById('pixValorRecebido').value) || 0;
         const obs = document.getElementById('pixObs').value;
         let status = document.getElementById('pixStatus').value;
+
         if (!dataLancamento || !periodoIni || !periodoFim || !receberAte || !cliente || !banco || valor <= 0) {
             alert('Preencha todos os campos obrigatórios!');
             return;
         }
+
         const hoje = new Date().toISOString().slice(0, 10);
         if (new Date(receberAte) < new Date(hoje) && status !== 'Recebido') status = 'Atrasado';
         if (valorRecebido >= valor) status = 'Recebido';
         else if (valorRecebido > 0 && valorRecebido < valor) status = 'Parcial';
         else if (valorRecebido === 0 && status !== 'Recebido') status = 'Pendente';
-        const dados = { dataLancamento, periodoIni, periodoFim, receberAte, cliente, banco, valor, valorRecebido, obs, status, dataAtualizacao: new Date().toISOString() };
+
+        const dados = {
+            dataLancamento,
+            periodoIni,
+            periodoFim,
+            receberAte,
+            cliente,
+            banco,
+            valor,
+            valorRecebido,
+            obs,
+            status,
+            dataAtualizacao: new Date().toISOString()
+        };
+
         try {
             if (id) {
+                // EDITAR - Atualizar documento existente
                 await updateDoc(doc(pixCol, id), dados);
                 const idx = lancamentosPix.findIndex(l => l.id === id);
-                if (idx !== -1) lancamentosPix[idx] = { ...lancamentosPix[idx], ...dados };
-                mostrarFeedback('Lançamento atualizado!');
+                if (idx !== -1) {
+                    lancamentosPix[idx] = { ...lancamentosPix[idx], ...dados };
+                }
+                mostrarFeedback('✅ Lançamento atualizado com sucesso!');
             } else {
+                // NOVO - Adicionar documento
                 const docRef = await addDoc(pixCol, dados);
                 lancamentosPix.push({ id: docRef.id, ...dados });
-                mostrarFeedback('Lançamento salvo no Firebase!');
+                mostrarFeedback('✅ Lançamento salvo com sucesso!');
             }
+
             lancamentosPix.sort((a, b) => new Date(b.dataLancamento) - new Date(a.dataLancamento));
             fecharModal('modalPix');
             aplicarFiltrosPix();
-        } catch (error) { alert('Erro: ' + error.message); }
+        } catch (error) {
+            console.error('Erro ao salvar:', error);
+            alert('❌ Erro ao salvar: ' + error.message);
+        }
     }
 
     async function excluirLancamentoPix(id) {
-        if (confirm('Tem certeza que quer excluir este lançamento?')) {
-            try {
-                await deleteDoc(doc(pixCol, id));
-                lancamentosPix = lancamentosPix.filter(l => l.id !== id);
-                aplicarFiltrosPix();
-                mostrarFeedback('Lançamento excluído!');
-            } catch (error) { alert('Erro: ' + error.message); }
+        if (!confirm('⚠️ Tem certeza que quer excluir este lançamento?')) return;
+        
+        try {
+            await deleteDoc(doc(pixCol, id));
+            lancamentosPix = lancamentosPix.filter(l => l.id !== id);
+            aplicarFiltrosPix();
+            mostrarFeedback('🗑️ Lançamento excluído com sucesso!');
+        } catch (error) {
+            console.error('Erro ao excluir:', error);
+            alert('❌ Erro ao excluir: ' + error.message);
         }
     }
 
     function editarLancamentoPix(id) {
         const lancamento = lancamentosPix.find(l => l.id === id);
-        if (lancamento) abrirModalPix(lancamento);
+        if (!lancamento) {
+            mostrarFeedback('❌ Lançamento não encontrado!');
+            return;
+        }
+        abrirModalPix(lancamento);
     }
 
     async function clonarLancamentoPix(id) {
         const original = lancamentosPix.find(l => l.id === id);
-        if (original) {
-            const clone = { ...original, id: undefined, dataLancamento: new Date().toISOString().split('T')[0], valorRecebido: 0, status: "Pendente", obs: original.obs ? '(Clone) ' + original.obs : 'Clone de ' + original.cliente, dataAtualizacao: new Date().toISOString() };
-            try {
-                const docRef = await addDoc(pixCol, clone);
-                lancamentosPix.push({ id: docRef.id, ...clone });
-                lancamentosPix.sort((a, b) => new Date(b.dataLancamento) - new Date(a.dataLancamento));
-                aplicarFiltrosPix();
-                mostrarFeedback('Lançamento clonado!');
-            } catch (error) { alert('Erro: ' + error.message); }
+        if (!original) {
+            mostrarFeedback('❌ Lançamento não encontrado!');
+            return;
+        }
+        
+        const clone = {
+            dataLancamento: new Date().toISOString().split('T')[0],
+            periodoIni: original.periodoIni || '',
+            periodoFim: original.periodoFim || '',
+            receberAte: original.receberAte || '',
+            cliente: original.cliente || '',
+            banco: original.banco || '',
+            valor: original.valor || 0,
+            valorRecebido: 0,
+            status: "Pendente",
+            obs: original.obs ? '(Clone) ' + original.obs : 'Clone de ' + (original.cliente || ''),
+            dataAtualizacao: new Date().toISOString()
+        };
+
+        try {
+            const docRef = await addDoc(pixCol, clone);
+            const novoLancamento = { id: docRef.id, ...clone };
+            lancamentosPix.push(novoLancamento);
+            lancamentosPix.sort((a, b) => new Date(b.dataLancamento) - new Date(a.dataLancamento));
+            aplicarFiltrosPix();
+            mostrarFeedback('📋 Lançamento clonado com sucesso!');
+        } catch (error) {
+            console.error('Erro ao clonar:', error);
+            alert('❌ Erro ao clonar: ' + error.message);
         }
     }
 
