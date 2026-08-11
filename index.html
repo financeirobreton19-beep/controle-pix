@@ -1835,7 +1835,7 @@
     function imprimirTabela() { window.print(); }
     function imprimirResumo() { window.print(); }
 
-    // ===== PIX =====
+    // ===== PIX (CORRIGIDO) =====
     async function carregarLancamentosPix() {
         try {
             const pixSnapshot = await getDocs(query(pixCol, orderBy('dataLancamento', 'desc')));
@@ -1877,6 +1877,7 @@
         aplicarFiltrosPix();
     }
 
+    // 🔧 FUNÇÃO SALVAR PIX CORRIGIDA
     async function salvarLancamentoPix() {
         const id = document.getElementById('pixEditId').value;
         const dataLancamento = document.getElementById('pixData').value;
@@ -1887,7 +1888,7 @@
         const banco = document.getElementById('pixBanco').value;
         const valor = parseFloat(document.getElementById('pixValor').value) || 0;
         let valorRecebido = parseFloat(document.getElementById('pixValorRecebido').value) || 0;
-        const obs = document.getElementById('pixObs').value;
+        const obs = document.getElementById('pixObs').value || '';
         let status = document.getElementById('pixStatus').value;
 
         if (!dataLancamento || !periodoIni || !periodoFim || !receberAte || !cliente || !banco || valor <= 0) {
@@ -1901,23 +1902,23 @@
         else if (valorRecebido > 0 && valorRecebido < valor) status = 'Parcial';
         else if (valorRecebido === 0 && status !== 'Recebido') status = 'Pendente';
 
+        // 🔧 CORREÇÃO: NÃO incluir o campo 'id' nos dados
         const dados = {
-            dataLancamento,
-            periodoIni,
-            periodoFim,
-            receberAte,
-            cliente,
-            banco,
-            valor,
-            valorRecebido,
-            obs,
-            status,
+            dataLancamento: dataLancamento || '',
+            periodoIni: periodoIni || '',
+            periodoFim: periodoFim || '',
+            receberAte: receberAte || '',
+            cliente: cliente || '',
+            banco: banco || '',
+            valor: valor || 0,
+            valorRecebido: valorRecebido || 0,
+            obs: obs || '',
+            status: status || 'Pendente',
             dataAtualizacao: new Date().toISOString()
         };
 
         try {
             if (id) {
-                // EDITAR - Atualizar documento existente
                 await updateDoc(doc(pixCol, id), dados);
                 const idx = lancamentosPix.findIndex(l => l.id === id);
                 if (idx !== -1) {
@@ -1925,7 +1926,6 @@
                 }
                 mostrarFeedback('✅ Lançamento atualizado com sucesso!');
             } else {
-                // NOVO - Adicionar documento
                 const docRef = await addDoc(pixCol, dados);
                 lancamentosPix.push({ id: docRef.id, ...dados });
                 mostrarFeedback('✅ Lançamento salvo com sucesso!');
@@ -1940,7 +1940,13 @@
         }
     }
 
+    // 🔧 FUNÇÃO EXCLUIR PIX CORRIGIDA
     async function excluirLancamentoPix(id) {
+        if (!id) {
+            mostrarFeedback('❌ ID do lançamento não encontrado!');
+            return;
+        }
+        
         if (!confirm('⚠️ Tem certeza que quer excluir este lançamento?')) return;
         
         try {
@@ -1954,6 +1960,7 @@
         }
     }
 
+    // 🔧 FUNÇÃO EDITAR PIX CORRIGIDA
     function editarLancamentoPix(id) {
         const lancamento = lancamentosPix.find(l => l.id === id);
         if (!lancamento) {
@@ -1963,6 +1970,7 @@
         abrirModalPix(lancamento);
     }
 
+    // 🔧 FUNÇÃO CLONAR PIX CORRIGIDA
     async function clonarLancamentoPix(id) {
         const original = lancamentosPix.find(l => l.id === id);
         if (!original) {
@@ -1970,6 +1978,7 @@
             return;
         }
         
+        // 🔧 CORREÇÃO: NÃO incluir o campo 'id' no clone
         const clone = {
             dataLancamento: new Date().toISOString().split('T')[0],
             periodoIni: original.periodoIni || '',
@@ -1997,6 +2006,7 @@
         }
     }
 
+    // 🔧 FUNÇÃO ABRIR MODAL PIX CORRIGIDA
     function abrirModalPix(lancamento = null) {
         document.getElementById('pixEditId').value = lancamento?.id || '';
         document.getElementById('pixData').value = lancamento?.dataLancamento || new Date().toISOString().split('T')[0];
