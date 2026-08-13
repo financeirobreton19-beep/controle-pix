@@ -1811,7 +1811,8 @@
                 <tr><td>LEANDRO</td><td>${formatarMoeda(direitoSoc)}</td><td>${formatarMoeda(despSoc)}</td><td>${formatarMoeda(repLeandroSoc)}</td><td class="${saldoLeandroSoc >= 0 ? 'lucro-positivo' : 'lucro-negativo'}">${formatarMoeda(saldoLeandroSoc)}</td></tr>
             </tbody></table></div>`;
 
-        // INDIVIDUAL        const areasLeandro = areas.filter(a => a.administrador === 'Leandro');
+        // INDIVIDUAL
+        const areasLeandro = areas.filter(a => a.administrador === 'Leandro');
         const areasNene = areas.filter(a => a.administrador === 'Neném Viana');
 
         let recLeandroInd = 0, despLeandroInd = 0, repLeandroInd = 0;
@@ -1853,17 +1854,27 @@
     function imprimirTabela() { window.print(); }
     function imprimirResumo() { window.print(); }
 
-    // ===== PIX (CORRIGIDO - SEM DUPLICATAS) =====
+    // ===== PIX =====
     async function carregarLancamentosPix() {
         try {
-            // Carregar lançamentos PIX
+            // Carregar lançamentos PIX do Firebase
             const pixSnapshot = await getDocs(query(pixCol, orderBy('dataLancamento', 'desc')));
             lancamentosPix = [];
             pixSnapshot.forEach(doc => { 
                 lancamentosPix.push({ id: doc.id, ...doc.data() }); 
             });
             
-            // Carregar clientes do Firebase (APENAS Firebase)
+            // Se não tiver dados no Firebase, tentar carregar do localStorage
+            if (lancamentosPix.length === 0) {
+                const localData = localStorage.getItem('lancamentosPix');
+                if (localData) {
+                    lancamentosPix = JSON.parse(localData);
+                    lancamentosPix.sort((a, b) => new Date(b.dataLancamento) - new Date(a.dataLancamento));
+                    mostrarFeedback('📌 Dados carregados do localStorage. Use a aba RECUPERAR DADOS para migrar para o Firebase.');
+                }
+            }
+            
+            // Carregar clientes do Firebase
             const clientesSnapshot = await getDocs(pixClientesCol);
             clientesPix = [];
             clientesSnapshot.forEach(doc => { 
@@ -1878,14 +1889,12 @@
                 clientesPix = ["Carlos Souza", "Empresa XPTO", "João Silva", "Maria Oliveira"];
                 // Salvar clientes padrão no Firebase
                 for (const c of clientesPix) {
-                    try {
-                        await addDoc(pixClientesCol, { nome: c, dataCriacao: new Date().toISOString() });
-                    } catch(e) {}
+                    try { await addDoc(pixClientesCol, { nome: c, dataCriacao: new Date().toISOString() }); } catch(e) {}
                 }
             }
             ordenarClientes();
             
-            // Carregar bancos do Firebase (APENAS Firebase)
+            // Carregar bancos do Firebase
             const bancosSnapshot = await getDocs(pixBancosCol);
             bancosPix = [];
             bancosSnapshot.forEach(doc => { 
@@ -1900,9 +1909,7 @@
                 bancosPix = ["BRADESCO", "BRASIL PF", "BRASIL PJ", "Itaú", "Nubank", "SICREDI AGRO", "SICREDI PJ"];
                 // Salvar bancos padrão no Firebase
                 for (const b of bancosPix) {
-                    try {
-                        await addDoc(pixBancosCol, { nome: b, dataCriacao: new Date().toISOString() });
-                    } catch(e) {}
+                    try { await addDoc(pixBancosCol, { nome: b, dataCriacao: new Date().toISOString() }); } catch(e) {}
                 }
             }
             ordenarBancos();
@@ -1912,13 +1919,13 @@
             
         } catch (error) {
             console.error('Erro ao carregar PIX:', error);
-            // Fallback: tenta carregar do localStorage apenas os lançamentos
+            // Fallback: carregar dados do localStorage (apenas lançamentos)
             carregarDoLocalStorage();
         }
     }
 
     function carregarDoLocalStorage() {
-        // Só carrega lançamentos PIX do localStorage, NÃO clientes e bancos
+        // Só carrega lançamentos PIX do localStorage
         const dadosSalvos = localStorage.getItem('lancamentosPix');
         if (dadosSalvos) {
             lancamentosPix = JSON.parse(dadosSalvos);
@@ -1927,8 +1934,8 @@
             lancamentosPix = [];
         }
         
-        // NÃO carregar clientes e bancos do localStorage - só do Firebase
-        // Se não tiver dados no Firebase, usar lista padrão
+        // Não carregar clientes e bancos do localStorage
+        // Se não tiver dados no Firebase, usar lista padrão (já carregada)
         
         atualizarSelectsPix();
         aplicarFiltrosPix();
@@ -1959,7 +1966,7 @@
         else if (valorRecebido > 0 && valorRecebido < valor) status = 'Parcial';
         else if (valorRecebido === 0 && status !== 'Recebido') status = 'Pendente';
 
-        // 🔧 CORREÇÃO: NÃO incluir o campo 'id' nos dados
+        // NÃO incluir o campo 'id' nos dados
         const dados = {
             dataLancamento: dataLancamento || '',
             periodoIni: periodoIni || '',
@@ -2035,7 +2042,7 @@
             return;
         }
         
-        // 🔧 CORREÇÃO: NÃO incluir o campo 'id' no clone
+        // NÃO incluir o campo 'id' no clone
         const clone = {
             dataLancamento: new Date().toISOString().split('T')[0],
             periodoIni: original.periodoIni || '',
@@ -2084,7 +2091,6 @@
         const novo = prompt('Nome do novo cliente:');
         if (novo && novo.trim()) {
             const nomeLimpo = novo.trim();
-            // Verificar se já existe (case insensitive)
             const existe = clientesPix.some(c => c.toLowerCase() === nomeLimpo.toLowerCase());
             if (!existe) {
                 clientesPix.push(nomeLimpo);
@@ -2109,7 +2115,6 @@
         const novo = prompt('Nome do novo banco/conta:');
         if (novo && novo.trim()) {
             const nomeLimpo = novo.trim();
-            // Verificar se já existe (case insensitive)
             const existe = bancosPix.some(b => b.toLowerCase() === nomeLimpo.toLowerCase());
             if (!existe) {
                 bancosPix.push(nomeLimpo);
@@ -2265,9 +2270,8 @@
 
     function gerenciarClientes() {
         const container = document.getElementById('listaContainer');
-        // Remove duplicatas antes de exibir
         const clientesUnicos = [...new Set(clientesPix)];
-        container.innerHTML = '<ul style="list-style:none; padding:0">' + clientesUnicos.map((c, i) => `<li style="margin-bottom:8px; display:flex; justify-content:space-between; align-items:center"><span>${escapeHtml(c)}</span><div><button class="btn btn-primary btn-sm" onclick="editarClientePix('${c}')">E</button><button class="btn btn-danger btn-sm" onclick="excluirClientePix('${c}')">X</button></div></li>`).join('') + '</ul>';
+        container.innerHTML = '<ul style="list-style:none; padding:0">' + clientesUnicos.map((c) => `<li style="margin-bottom:8px; display:flex; justify-content:space-between; align-items:center"><span>${escapeHtml(c)}</span><div><button class="btn btn-primary btn-sm" onclick="editarClientePix('${c}')">E</button><button class="btn btn-danger btn-sm" onclick="excluirClientePix('${c}')">X</button></div></li>`).join('') + '</ul>';
         document.getElementById('modalListaTitle').innerText = 'Gerenciar Clientes';
         document.getElementById('modalLista').style.display = 'flex';
         
@@ -2296,9 +2300,8 @@
 
     function gerenciarBancos() {
         const container = document.getElementById('listaContainer');
-        // Remove duplicatas antes de exibir
         const bancosUnicos = [...new Set(bancosPix)];
-        container.innerHTML = '<ul style="list-style:none; padding:0">' + bancosUnicos.map((b, i) => `<li style="margin-bottom:8px; display:flex; justify-content:space-between; align-items:center"><span>${escapeHtml(b)}</span><div><button class="btn btn-primary btn-sm" onclick="editarBancoPix('${b}')">E</button><button class="btn btn-danger btn-sm" onclick="excluirBancoPix('${b}')">X</button></div></li>`).join('') + '</ul>';
+        container.innerHTML = '<ul style="list-style:none; padding:0">' + bancosUnicos.map((b) => `<li style="margin-bottom:8px; display:flex; justify-content:space-between; align-items:center"><span>${escapeHtml(b)}</span><div><button class="btn btn-primary btn-sm" onclick="editarBancoPix('${b}')">E</button><button class="btn btn-danger btn-sm" onclick="excluirBancoPix('${b}')">X</button></div></li>`).join('') + '</ul>';
         document.getElementById('modalListaTitle').innerText = 'Gerenciar Bancos';
         document.getElementById('modalLista').style.display = 'flex';
         
