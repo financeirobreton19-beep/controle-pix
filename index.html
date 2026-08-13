@@ -1032,14 +1032,33 @@
     }
 
     function atualizarSelectsPix() {
+        // Remove duplicatas antes de exibir
+        const clientesUnicos = [...new Set(clientesPix)];
+        const bancosUnicos = [...new Set(bancosPix)];
+        
         ordenarClientes();
         const clienteSelect = document.getElementById('pixCliente');
         clienteSelect.innerHTML = '<option value="">Selecione</option>';
-        clientesPix.forEach(c => { const opt = document.createElement('option'); opt.value = c; opt.textContent = c; clienteSelect.appendChild(opt); });
+        clientesUnicos.forEach(c => { 
+            if (c && c.trim()) {
+                const opt = document.createElement('option'); 
+                opt.value = c; 
+                opt.textContent = c; 
+                clienteSelect.appendChild(opt); 
+            }
+        });
+        
         ordenarBancos();
         const bancoSelect = document.getElementById('pixBanco');
         bancoSelect.innerHTML = '<option value="">Selecione</option>';
-        bancosPix.forEach(b => { const opt = document.createElement('option'); opt.value = b; opt.textContent = b; bancoSelect.appendChild(opt); });
+        bancosUnicos.forEach(b => { 
+            if (b && b.trim()) {
+                const opt = document.createElement('option'); 
+                opt.value = b; 
+                opt.textContent = b; 
+                bancoSelect.appendChild(opt); 
+            }
+        });
     }
 
     function gerarCodigoArea() { return 'A' + String(areas.length + 1).padStart(3, '0'); }
@@ -1792,8 +1811,7 @@
                 <tr><td>LEANDRO</td><td>${formatarMoeda(direitoSoc)}</td><td>${formatarMoeda(despSoc)}</td><td>${formatarMoeda(repLeandroSoc)}</td><td class="${saldoLeandroSoc >= 0 ? 'lucro-positivo' : 'lucro-negativo'}">${formatarMoeda(saldoLeandroSoc)}</td></tr>
             </tbody></table></div>`;
 
-        // INDIVIDUAL
-        const areasLeandro = areas.filter(a => a.administrador === 'Leandro');
+        // INDIVIDUAL        const areasLeandro = areas.filter(a => a.administrador === 'Leandro');
         const areasNene = areas.filter(a => a.administrador === 'Neném Viana');
 
         let recLeandroInd = 0, despLeandroInd = 0, repLeandroInd = 0;
@@ -1835,44 +1853,83 @@
     function imprimirTabela() { window.print(); }
     function imprimirResumo() { window.print(); }
 
-    // ===== PIX (CORRIGIDO) =====
+    // ===== PIX (CORRIGIDO - SEM DUPLICATAS) =====
     async function carregarLancamentosPix() {
         try {
+            // Carregar lançamentos PIX
             const pixSnapshot = await getDocs(query(pixCol, orderBy('dataLancamento', 'desc')));
             lancamentosPix = [];
-            pixSnapshot.forEach(doc => { lancamentosPix.push({ id: doc.id, ...doc.data() }); });
+            pixSnapshot.forEach(doc => { 
+                lancamentosPix.push({ id: doc.id, ...doc.data() }); 
+            });
+            
+            // Carregar clientes do Firebase (APENAS Firebase)
             const clientesSnapshot = await getDocs(pixClientesCol);
             clientesPix = [];
-            clientesSnapshot.forEach(doc => { clientesPix.push(doc.data().nome); });
-            if (clientesPix.length === 0) clientesPix = ["Carlos Souza", "Empresa XPTO", "João Silva", "Maria Oliveira"];
+            clientesSnapshot.forEach(doc => { 
+                const nome = doc.data().nome;
+                if (nome && nome.trim() && !clientesPix.includes(nome)) {
+                    clientesPix.push(nome); 
+                }
+            });
+            
+            // Se não tiver clientes no Firebase, usar lista padrão
+            if (clientesPix.length === 0) {
+                clientesPix = ["Carlos Souza", "Empresa XPTO", "João Silva", "Maria Oliveira"];
+                // Salvar clientes padrão no Firebase
+                for (const c of clientesPix) {
+                    try {
+                        await addDoc(pixClientesCol, { nome: c, dataCriacao: new Date().toISOString() });
+                    } catch(e) {}
+                }
+            }
             ordenarClientes();
+            
+            // Carregar bancos do Firebase (APENAS Firebase)
             const bancosSnapshot = await getDocs(pixBancosCol);
             bancosPix = [];
-            bancosSnapshot.forEach(doc => { bancosPix.push(doc.data().nome); });
-            if (bancosPix.length === 0) bancosPix = ["BRADESCO", "BRASIL PF", "BRASIL PJ", "Itaú", "Nubank", "SICREDI AGRO", "SICREDI PJ"];
+            bancosSnapshot.forEach(doc => { 
+                const nome = doc.data().nome;
+                if (nome && nome.trim() && !bancosPix.includes(nome)) {
+                    bancosPix.push(nome); 
+                }
+            });
+            
+            // Se não tiver bancos no Firebase, usar lista padrão
+            if (bancosPix.length === 0) {
+                bancosPix = ["BRADESCO", "BRASIL PF", "BRASIL PJ", "Itaú", "Nubank", "SICREDI AGRO", "SICREDI PJ"];
+                // Salvar bancos padrão no Firebase
+                for (const b of bancosPix) {
+                    try {
+                        await addDoc(pixBancosCol, { nome: b, dataCriacao: new Date().toISOString() });
+                    } catch(e) {}
+                }
+            }
             ordenarBancos();
+            
             atualizarSelectsPix();
             aplicarFiltrosPix();
+            
         } catch (error) {
             console.error('Erro ao carregar PIX:', error);
+            // Fallback: tenta carregar do localStorage apenas os lançamentos
             carregarDoLocalStorage();
         }
     }
 
     function carregarDoLocalStorage() {
+        // Só carrega lançamentos PIX do localStorage, NÃO clientes e bancos
         const dadosSalvos = localStorage.getItem('lancamentosPix');
         if (dadosSalvos) {
             lancamentosPix = JSON.parse(dadosSalvos);
             lancamentosPix.sort((a, b) => new Date(b.dataLancamento) - new Date(a.dataLancamento));
-        } else lancamentosPix = [];
-        const clientesSalvos = localStorage.getItem('clientesPix');
-        if (clientesSalvos) clientesPix = JSON.parse(clientesSalvos);
-        else clientesPix = ["Carlos Souza", "Empresa XPTO", "João Silva", "Maria Oliveira"];
-        ordenarClientes();
-        const bancosSalvos = localStorage.getItem('bancosPix');
-        if (bancosSalvos) bancosPix = JSON.parse(bancosSalvos);
-        else bancosPix = ["BRADESCO", "BRASIL PF", "BRASIL PJ", "Itaú", "Nubank", "SICREDI AGRO", "SICREDI PJ"];
-        ordenarBancos();
+        } else {
+            lancamentosPix = [];
+        }
+        
+        // NÃO carregar clientes e bancos do localStorage - só do Firebase
+        // Se não tiver dados no Firebase, usar lista padrão
+        
         atualizarSelectsPix();
         aplicarFiltrosPix();
     }
@@ -2022,6 +2079,56 @@
         document.getElementById('modalPix').style.display = 'flex';
     }
 
+    // 🔧 FUNÇÃO NOVO CLIENTE - EVITAR DUPLICATAS
+    function novoClientePix() {
+        const novo = prompt('Nome do novo cliente:');
+        if (novo && novo.trim()) {
+            const nomeLimpo = novo.trim();
+            // Verificar se já existe (case insensitive)
+            const existe = clientesPix.some(c => c.toLowerCase() === nomeLimpo.toLowerCase());
+            if (!existe) {
+                clientesPix.push(nomeLimpo);
+                ordenarClientes();
+                addDoc(pixClientesCol, { nome: nomeLimpo, dataCriacao: new Date().toISOString() })
+                    .then(() => {
+                        atualizarSelectsPix();
+                        mostrarFeedback('✅ Cliente adicionado!');
+                    })
+                    .catch(() => {
+                        atualizarSelectsPix();
+                        mostrarFeedback('⚠️ Cliente adicionado localmente, erro no Firebase');
+                    });
+            } else {
+                mostrarFeedback('⚠️ Cliente já existe!');
+            }
+        }
+    }
+
+    // 🔧 FUNÇÃO NOVO BANCO - EVITAR DUPLICATAS
+    function novoBancoPix() {
+        const novo = prompt('Nome do novo banco/conta:');
+        if (novo && novo.trim()) {
+            const nomeLimpo = novo.trim();
+            // Verificar se já existe (case insensitive)
+            const existe = bancosPix.some(b => b.toLowerCase() === nomeLimpo.toLowerCase());
+            if (!existe) {
+                bancosPix.push(nomeLimpo);
+                ordenarBancos();
+                addDoc(pixBancosCol, { nome: nomeLimpo, dataCriacao: new Date().toISOString() })
+                    .then(() => {
+                        atualizarSelectsPix();
+                        mostrarFeedback('✅ Banco adicionado!');
+                    })
+                    .catch(() => {
+                        atualizarSelectsPix();
+                        mostrarFeedback('⚠️ Banco adicionado localmente, erro no Firebase');
+                    });
+            } else {
+                mostrarFeedback('⚠️ Banco já existe!');
+            }
+        }
+    }
+
     function aplicarFiltrosPix() {
         const search = document.getElementById('pixSearchNome').value.toLowerCase();
         const status = document.getElementById('pixFiltroStatus').value;
@@ -2156,53 +2263,65 @@
         }
     }
 
-    function novoClientePix() {
-        const novo = prompt('Nome do novo cliente:');
-        if (novo && !clientesPix.includes(novo)) {
-            clientesPix.push(novo);
-            ordenarClientes();
-            addDoc(pixClientesCol, { nome: novo, dataCriacao: new Date().toISOString() }).catch(() => {});
-            atualizarSelectsPix();
-            mostrarFeedback('Cliente adicionado!');
-        }
-    }
-
-    function novoBancoPix() {
-        const novo = prompt('Nome do novo banco/conta:');
-        if (novo && !bancosPix.includes(novo)) {
-            bancosPix.push(novo);
-            ordenarBancos();
-            addDoc(pixBancosCol, { nome: novo, dataCriacao: new Date().toISOString() }).catch(() => {});
-            atualizarSelectsPix();
-            mostrarFeedback('Banco adicionado!');
-        }
-    }
-
     function gerenciarClientes() {
         const container = document.getElementById('listaContainer');
-        container.innerHTML = '<ul style="list-style:none; padding:0">' + clientesPix.map((c, i) => `<li style="margin-bottom:8px; display:flex; justify-content:space-between; align-items:center"><span>${escapeHtml(c)}</span><div><button class="btn btn-primary btn-sm" onclick="editarClientePix(${i})">E</button><button class="btn btn-danger btn-sm" onclick="excluirClientePix(${i})">X</button></div></li>`).join('') + '</ul>';
+        // Remove duplicatas antes de exibir
+        const clientesUnicos = [...new Set(clientesPix)];
+        container.innerHTML = '<ul style="list-style:none; padding:0">' + clientesUnicos.map((c, i) => `<li style="margin-bottom:8px; display:flex; justify-content:space-between; align-items:center"><span>${escapeHtml(c)}</span><div><button class="btn btn-primary btn-sm" onclick="editarClientePix('${c}')">E</button><button class="btn btn-danger btn-sm" onclick="excluirClientePix('${c}')">X</button></div></li>`).join('') + '</ul>';
         document.getElementById('modalListaTitle').innerText = 'Gerenciar Clientes';
         document.getElementById('modalLista').style.display = 'flex';
-        window.excluirClientePix = (idx) => {
-            if (confirm('Excluir cliente?')) { clientesPix.splice(idx, 1); ordenarClientes(); atualizarSelectsPix(); gerenciarClientes(); }
+        
+        window.excluirClientePix = (nome) => {
+            if (confirm('Excluir cliente "' + nome + '"?')) {
+                clientesPix = clientesPix.filter(c => c !== nome);
+                ordenarClientes();
+                atualizarSelectsPix();
+                gerenciarClientes();
+            }
         };
-        window.editarClientePix = (idx) => {
-            const novo = prompt('Novo nome:', clientesPix[idx]);
-            if (novo && novo.trim()) { clientesPix[idx] = novo.trim(); ordenarClientes(); atualizarSelectsPix(); gerenciarClientes(); }
+        
+        window.editarClientePix = (nome) => {
+            const novo = prompt('Novo nome para "' + nome + '":', nome);
+            if (novo && novo.trim() && novo.trim() !== nome) {
+                const idx = clientesPix.indexOf(nome);
+                if (idx !== -1) {
+                    clientesPix[idx] = novo.trim();
+                    ordenarClientes();
+                    atualizarSelectsPix();
+                    gerenciarClientes();
+                }
+            }
         };
     }
 
     function gerenciarBancos() {
         const container = document.getElementById('listaContainer');
-        container.innerHTML = '<ul style="list-style:none; padding:0">' + bancosPix.map((b, i) => `<li style="margin-bottom:8px; display:flex; justify-content:space-between; align-items:center"><span>${escapeHtml(b)}</span><div><button class="btn btn-primary btn-sm" onclick="editarBancoPix(${i})">E</button><button class="btn btn-danger btn-sm" onclick="excluirBancoPix(${i})">X</button></div></li>`).join('') + '</ul>';
+        // Remove duplicatas antes de exibir
+        const bancosUnicos = [...new Set(bancosPix)];
+        container.innerHTML = '<ul style="list-style:none; padding:0">' + bancosUnicos.map((b, i) => `<li style="margin-bottom:8px; display:flex; justify-content:space-between; align-items:center"><span>${escapeHtml(b)}</span><div><button class="btn btn-primary btn-sm" onclick="editarBancoPix('${b}')">E</button><button class="btn btn-danger btn-sm" onclick="excluirBancoPix('${b}')">X</button></div></li>`).join('') + '</ul>';
         document.getElementById('modalListaTitle').innerText = 'Gerenciar Bancos';
         document.getElementById('modalLista').style.display = 'flex';
-        window.excluirBancoPix = (idx) => {
-            if (confirm('Excluir banco?')) { bancosPix.splice(idx, 1); ordenarBancos(); atualizarSelectsPix(); gerenciarBancos(); }
+        
+        window.excluirBancoPix = (nome) => {
+            if (confirm('Excluir banco "' + nome + '"?')) {
+                bancosPix = bancosPix.filter(b => b !== nome);
+                ordenarBancos();
+                atualizarSelectsPix();
+                gerenciarBancos();
+            }
         };
-        window.editarBancoPix = (idx) => {
-            const novo = prompt('Novo nome:', bancosPix[idx]);
-            if (novo && novo.trim()) { bancosPix[idx] = novo.trim(); ordenarBancos(); atualizarSelectsPix(); gerenciarBancos(); }
+        
+        window.editarBancoPix = (nome) => {
+            const novo = prompt('Novo nome para "' + nome + '":', nome);
+            if (novo && novo.trim() && novo.trim() !== nome) {
+                const idx = bancosPix.indexOf(nome);
+                if (idx !== -1) {
+                    bancosPix[idx] = novo.trim();
+                    ordenarBancos();
+                    atualizarSelectsPix();
+                    gerenciarBancos();
+                }
+            }
         };
     }
 
