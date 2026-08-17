@@ -1109,15 +1109,20 @@
         }
     }
 
+    // 🔧 FUNÇÃO EDITAR ÁREA CORRIGIDA
     function editarArea(id) {
         const area = areas.find(a => a.id === id);
-        if (area) {
-            document.getElementById('areaEditandoId').value = area.id;
-            document.getElementById('areaNome').value = area.nome;
-            document.getElementById('areaCodigo').value = area.codigo;
-            document.getElementById('areaDataCadastro').value = area.dataCadastro;
-            document.getElementById('areaAdministrador').value = area.administrador || 'Leandro';
+        if (!area) {
+            mostrarFeedback('❌ Área não encontrada!');
+            return;
         }
+        document.getElementById('areaEditandoId').value = area.id;
+        document.getElementById('areaNome').value = area.nome || '';
+        document.getElementById('areaCodigo').value = area.codigo || '';
+        document.getElementById('areaDataCadastro').value = area.dataCadastro || '';
+        document.getElementById('areaAdministrador').value = area.administrador || 'Leandro';
+        document.getElementById('tab1').scrollIntoView({ behavior: 'smooth' });
+        mostrarFeedback('✏️ Área carregada para edição!');
     }
 
     function renderizarAreas() {
@@ -2031,7 +2036,20 @@
             mostrarFeedback('❌ Lançamento não encontrado!');
             return;
         }
-        abrirModalPix(lancamento);
+        // Preencher o modal com os dados do lançamento
+        document.getElementById('pixEditId').value = lancamento.id;
+        document.getElementById('pixData').value = lancamento.dataLancamento || '';
+        document.getElementById('pixPeriodoIni').value = lancamento.periodoIni || '';
+        document.getElementById('pixPeriodoFim').value = lancamento.periodoFim || '';
+        document.getElementById('pixReceberAte').value = lancamento.receberAte || '';
+        document.getElementById('pixCliente').value = lancamento.cliente || '';
+        document.getElementById('pixBanco').value = lancamento.banco || '';
+        document.getElementById('pixValor').value = lancamento.valor || '';
+        document.getElementById('pixValorRecebido').value = lancamento.valorRecebido || 0;
+        document.getElementById('pixObs').value = lancamento.obs || '';
+        document.getElementById('pixStatus').value = lancamento.status || 'Pendente';
+        document.getElementById('modalPix').style.display = 'flex';
+        mostrarFeedback('✏️ Lançamento carregado para edição!');
     }
 
     // 🔧 FUNÇÃO CLONAR PIX CORRIGIDA
@@ -2042,7 +2060,7 @@
             return;
         }
         
-        // NÃO incluir o campo 'id' no clone
+        // Criar uma cópia sem o ID
         const clone = {
             dataLancamento: new Date().toISOString().split('T')[0],
             periodoIni: original.periodoIni || '',
