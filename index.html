@@ -433,11 +433,6 @@
             margin-bottom: 12px;
         }
 
-        /* 🔧 CORREÇÃO: Fechar modal ao clicar fora */
-        .modal.show {
-            display: flex !important;
-        }
-
         .pagination {
             display: flex;
             justify-content: center;
@@ -608,7 +603,6 @@
             margin-bottom: 20px;
         }
 
-        /* Botão Voltar ao Topo */
         .btn-top {
             position: fixed;
             bottom: 80px;
@@ -634,6 +628,15 @@
 
         .btn-top.show {
             display: block;
+        }
+
+        /* 🔧 CORRIGIDO: Estilo específico para o botão toggle PIX */
+        #btnTogglePix {
+            background: #64748b;
+            color: white;
+        }
+        #btnTogglePix:hover {
+            background: #475569;
         }
 
         @media (max-width: 700px) {
@@ -679,7 +682,6 @@
         <button class="tab-btn recovery" data-tab="tab5">RECUPERAR DADOS</button>
     </div>
 
-    <!-- Botão Voltar ao Topo -->
     <button class="btn-top" id="btnTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
     <!-- GUIA 1: CADASTRO DE ÁREAS -->
@@ -776,7 +778,6 @@
                 </div>
             </div>
             
-            <!-- FILTROS -->
             <div class="filters" style="margin-bottom:16px;">
                 <div class="filter-item">
                     <label>PERÍODO INÍCIO</label>
@@ -804,7 +805,6 @@
                 <button class="btn btn-secondary" onclick="limparFiltrosResumo()">LIMPAR</button>
             </div>
 
-            <!-- CARDS RESUMO -->
             <div id="resumoCards" style="margin-bottom:20px;">
                 <div class="resumo-cards">
                     <div class="resumo-card">
@@ -830,7 +830,6 @@
                 </div>
             </div>
 
-            <!-- TABELA PRINCIPAL -->
             <div class="resumo-section-title">PRESTAÇÃO POR ADMINISTRADOR</div>
             <div class="resumo-table-wrapper">
                 <table class="resumo-table" id="tabelaPrestacao">
@@ -865,7 +864,25 @@
                 </table>
             </div>
 
-            <!-- REPASSES -->
+            <div class="resumo-section-title">RESUMO DAS ÁREAS</div>
+            <div class="resumo-table-wrapper">
+                <table class="resumo-table" id="tabelaResumoAreas">
+                    <thead>
+                        <tr>
+                            <th>ÁREA</th>
+                            <th>ENTRADAS</th>
+                            <th>SAÍDAS</th>
+                            <th>RESULTADO</th>
+                            <th>LEANDRO</th>
+                            <th>NENEM</th>
+                        </tr>
+                    </thead>
+                    <tbody id="corpoResumoAreas"></tbody>
+                    <tfoot id="footerResumoAreas"></tfoot>
+                </table>
+            </div>
+            <div id="paginacaoResumoAreas" class="pagination"></div>
+
             <div style="display:flex; justify-content:space-between; align-items:center; margin-top:28px; flex-wrap:wrap; gap:8px;">
                 <div class="resumo-section-title" style="margin:0;">REPASSES</div>
                 <button class="btn btn-primary btn-sm" onclick="abrirModalRepasse()">+ LANÇAR REPASSE</button>
@@ -908,7 +925,11 @@
             </div>
         </div>
         <div class="card">
-            <div class="card-header"><h2>LANÇAMENTOS PIX</h2><button class="btn btn-secondary btn-sm" onclick="toggleTabelaPix()">RECOLHER TABELA</button></div>
+            <div class="card-header">
+                <h2>LANÇAMENTOS PIX</h2>
+                <!-- 🔧 CORRIGIDO: ID específico para o botão toggle -->
+                <button class="btn btn-secondary btn-sm" id="btnTogglePix" onclick="toggleTabelaPix()">RECOLHER TABELA</button>
+            </div>
             <div class="table-wrapper" id="cardTabelaPix">
                 <table id="tabelaPix">
                     <thead>
@@ -1119,10 +1140,14 @@
     const pixBancosCol = collection(db, "pix_bancos");
 
     let areas = [], receitas = [], despesas = [], repasses = [];
-    let lancamentosPix = [], clientesPix = [], bancosPix = [], pixFiltered = [];
+    let lancamentosPix = [], clientesPix = [], bancosPix = [];
+    // 🔧 CORRIGIDO: Inicializar pixFiltered como array vazio
+    let pixFiltered = [];
     let currentPixPage = 1, tabelaPixVisible = true;
     let paginaAreas = 1, paginaReceitas = 1, paginaDespesas = 1, paginaRepasses = 1;
+    let paginaResumoAreas = 1;
     const ITENS_POR_PAGINA = 15;
+    const ITENS_RESUMO_AREAS = 10;
 
     // ===== FUNÇÕES AUXILIARES =====
     function ordenarClientes() { clientesPix.sort((a, b) => a.localeCompare(b, 'pt-BR')); }
@@ -1131,22 +1156,50 @@
     function formatarData(data) { if (!data) return ''; const [ano, mes, dia] = data.split('-'); return `${dia}/${mes}/${ano}`; }
     function formatarDataBR(data) { if (!data) return '-'; const d = new Date(data + 'T00:00:00'); return d.toLocaleDateString('pt-BR'); }
     function mostrarFeedback(msg) { const fb = document.getElementById('feedback'); fb.textContent = msg; fb.style.display = 'block'; setTimeout(() => fb.style.display = 'none', 3000); }
-    function fecharModal(id) { document.getElementById(id).style.display = 'none'; }
+    
+    // 🔧 CORRIGIDO: Adicionar função para feedback de erro
+    function mostrarFeedbackErro(msg) {
+        const fb = document.getElementById('feedback');
+        fb.textContent = '❌ ' + msg;
+        fb.style.background = '#dc2626';
+        fb.style.display = 'block';
+        setTimeout(() => {
+            fb.style.display = 'none';
+            fb.style.background = '#1a4a2a';
+        }, 5000);
+    }
+    
+    // 🔧 CORRIGIDO: Fechar modal com reset de campos
+    function fecharModal(id) {
+        document.getElementById(id).style.display = 'none';
+        // Reset específico por modal
+        if (id === 'modalPix') {
+            document.getElementById('pixEditId').value = '';
+            document.getElementById('pixValorRecebido').value = '0';
+        }
+        if (id === 'modalLancamento') {
+            document.getElementById('lancamentoId').value = '';
+        }
+        if (id === 'modalRepasse') {
+            document.getElementById('repasseId').value = '';
+        }
+    }
+    
     function escapeHtml(text) { if (!text) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
 
-    // 🔧 CORREÇÃO: Fechar modal com ESC
+    // Fechar modal com ESC
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             const modals = document.querySelectorAll('.modal');
             modals.forEach(modal => {
-                if (modal.style.display === 'flex' || modal.style.display === 'block') {
+                if (modal.style.display === 'flex') {
                     modal.style.display = 'none';
                 }
             });
         }
     });
 
-    // 🔧 CORREÇÃO: Fechar modal clicando fora
+    // Fechar modal clicando fora
     document.addEventListener('click', function(e) {
         const modals = document.querySelectorAll('.modal');
         modals.forEach(modal => {
@@ -1196,6 +1249,37 @@
 
     function gerarCodigoArea() { return 'A' + String(areas.length + 1).padStart(3, '0'); }
 
+    // 🔧 CORRIGIDO: Função calcularRateio com validação de segurança
+    function calcularRateio(item, tipo) {
+        // Validação de segurança
+        if (!item || typeof item !== 'object') {
+            return { valorLeandro: 0, valorNenem: 0, valorTotal: 0 };
+        }
+        
+        const valor = item.valor || 0;
+        
+        // Se não tem área ou lista de áreas vazia
+        if (!item.areaId || !areas || areas.length === 0) {
+            return { valorLeandro: valor, valorNenem: 0, valorTotal: valor };
+        }
+        
+        const area = areas.find(a => a.id === item.areaId);
+        if (!area) {
+            return { valorLeandro: valor, valorNenem: 0, valorTotal: valor };
+        }
+        
+        const admin = area.administrador || '';
+        
+        if (admin === 'Leandro') {
+            return { valorLeandro: valor, valorNenem: 0, valorTotal: valor };
+        } else if (admin === 'Nenem Viana') {
+            return { valorLeandro: 0, valorNenem: valor, valorTotal: valor };
+        } else if (admin === 'Leandro/Nenem') {
+            return { valorLeandro: valor / 2, valorNenem: valor / 2, valorTotal: valor };
+        }
+        return { valorLeandro: 0, valorNenem: 0, valorTotal: valor };
+    }
+
     // ===== GUIA 1: ÁREAS =====
     function limparFormArea() {
         document.getElementById('areaEditandoId').value = '';
@@ -1213,7 +1297,7 @@
         const administrador = document.getElementById('areaAdministrador').value;
 
         if (!nome || !dataCadastro || !administrador) {
-            alert('Preencha todos os campos obrigatórios!');
+            mostrarFeedbackErro('Preencha todos os campos obrigatórios!');
             return;
         }
 
@@ -1222,30 +1306,40 @@
         try {
             if (id) await updateDoc(doc(areasCol, id), novaArea);
             else await addDoc(areasCol, novaArea);
-            mostrarFeedback('Área salva!');
+            mostrarFeedback('✅ Área salva!');
             limparFormArea();
-        } catch (e) { alert('Erro: ' + e.message); }
+        } catch (e) { 
+            mostrarFeedbackErro('Erro: ' + e.message);
+        }
     }
 
     async function excluirArea(id) {
         if (confirm('Tem certeza que quer excluir esta área?')) {
-            await deleteDoc(doc(areasCol, id));
-            mostrarFeedback('Área excluída!');
+            try {
+                await deleteDoc(doc(areasCol, id));
+                mostrarFeedback('✅ Área excluída!');
+            } catch (e) {
+                mostrarFeedbackErro('Erro ao excluir: ' + e.message);
+            }
         }
     }
 
     async function inativarArea(id) {
         const area = areas.find(a => a.id === id);
         if (area && confirm((area.ativo ? 'Inativar' : 'Ativar') + ' a área "' + area.nome + '"?')) {
-            await updateDoc(doc(areasCol, id), { ativo: !area.ativo });
-            mostrarFeedback(area.ativo ? 'Área inativada!' : 'Área ativada!');
+            try {
+                await updateDoc(doc(areasCol, id), { ativo: !area.ativo });
+                mostrarFeedback(area.ativo ? '✅ Área inativada!' : '✅ Área ativada!');
+            } catch (e) {
+                mostrarFeedbackErro('Erro: ' + e.message);
+            }
         }
     }
 
     function editarArea(id) {
         const area = areas.find(a => a.id === id);
         if (!area) {
-            mostrarFeedback('❌ Área não encontrada!');
+            mostrarFeedbackErro('Área não encontrada!');
             return;
         }
         document.getElementById('areaEditandoId').value = area.id;
@@ -1314,14 +1408,12 @@
         return total;
     }
 
-    // 🔧 FUNÇÃO ABRIR MODAL LANÇAMENTO CORRIGIDA
     function abrirModalLancamento(tipo, lancamento = null) {
         document.getElementById('lancamentoId').value = lancamento?.id || '';
         document.getElementById('lancamentoData').value = lancamento?.data || new Date().toISOString().split('T')[0];
         document.getElementById('lancamentoArea').value = lancamento?.areaId || '';
         document.getElementById('lancamentoObs').value = lancamento?.obs || '';
 
-        // Limpar campos
         document.getElementById('lancamentoServico').value = '';
         document.getElementById('lancamentoQuantidade').value = '';
         document.getElementById('lancamentoValorUnit').value = '';
@@ -1332,7 +1424,6 @@
         document.getElementById('lancamentoAdminDespesa').value = 'Leandro';
         document.getElementById('lancamentoAdminReceita').value = 'Leandro';
 
-        // Se for edição, preencher
         if (lancamento) {
             if (lancamento.tipo === 'receita') {
                 document.querySelector('input[name="lancamentoTipoRadio"][value="receita"]').checked = true;
@@ -1353,7 +1444,6 @@
                 document.getElementById('lancamentoValorDespesa').value = lancamento.valor || '';
             }
         } else {
-            // Novo lançamento - define o tipo baseado no parâmetro
             if (tipo === 'receita') {
                 document.querySelector('input[name="lancamentoTipoRadio"][value="receita"]').checked = true;
                 trocarTipoLancamento('receita');
@@ -1374,7 +1464,10 @@
         const obs = document.getElementById('lancamentoObs').value.trim();
         const area = areas.find(a => a.id === areaId);
 
-        if (!data || !areaId) { alert('Preencha DATA e ÁREA!'); return; }
+        if (!data || !areaId) { 
+            mostrarFeedbackErro('Preencha DATA e ÁREA!'); 
+            return; 
+        }
 
         try {
             if (tipo === 'receita') {
@@ -1383,34 +1476,46 @@
                 const quantidade = parseFloat(document.getElementById('lancamentoQuantidade').value) || 0;
                 const valorUnit = parseFloat(document.getElementById('lancamentoValorUnit').value) || 0;
                 const valorTotal = quantidade * valorUnit;
-                if (!administrador || !servico || quantidade <= 0 || valorUnit <= 0) { alert('Preencha todos os campos da receita!'); return; }
+                if (!administrador || !servico || quantidade <= 0 || valorUnit <= 0) { 
+                    mostrarFeedbackErro('Preencha todos os campos da receita!'); 
+                    return; 
+                }
                 const dados = { data, areaId, areaNome: area?.nome || '', administrador, servico, quantidade, valorUnit, valor: valorTotal, obs, tipo: 'receita' };
                 if (id) await updateDoc(doc(receitasCol, id), dados);
                 else await addDoc(receitasCol, dados);
-                mostrarFeedback('Receita salva!');
+                mostrarFeedback('✅ Receita salva!');
             } else {
                 const administrador = document.getElementById('lancamentoAdminDespesa').value;
                 const categoria = document.getElementById('lancamentoCategoria').value;
                 const descricao = document.getElementById('lancamentoDescricao').value.trim();
                 const valor = parseFloat(document.getElementById('lancamentoValorDespesa').value) || 0;
-                if (!administrador || !categoria || valor <= 0) { alert('Preencha todos os campos da despesa!'); return; }
+                if (!administrador || !categoria || valor <= 0) { 
+                    mostrarFeedbackErro('Preencha todos os campos da despesa!'); 
+                    return; 
+                }
                 const dados = { data, areaId, areaNome: area?.nome || '', administrador, categoria, descricao, valor, obs, tipo: 'despesa' };
                 if (id) await updateDoc(doc(despesasCol, id), dados);
                 else await addDoc(despesasCol, dados);
-                mostrarFeedback('Despesa salva!');
+                mostrarFeedback('✅ Despesa salva!');
             }
             fecharModal('modalLancamento');
-        } catch (e) { alert('Erro: ' + e.message); }
+        } catch (e) { 
+            mostrarFeedbackErro('Erro: ' + e.message);
+        }
     }
 
     async function excluirLancamento(colecao, id, nome) {
         if (confirm('Tem certeza que quer excluir ' + nome + '?')) {
-            await deleteDoc(doc(colecao, id));
-            mostrarFeedback(nome + ' excluído!');
+            try {
+                await deleteDoc(doc(colecao, id));
+                mostrarFeedback('✅ ' + nome + ' excluído!');
+            } catch (e) {
+                mostrarFeedbackErro('Erro ao excluir: ' + e.message);
+            }
         }
     }
 
-    // 🔧 FUNÇÃO DUPLICAR LANÇAMENTO CORRIGIDA
+    // 🔧 CORRIGIDO: Função de duplicação com deep clone
     async function duplicarLancamento(colecao, id, tipo) {
         let original;
         if (tipo === 'receita') {
@@ -1420,17 +1525,13 @@
         }
         
         if (!original) {
-            mostrarFeedback('❌ Lançamento não encontrado!');
+            mostrarFeedbackErro('Lançamento não encontrado!');
             return;
         }
 
-        // 🔧 CORREÇÃO: Remover o campo 'id' de forma compatível
-        const dadosSemId = {};
-        for (const key in original) {
-            if (key !== 'id') {
-                dadosSemId[key] = original[key];
-            }
-        }
+        // 🔧 CORRIGIDO: Deep clone usando JSON
+        const dadosSemId = JSON.parse(JSON.stringify(original));
+        delete dadosSemId.id;
         
         const novo = {
             ...dadosSemId,
@@ -1442,8 +1543,7 @@
             await addDoc(colecao, novo);
             mostrarFeedback('📋 Lançamento duplicado com sucesso!');
         } catch (e) {
-            console.error('Erro ao duplicar:', e);
-            alert('❌ Erro ao duplicar: ' + e.message);
+            mostrarFeedbackErro('Erro ao duplicar: ' + e.message);
         }
     }
 
@@ -1599,6 +1699,11 @@
 
     function mudarPaginaDespesas(delta) { paginaDespesas += delta; renderizarDespesas(); }
 
+    // 🔧 CORRIGIDO: Função imprimirTabela adicionada
+    function imprimirTabela() {
+        window.print();
+    }
+
     // ===== FILTROS RÁPIDOS =====
     function filtroRapido(tipo) {
         const hoje = new Date();
@@ -1651,28 +1756,6 @@
 
     // ===== GUIA 3: PRESTAÇÃO + RESUMO =====
     
-    // 🔧 FUNÇÃO DE RATEIO CORRIGIDA
-    function calcularRateio(item, tipo) {
-        if (!areas || areas.length === 0) {
-            return { valorLeandro: 0, valorNenem: 0, valorTotal: item.valor || 0 };
-        }
-        
-        const area = areas.find(a => a.id === item.areaId);
-        if (!area) return { valorLeandro: 0, valorNenem: 0, valorTotal: item.valor || 0 };
-        
-        const valor = item.valor || 0;
-        const admin = area.administrador || '';
-        
-        if (admin === 'Leandro') {
-            return { valorLeandro: valor, valorNenem: 0, valorTotal: valor };
-        } else if (admin === 'Nenem Viana') {
-            return { valorLeandro: 0, valorNenem: valor, valorTotal: valor };
-        } else if (admin === 'Leandro/Nenem') {
-            return { valorLeandro: valor / 2, valorNenem: valor / 2, valorTotal: valor };
-        }
-        return { valorLeandro: 0, valorNenem: 0, valorTotal: valor };
-    }
-
     function abrirModalRepasse(repasse = null) {
         document.getElementById('repasseId').value = repasse?.id || '';
         document.getElementById('repasseData').value = repasse?.data || new Date().toISOString().split('T')[0];
@@ -1695,7 +1778,7 @@
         const area = areas.find(a => a.id === areaId);
 
         if (!data || !areaId || !administrador || valor <= 0) {
-            alert('Preencha todos os campos!');
+            mostrarFeedbackErro('Preencha todos os campos!');
             return;
         }
 
@@ -1703,19 +1786,25 @@
         try {
             if (id) await updateDoc(doc(repassesCol, id), dados);
             else await addDoc(repassesCol, dados);
-            mostrarFeedback('Repasse salvo!');
+            mostrarFeedback('✅ Repasse salvo!');
             fecharModal('modalRepasse');
             atualizarResumo();
             renderizarRepasses();
-        } catch (e) { alert('Erro: ' + e.message); }
+        } catch (e) { 
+            mostrarFeedbackErro('Erro: ' + e.message);
+        }
     }
 
     async function excluirRepasse(id) {
         if (confirm('Tem certeza que quer excluir este repasse?')) {
-            await deleteDoc(doc(repassesCol, id));
-            mostrarFeedback('Repasse excluído!');
-            atualizarResumo();
-            renderizarRepasses();
+            try {
+                await deleteDoc(doc(repassesCol, id));
+                mostrarFeedback('✅ Repasse excluído!');
+                atualizarResumo();
+                renderizarRepasses();
+            } catch (e) {
+                mostrarFeedbackErro('Erro: ' + e.message);
+            }
         }
     }
 
@@ -1778,6 +1867,12 @@
 
     // Função principal para atualizar o resumo
     function atualizarResumo() {
+        // 🔧 CORRIGIDO: Verificar se dados estão carregados
+        if (!areas.length || !receitas.length || !despesas.length) {
+            console.log('Aguardando dados para atualizar resumo...');
+            return;
+        }
+        
         const areaFiltro = document.getElementById('filtroResumoArea').value;
         const adminFiltro = document.getElementById('filtroResumoAdmin').value;
         const dataInicio = document.getElementById('filtroResumoInicio').value;
@@ -1874,7 +1969,155 @@
         document.getElementById('aRepassarNenem').style.color = aRepassarNenem >= 0 ? '#166534' : '#dc2626';
         document.getElementById('cardARepassar').style.color = totalARepassar >= 0 ? '#ffffff' : '#fca5a5';
 
+        renderizarResumoAreas(areaFiltro, adminFiltro, dataInicio, dataFim);
+        
         renderizarRepasses();
+    }
+
+    function renderizarResumoAreas(areaFiltro, adminFiltro, dataInicio, dataFim) {
+        let areasUnicas = [...new Set(receitas.map(r => r.areaId).concat(despesas.map(d => d.areaId)))];
+        
+        if (areaFiltro) {
+            areasUnicas = areasUnicas.filter(id => id === areaFiltro);
+        }
+        
+        let receitasPeriodo = [...receitas];
+        let despesasPeriodo = [...despesas];
+        let repassesPeriodo = [...repasses];
+        
+        if (dataInicio) {
+            receitasPeriodo = receitasPeriodo.filter(r => r.data >= dataInicio);
+            despesasPeriodo = despesasPeriodo.filter(d => d.data >= dataInicio);
+            repassesPeriodo = repassesPeriodo.filter(r => r.data >= dataInicio);
+        }
+        if (dataFim) {
+            receitasPeriodo = receitasPeriodo.filter(r => r.data <= dataFim);
+            despesasPeriodo = despesasPeriodo.filter(d => d.data <= dataFim);
+            repassesPeriodo = repassesPeriodo.filter(r => r.data <= dataFim);
+        }
+        
+        const dadosAreas = [];
+        let totalEntradasGeral = 0;
+        let totalSaidasGeral = 0;
+        let totalResultadoGeral = 0;
+        let totalLeandroGeral = 0;
+        let totalNenemGeral = 0;
+        
+        areasUnicas.forEach(id => {
+            const area = areas.find(a => a.id === id);
+            if (!area) return;
+            
+            const recArea = receitasPeriodo.filter(r => r.areaId === id);
+            const despArea = despesasPeriodo.filter(d => d.areaId === id);
+            
+            let entradas = 0;
+            let saidas = 0;
+            let leandro = 0;
+            let nenem = 0;
+            
+            recArea.forEach(r => {
+                const rateio = calcularRateio(r, 'receita');
+                entradas += rateio.valorTotal;
+                leandro += rateio.valorLeandro;
+                nenem += rateio.valorNenem;
+            });
+            
+            despArea.forEach(d => {
+                const rateio = calcularRateio(d, 'despesa');
+                saidas += rateio.valorTotal;
+                leandro -= rateio.valorLeandro;
+                nenem -= rateio.valorNenem;
+            });
+            
+            if (adminFiltro === 'Leandro') {
+                nenem = 0;
+            } else if (adminFiltro === 'Nenem Viana') {
+                leandro = 0;
+            }
+            
+            const resultado = entradas - saidas;
+            
+            totalEntradasGeral += entradas;
+            totalSaidasGeral += saidas;
+            totalResultadoGeral += resultado;
+            totalLeandroGeral += leandro;
+            totalNenemGeral += nenem;
+            
+            dadosAreas.push({
+                id: id,
+                nome: area.nome || id,
+                entradas: entradas,
+                saidas: saidas,
+                resultado: resultado,
+                leandro: leandro,
+                nenem: nenem
+            });
+        });
+        
+        dadosAreas.sort((a, b) => a.nome.localeCompare(b.nome));
+        
+        const totalAreas = dadosAreas.length;
+        const totalPages = Math.ceil(totalAreas / ITENS_RESUMO_AREAS);
+        if (paginaResumoAreas > totalPages) paginaResumoAreas = 1;
+        if (paginaResumoAreas < 1) paginaResumoAreas = 1;
+        
+        const start = (paginaResumoAreas - 1) * ITENS_RESUMO_AREAS;
+        const pageItems = dadosAreas.slice(start, start + ITENS_RESUMO_AREAS);
+        
+        const tbody = document.getElementById('corpoResumoAreas');
+        if (!tbody) return;
+        tbody.innerHTML = '';
+        
+        pageItems.forEach(item => {
+            const row = tbody.insertRow();
+            const resultadoClass = item.resultado >= 0 ? 'lucro-positivo' : 'lucro-negativo';
+            row.innerHTML = `
+                <td><strong>${escapeHtml(item.nome)}</strong></td>
+                <td>${formatarMoeda(item.entradas)}</td>
+                <td>${formatarMoeda(item.saidas)}</td>
+                <td class="${resultadoClass}">${formatarMoeda(item.resultado)}</td>
+                <td>${formatarMoeda(item.leandro)}</td>
+                <td>${formatarMoeda(item.nenem)}</td>
+            `;
+        });
+        
+        const tfoot = document.getElementById('footerResumoAreas');
+        if (tfoot) {
+            const totalResultadoClass = totalResultadoGeral >= 0 ? 'lucro-positivo' : 'lucro-negativo';
+            tfoot.innerHTML = `
+                <tr class="total-row">
+                    <td><strong>TOTAL</strong></td>
+                    <td><strong>${formatarMoeda(totalEntradasGeral)}</strong></td>
+                    <td><strong>${formatarMoeda(totalSaidasGeral)}</strong></td>
+                    <td class="${totalResultadoClass}"><strong>${formatarMoeda(totalResultadoGeral)}</strong></td>
+                    <td><strong>${formatarMoeda(totalLeandroGeral)}</strong></td>
+                    <td><strong>${formatarMoeda(totalNenemGeral)}</strong></td>
+                </tr>
+            `;
+        }
+        
+        const pagDiv = document.getElementById('paginacaoResumoAreas');
+        if (!pagDiv) return;
+        
+        if (totalPages <= 1) {
+            pagDiv.innerHTML = '';
+            return;
+        }
+        
+        const startItem = start + 1;
+        const endItem = Math.min(start + ITENS_RESUMO_AREAS, totalAreas);
+        
+        pagDiv.innerHTML = `
+            <span style="font-size:12px; color:#4a6741; margin-right:8px;">${startItem}–${endItem} de ${totalAreas} áreas</span>
+            <button ${paginaResumoAreas <= 1 ? 'disabled' : ''} onclick="mudarPaginaResumoAreas(-1)">◀</button>
+            <span>${paginaResumoAreas} / ${totalPages}</span>
+            <button ${paginaResumoAreas >= totalPages ? 'disabled' : ''} onclick="mudarPaginaResumoAreas(1)">▶</button>
+        `;
+    }
+
+    function mudarPaginaResumoAreas(delta) {
+        paginaResumoAreas += delta;
+        atualizarResumo();
     }
 
     function limparFiltrosResumo() {
@@ -1882,17 +2125,80 @@
         document.getElementById('filtroResumoAdmin').value = '';
         document.getElementById('filtroResumoInicio').value = '';
         document.getElementById('filtroResumoFim').value = '';
+        paginaResumoAreas = 1;
         atualizarResumo();
     }
 
     function gerarPDFResumo() {
-        // ... (mantido igual)
         const w = window.open('', '_blank');
         w.document.write('<html><head><title>Prestação de Contas</title><style>body{font-family:Arial;padding:30px;} h1{color:#1a4a2a;} table{width:100%;border-collapse:collapse;margin-top:15px;} th{background:#1a4a2a;color:white;padding:10px;} td{padding:8px;border:1px solid #ccc;text-align:center;} .total{background:#f0f6f0;font-weight:bold;} .positivo{color:#166534;font-weight:bold;} .negativo{color:#991b1b;font-weight:bold;} .cards{display:flex;gap:15px;margin:20px 0;flex-wrap:wrap;} .card{background:#1a4a2a;color:white;padding:15px 20px;border-radius:10px;text-align:center;flex:1;min-width:120px;} .card.destaque{background:#f59e0b;} .card .valor{font-size:20px;font-weight:bold;} .card .label{font-size:11px;opacity:0.85;text-transform:uppercase;} .footer{margin-top:30px;font-size:12px;color:#666;text-align:center;border-top:1px solid #ccc;padding-top:15px;}</style></head><body>');
         w.document.write('<h1>PRESTAÇÃO DE CONTAS - VIANA FARINHA</h1>');
         w.document.write('<p>Gerado em: ' + new Date().toLocaleString() + '</p>');
         
-        // ... resto do PDF
+        const areaFiltro = document.getElementById('filtroResumoArea').value;
+        const adminFiltro = document.getElementById('filtroResumoAdmin').value;
+        const dataInicio = document.getElementById('filtroResumoInicio').value;
+        const dataFim = document.getElementById('filtroResumoFim').value;
+        
+        w.document.write('<p>Período: ' + (dataInicio || 'Início') + ' a ' + (dataFim || 'Fim') + ' | Área: ' + (areaFiltro ? 'Selecionada' : 'Todas') + ' | Administrador: ' + (adminFiltro || 'Todos') + '</p>');
+        
+        const totalReceita = document.getElementById('cardReceita').textContent;
+        const totalDespesa = document.getElementById('cardDespesa').textContent;
+        const totalResultado = document.getElementById('cardResultado').textContent;
+        const totalRepassado = document.getElementById('cardRepassado').textContent;
+        const totalARepassar = document.getElementById('cardARepassar').textContent;
+        
+        w.document.write(`
+            <div class="cards">
+                <div class="card"><div class="label">RECEITA</div><div class="valor">${totalReceita}</div></div>
+                <div class="card"><div class="label">DESPESAS</div><div class="valor">${totalDespesa}</div></div>
+                <div class="card"><div class="label">RESULTADO</div><div class="valor">${totalResultado}</div></div>
+                <div class="card"><div class="label">JÁ REPASSADO</div><div class="valor">${totalRepassado}</div></div>
+                <div class="card destaque"><div class="label">A REPASSAR</div><div class="valor">${totalARepassar}</div></div>
+            </div>
+        `);
+        
+        w.document.write('<h2>PRESTAÇÃO POR ADMINISTRADOR</h2>');
+        w.document.write(`
+            <table>
+                <thead><tr><th>ADMINISTRADOR</th><th>DIREITO</th><th>JÁ REPASSADO</th><th>A REPASSAR</th></tr></thead>
+                <tbody>
+                    <tr><td><strong>Leandro</strong></td><td>${document.getElementById('direitoLeandro').textContent}</td><td>${document.getElementById('repassadoLeandro').textContent}</td><td>${document.getElementById('aRepassarLeandro').textContent}</td></tr>
+                    <tr><td><strong>Nenem</strong></td><td>${document.getElementById('direitoNenem').textContent}</td><td>${document.getElementById('repassadoNenem').textContent}</td><td>${document.getElementById('aRepassarNenem').textContent}</td></tr>
+                    <tr class="total"><td><strong>TOTAL</strong></td><td>${document.getElementById('direitoTotal').textContent}</td><td>${document.getElementById('repassadoTotal').textContent}</td><td>${document.getElementById('aRepassarTotal').textContent}</td></tr>
+                </tbody>
+            </table>
+        `);
+        
+        w.document.write('<h2>RESUMO DAS ÁREAS</h2>');
+        w.document.write(`
+            <table>
+                <thead><tr><th>ÁREA</th><th>ENTRADAS</th><th>SAÍDAS</th><th>RESULTADO</th><th>LEANDRO</th><th>NENEM</th></tr></thead>
+                <tbody id="pdfCorpoAreas"></tbody>
+                <tfoot id="pdfFooterAreas"></tfoot>
+            </table>
+        `);
+        
+        const tableRows = document.querySelectorAll('#corpoResumoAreas tr');
+        let pdfHtml = '';
+        tableRows.forEach(row => {
+            const cells = row.querySelectorAll('td');
+            if (cells.length > 0) {
+                pdfHtml += `<tr><td>${cells[0].innerHTML}</td><td>${cells[1].textContent}</td><td>${cells[2].textContent}</td><td>${cells[3].textContent}</td><td>${cells[4].textContent}</td><td>${cells[5].textContent}</td></tr>`;
+            }
+        });
+        document.getElementById('pdfCorpoAreas').innerHTML = pdfHtml;
+        
+        const footerRows = document.querySelectorAll('#footerResumoAreas tr');
+        let pdfFooterHtml = '';
+        footerRows.forEach(row => {
+            const cells = row.querySelectorAll('td');
+            if (cells.length > 0) {
+                pdfFooterHtml += `<tr class="total"><td>${cells[0].innerHTML}</td><td>${cells[1].textContent}</td><td>${cells[2].textContent}</td><td>${cells[3].textContent}</td><td>${cells[4].textContent}</td><td>${cells[5].textContent}</td></tr>`;
+            }
+        });
+        document.getElementById('pdfFooterAreas').innerHTML = pdfFooterHtml;
+        
         w.document.write('<div class="footer">Sistema de Gestão de Roças - VIANA FARINHA</div></body></html>');
         w.document.close();
         w.print();
@@ -1900,13 +2206,32 @@
 
     function imprimirResumo() { window.print(); }
 
-    // ===== PIX (mantido) =====
+    // ===== PIX =====
+    // 🔧 CORRIGIDO: Função para atualizar status automaticamente
+    function atualizarStatusPix(lancamento) {
+        const hoje = new Date().toISOString().slice(0, 10);
+        const recebido = lancamento.valorRecebido || 0;
+        const total = lancamento.valor || 0;
+        
+        if (recebido >= total) return 'Recebido';
+        if (recebido > 0 && recebido < total) return 'Parcial';
+        if (lancamento.receberAte && lancamento.receberAte < hoje) return 'Atrasado';
+        return 'Pendente';
+    }
+
     async function carregarLancamentosPix() {
         try {
             const pixSnapshot = await getDocs(query(pixCol, orderBy('dataLancamento', 'desc')));
             lancamentosPix = [];
             pixSnapshot.forEach(doc => { 
-                lancamentosPix.push({ id: doc.id, ...doc.data() }); 
+                const data = doc.data();
+                // 🔧 CORRIGIDO: Atualizar status automaticamente
+                const statusAtualizado = atualizarStatusPix(data);
+                if (data.status !== statusAtualizado) {
+                    // Atualizar no Firebase se necessário
+                    updateDoc(doc.ref, { status: statusAtualizado }).catch(() => {});
+                }
+                lancamentosPix.push({ id: doc.id, ...data, status: statusAtualizado }); 
             });
             
             if (lancamentosPix.length === 0) {
@@ -1914,7 +2239,7 @@
                 if (localData) {
                     lancamentosPix = JSON.parse(localData);
                     lancamentosPix.sort((a, b) => new Date(b.dataLancamento) - new Date(a.dataLancamento));
-                    mostrarFeedback('Dados carregados do localStorage.');
+                    mostrarFeedback('📁 Dados carregados do localStorage.');
                 }
             }
             
@@ -1953,6 +2278,8 @@
             ordenarBancos();
             
             atualizarSelectsPix();
+            // 🔧 CORRIGIDO: Inicializar pixFiltered com todos os dados
+            pixFiltered = [...lancamentosPix];
             aplicarFiltrosPix();
             
         } catch (error) {
@@ -1965,10 +2292,14 @@
         const dadosSalvos = localStorage.getItem('lancamentosPix');
         if (dadosSalvos) {
             lancamentosPix = JSON.parse(dadosSalvos);
+            lancamentosPix.forEach(l => {
+                l.status = atualizarStatusPix(l);
+            });
             lancamentosPix.sort((a, b) => new Date(b.dataLancamento) - new Date(a.dataLancamento));
         } else {
             lancamentosPix = [];
         }
+        pixFiltered = [...lancamentosPix];
         atualizarSelectsPix();
         aplicarFiltrosPix();
     }
@@ -1987,15 +2318,12 @@
         let status = document.getElementById('pixStatus').value;
 
         if (!dataLancamento || !periodoIni || !periodoFim || !receberAte || !cliente || !banco || valor <= 0) {
-            alert('Preencha todos os campos obrigatórios!');
+            mostrarFeedbackErro('Preencha todos os campos obrigatórios!');
             return;
         }
 
-        const hoje = new Date().toISOString().slice(0, 10);
-        if (new Date(receberAte) < new Date(hoje) && status !== 'Recebido') status = 'Atrasado';
-        if (valorRecebido >= valor) status = 'Recebido';
-        else if (valorRecebido > 0 && valorRecebido < valor) status = 'Parcial';
-        else if (valorRecebido === 0 && status !== 'Recebido') status = 'Pendente';
+        // 🔧 CORRIGIDO: Atualizar status automaticamente
+        status = atualizarStatusPix({ valorRecebido, valor, receberAte });
 
         const dados = {
             dataLancamento: dataLancamento || '',
@@ -2030,13 +2358,13 @@
             aplicarFiltrosPix();
         } catch (error) {
             console.error('Erro ao salvar:', error);
-            alert('❌ Erro ao salvar: ' + error.message);
+            mostrarFeedbackErro('Erro ao salvar: ' + error.message);
         }
     }
 
     async function excluirLancamentoPix(id) {
         if (!id) {
-            mostrarFeedback('❌ ID do lançamento não encontrado!');
+            mostrarFeedbackErro('ID do lançamento não encontrado!');
             return;
         }
         
@@ -2045,18 +2373,19 @@
         try {
             await deleteDoc(doc(pixCol, id));
             lancamentosPix = lancamentosPix.filter(l => l.id !== id);
+            pixFiltered = [...lancamentosPix];
             aplicarFiltrosPix();
             mostrarFeedback('🗑️ Lançamento excluído com sucesso!');
         } catch (error) {
             console.error('Erro ao excluir:', error);
-            alert('❌ Erro ao excluir: ' + error.message);
+            mostrarFeedbackErro('Erro ao excluir: ' + error.message);
         }
     }
 
     function editarLancamentoPix(id) {
         const lancamento = lancamentosPix.find(l => l.id === id);
         if (!lancamento) {
-            mostrarFeedback('❌ Lançamento não encontrado!');
+            mostrarFeedbackErro('Lançamento não encontrado!');
             return;
         }
         document.getElementById('pixEditId').value = lancamento.id;
@@ -2077,7 +2406,7 @@
     async function clonarLancamentoPix(id) {
         const original = lancamentosPix.find(l => l.id === id);
         if (!original) {
-            mostrarFeedback('❌ Lançamento não encontrado!');
+            mostrarFeedbackErro('Lançamento não encontrado!');
             return;
         }
         
@@ -2100,11 +2429,12 @@
             const novoLancamento = { id: docRef.id, ...clone };
             lancamentosPix.push(novoLancamento);
             lancamentosPix.sort((a, b) => new Date(b.dataLancamento) - new Date(a.dataLancamento));
+            pixFiltered = [...lancamentosPix];
             aplicarFiltrosPix();
             mostrarFeedback('📋 Lançamento clonado com sucesso!');
         } catch (error) {
             console.error('Erro ao clonar:', error);
-            alert('❌ Erro ao clonar: ' + error.message);
+            mostrarFeedbackErro('Erro ao clonar: ' + error.message);
         }
     }
 
@@ -2130,7 +2460,11 @@
         const dataFim = document.getElementById('pixDataFim').value ? new Date(document.getElementById('pixDataFim').value) : null;
         const periodoRocaIni = document.getElementById('pixPeriodoRocaIni').value;
         const periodoRocaFim = document.getElementById('pixPeriodoRocaFim').value;
-        pixFiltered = lancamentosPix.filter(l => {
+        
+        // 🔧 CORRIGIDO: Garantir que lancamentosPix seja usado se pixFiltered estiver vazio
+        const dadosParaFiltrar = lancamentosPix.length > 0 ? lancamentosPix : [];
+        
+        pixFiltered = dadosParaFiltrar.filter(l => {
             if (search && !l.cliente.toLowerCase().includes(search)) return false;
             if (status && l.status !== status) return false;
             if (dataIni && new Date(l.dataLancamento) < dataIni) return false;
@@ -2363,9 +2697,10 @@
         };
     }
 
+    // 🔧 CORRIGIDO: Função toggle com ID específico
     function toggleTabelaPix() {
         const card = document.getElementById('cardTabelaPix');
-        const btn = document.querySelector('#tab4 .card-header .btn-sm');
+        const btn = document.getElementById('btnTogglePix');
         if (tabelaPixVisible) {
             card.style.display = 'none';
             if (btn) btn.textContent = 'EXIBIR TABELA';
@@ -2513,21 +2848,32 @@
         dadosEncontrados = null;
     };
 
-    // ===== LISTENERS =====
-    onSnapshot(query(areasCol, orderBy("codigo")), (snapshot) => {
-        areas = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        atualizarSelects();
-        renderizarAreas();
-        const catSelect = document.getElementById('filtroCategoria');
-        const categorias = [...new Set(despesas.map(d => d.categoria).concat(receitas.map(r => r.servico)))].filter(Boolean);
-        catSelect.innerHTML = '<option value="">Todas</option>' + categorias.map(c => `<option value="${c}">${c}</option>`).join('');
-    });
+    // ===== LISTENERS com tratamento de erro =====
+    onSnapshot(query(areasCol, orderBy("codigo")), 
+        (snapshot) => {
+            areas = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            atualizarSelects();
+            renderizarAreas();
+            const catSelect = document.getElementById('filtroCategoria');
+            // 🔧 CORRIGIDO: Adicionar categorias padrão
+            const categoriasPadrao = ['Combustível', 'Operador', 'Adubo', 'Veneno', 'Pulverização', 'Carpina', 'Diaristas', 'Maniva', 'Outros', 'Capim', 'Hora', 'Arrancação', 'Frete'];
+            const categorias = [...new Set([...categoriasPadrao, ...despesas.map(d => d.categoria), ...receitas.map(r => r.servico)])].filter(Boolean);
+            catSelect.innerHTML = '<option value="">Todas</option>' + categorias.map(c => `<option value="${c}">${c}</option>`).join('');
+        },
+        (error) => {
+            console.error('Erro ao carregar áreas:', error);
+            mostrarFeedbackErro('Erro ao carregar áreas: ' + error.message);
+        }
+    );
 
     onSnapshot(receitasCol, () => {
         getDocs(receitasCol).then(snapshot => {
             receitas = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             renderizarReceitas();
             atualizarResumo();
+        }).catch(error => {
+            console.error('Erro ao carregar receitas:', error);
+            mostrarFeedbackErro('Erro ao carregar receitas: ' + error.message);
         });
     });
 
@@ -2536,6 +2882,9 @@
             despesas = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             renderizarDespesas();
             atualizarResumo();
+        }).catch(error => {
+            console.error('Erro ao carregar despesas:', error);
+            mostrarFeedbackErro('Erro ao carregar despesas: ' + error.message);
         });
     });
 
@@ -2544,6 +2893,9 @@
             repasses = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             renderizarRepasses();
             atualizarResumo();
+        }).catch(error => {
+            console.error('Erro ao carregar repasses:', error);
+            mostrarFeedbackErro('Erro ao carregar repasses: ' + error.message);
         });
     });
 
@@ -2582,25 +2934,64 @@
     document.getElementById('areaCodigo').value = 'A001';
     carregarLancamentosPix();
 
-    // Expor funções globais
-    window.limparFormArea = limparFormArea; window.salvarArea = salvarArea; window.editarArea = editarArea; window.excluirArea = excluirArea; window.inativarArea = inativarArea; window.mudarPaginaAreas = mudarPaginaAreas;
-    window.abrirModalLancamento = abrirModalLancamento; window.salvarLancamento = salvarLancamento; window.editarLancamento = editarLancamento; window.excluirLancamento = excluirLancamento; window.duplicarLancamento = duplicarLancamento;
-    window.mudarPaginaReceitas = mudarPaginaReceitas; window.mudarPaginaDespesas = mudarPaginaDespesas;
-    window.trocarTipoLancamento = trocarTipoLancamento; window.calcularTotalReceita = calcularTotalReceita;
-    window.filtroRapido = filtroRapido; window.aplicarFiltros = aplicarFiltros; window.limparFiltros = limparFiltros;
-    window.abrirModalRepasse = abrirModalRepasse; window.salvarRepasse = salvarRepasse; window.editarRepasse = editarRepasse; window.excluirRepasse = excluirRepasse; window.mudarPaginaRepasses = mudarPaginaRepasses;
-    window.atualizarResumo = atualizarResumo; window.limparFiltrosResumo = limparFiltrosResumo;
-    window.imprimirTabela = imprimirTabela; window.imprimirResumo = imprimirResumo;
-    window.fecharModal = fecharModal;
-    window.aplicarFiltrosPix = aplicarFiltrosPix; window.limparFiltrosPix = limparFiltrosPix; window.abrirModalPix = abrirModalPix;
-    window.salvarLancamentoPix = salvarLancamentoPix; window.editarLancamentoPix = editarLancamentoPix; window.excluirLancamentoPix = excluirLancamentoPix;
-    window.clonarLancamentoPix = clonarLancamentoPix; window.mudarPaginaPix = mudarPaginaPix; window.toggleTabelaPix = toggleTabelaPix; window.gerarPDFPix = gerarPDFPix;
-    window.novoClientePix = novoClientePix; window.novoBancoPix = novoBancoPix; window.gerenciarClientes = gerenciarClientes; window.gerenciarBancos = gerenciarBancos;
-    window.verificarDadosAntigos = verificarDadosAntigos; window.recuperarDadosAntigos = recuperarDadosAntigos; window.limparRecuperacao = limparRecuperacao;
-    window.gerarPDFResumo = gerarPDFResumo;
-
+    // 🔧 CORRIGIDO: Expor TODAS as coleções e funções necessárias
+    window.areasCol = areasCol;
     window.receitasCol = receitasCol;
     window.despesasCol = despesasCol;
+    window.repassesCol = repassesCol;
+    window.pixCol = pixCol;
+    window.pixClientesCol = pixClientesCol;
+    window.pixBancosCol = pixBancosCol;
+
+    // Expor funções
+    window.limparFormArea = limparFormArea; 
+    window.salvarArea = salvarArea; 
+    window.editarArea = editarArea; 
+    window.excluirArea = excluirArea; 
+    window.inativarArea = inativarArea; 
+    window.mudarPaginaAreas = mudarPaginaAreas;
+    window.abrirModalLancamento = abrirModalLancamento; 
+    window.salvarLancamento = salvarLancamento; 
+    window.editarLancamento = editarLancamento; 
+    window.excluirLancamento = excluirLancamento; 
+    window.duplicarLancamento = duplicarLancamento;
+    window.mudarPaginaReceitas = mudarPaginaReceitas; 
+    window.mudarPaginaDespesas = mudarPaginaDespesas;
+    window.trocarTipoLancamento = trocarTipoLancamento; 
+    window.calcularTotalReceita = calcularTotalReceita;
+    window.filtroRapido = filtroRapido; 
+    window.aplicarFiltros = aplicarFiltros; 
+    window.limparFiltros = limparFiltros;
+    window.abrirModalRepasse = abrirModalRepasse; 
+    window.salvarRepasse = salvarRepasse; 
+    window.editarRepasse = editarRepasse; 
+    window.excluirRepasse = excluirRepasse; 
+    window.mudarPaginaRepasses = mudarPaginaRepasses;
+    window.atualizarResumo = atualizarResumo; 
+    window.limparFiltrosResumo = limparFiltrosResumo;
+    window.imprimirTabela = imprimirTabela;
+    window.imprimirResumo = imprimirResumo;
+    window.fecharModal = fecharModal;
+    window.aplicarFiltrosPix = aplicarFiltrosPix; 
+    window.limparFiltrosPix = limparFiltrosPix; 
+    window.abrirModalPix = abrirModalPix;
+    window.salvarLancamentoPix = salvarLancamentoPix; 
+    window.editarLancamentoPix = editarLancamentoPix; 
+    window.excluirLancamentoPix = excluirLancamentoPix;
+    window.clonarLancamentoPix = clonarLancamentoPix; 
+    window.mudarPaginaPix = mudarPaginaPix; 
+    window.toggleTabelaPix = toggleTabelaPix; 
+    window.gerarPDFPix = gerarPDFPix;
+    window.novoClientePix = novoClientePix; 
+    window.novoBancoPix = novoBancoPix; 
+    window.gerenciarClientes = gerenciarClientes; 
+    window.gerenciarBancos = gerenciarBancos;
+    window.verificarDadosAntigos = verificarDadosAntigos; 
+    window.recuperarDadosAntigos = recuperarDadosAntigos; 
+    window.limparRecuperacao = limparRecuperacao;
+    window.gerarPDFResumo = gerarPDFResumo;
+    window.mudarPaginaResumoAreas = mudarPaginaResumoAreas;
+    window.mostrarFeedbackErro = mostrarFeedbackErro;
 </script>
 </body>
 </html>
