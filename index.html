@@ -159,17 +159,35 @@
             border-radius: 10px;
             font-size: 14px;
             background: white;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
 
         input:focus, select:focus, textarea:focus {
             outline: none;
             border-color: #1a4a2a;
-            box-shadow: 0 0 0 2px rgba(26,74,42,0.1);
+            box-shadow: 0 0 0 3px rgba(26,74,42,0.15);
         }
 
         input[readonly] {
             background: #f0f6f0;
             cursor: not-allowed;
+        }
+
+        input.is-invalid, select.is-invalid {
+            border-color: #dc2626;
+            box-shadow: 0 0 0 3px rgba(220,38,38,0.15);
+        }
+
+        .error-message {
+            color: #dc2626;
+            font-size: 11px;
+            font-weight: 600;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
         }
 
         .btn {
@@ -180,24 +198,35 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
+            position: relative;
+        }
+
+        .btn:hover {
+            transform: scale(0.97);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
         }
 
         .btn-primary { background: #1a4a2a; color: white; }
-        .btn-primary:hover { background: #2d6a4f; transform: scale(0.97); }
+        .btn-primary:hover:not(:disabled) { background: #2d6a4f; }
         .btn-secondary { background: #64748b; color: white; }
-        .btn-secondary:hover { background: #475569; }
+        .btn-secondary:hover:not(:disabled) { background: #475569; }
         .btn-danger { background: #dc2626; color: white; }
-        .btn-danger:hover { background: #b91c1c; }
+        .btn-danger:hover:not(:disabled) { background: #b91c1c; }
         .btn-warning { background: #f59e0b; color: white; }
-        .btn-warning:hover { background: #d97706; }
+        .btn-warning:hover:not(:disabled) { background: #d97706; }
         .btn-success { background: #16a34a; color: white; }
-        .btn-success:hover { background: #15803d; }
+        .btn-success:hover:not(:disabled) { background: #15803d; }
         .btn-sm { padding: 5px 12px; font-size: 12px; }
         .btn-group { display: flex; gap: 12px; justify-content: flex-end; flex-wrap: wrap; }
         .btn-print { background: #6366f1; color: white; }
-        .btn-print:hover { background: #4f46e5; }
+        .btn-print:hover:not(:disabled) { background: #4f46e5; }
         .btn-pdf { background: #dc2626; color: white; }
-        .btn-pdf:hover { background: #b91c1c; }
+        .btn-pdf:hover:not(:disabled) { background: #b91c1c; }
 
         .filters {
             display: flex;
@@ -293,6 +322,11 @@
             padding: 16px;
             border-radius: 12px;
             text-align: center;
+            transition: transform 0.2s;
+        }
+
+        .resumo-card:hover {
+            transform: translateY(-2px);
         }
 
         .resumo-card h3 {
@@ -410,6 +444,12 @@
             justify-content: center;
             align-items: center;
             z-index: 1000;
+            animation: modalFadeIn 0.2s ease;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
         }
 
         .modal-content {
@@ -451,6 +491,11 @@
             cursor: pointer;
             font-size: 12px;
             font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            background: #2d6a4f;
         }
 
         .pagination button:disabled {
@@ -470,13 +515,32 @@
             right: 20px;
             background: #1a4a2a;
             color: white;
-            padding: 10px 20px;
+            padding: 12px 24px;
             border-radius: 40px;
             display: none;
             z-index: 1100;
-            font-size: 13px;
+            font-size: 14px;
             font-weight: 500;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            max-width: 90%;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .feedback.error {
+            background: #dc2626;
+        }
+
+        .feedback.warning {
+            background: #f59e0b;
+        }
+
+        .feedback.success {
+            background: #16a34a;
         }
 
         .obs-cell {
@@ -634,8 +698,29 @@
             background: #64748b;
             color: white;
         }
-        #btnTogglePix:hover {
+        #btnTogglePix:hover:not(:disabled) {
             background: #475569;
+        }
+
+        .btn[title] {
+            position: relative;
+        }
+
+        .btn[title]:hover::after {
+            content: attr(title);
+            position: absolute;
+            bottom: calc(100% + 6px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 500;
+            white-space: nowrap;
+            z-index: 10;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
 
         @media (max-width: 700px) {
@@ -654,6 +739,7 @@
             .resumo-table td, .resumo-table th { padding: 6px 4px; }
             .btn-top { width: 40px; height: 40px; font-size: 18px; bottom: 70px; right: 10px; }
             .resumo-cards { grid-template-columns: 1fr 1fr; }
+            .btn[title]:hover::after { display: none; }
         }
 
         @media print {
@@ -688,15 +774,28 @@
         <div class="card">
             <div class="card-header"><h2>NOVA ÁREA</h2></div>
             <div class="form-grid">
-                <div class="form-group"><label>NOME DA ÁREA <span class="required">*</span></label><input type="text" id="areaNome" placeholder="Ex: Sítio Santa Luzia"></div>
-                <div class="form-group"><label>CÓDIGO</label><input type="text" id="areaCodigo" readonly placeholder="Automático"></div>
-                <div class="form-group"><label>DATA CADASTRO <span class="required">*</span></label><input type="date" id="areaDataCadastro"></div>
-                <div class="form-group"><label>ADMINISTRADOR <span class="required">*</span></label>
+                <div class="form-group">
+                    <label>NOME DA ÁREA <span class="required">*</span></label>
+                    <input type="text" id="areaNome" placeholder="Ex: Sítio Santa Luzia">
+                    <div class="error-message" id="areaNomeError">Nome da área é obrigatório</div>
+                </div>
+                <div class="form-group">
+                    <label>CÓDIGO</label>
+                    <input type="text" id="areaCodigo" readonly placeholder="Automático">
+                </div>
+                <div class="form-group">
+                    <label>DATA CADASTRO <span class="required">*</span></label>
+                    <input type="date" id="areaDataCadastro">
+                    <div class="error-message" id="areaDataError">Data de cadastro é obrigatória</div>
+                </div>
+                <div class="form-group">
+                    <label>ADMINISTRADOR <span class="required">*</span></label>
                     <select id="areaAdministrador">
                         <option value="Leandro">Leandro</option>
-                        <option value="Nenem Viana">Nenem</option>
+                        <option value="Nenem Viana">Nenem Viana</option>
                         <option value="Leandro/Nenem">Leandro / Nenem</option>
                     </select>
+                    <div class="error-message" id="areaAdminError">Administrador é obrigatório</div>
                 </div>
             </div>
             <input type="hidden" id="areaEditandoId">
@@ -723,7 +822,7 @@
             <div class="card-header"><h2>FILTROS</h2></div>
             <div class="filters">
                 <div class="filter-item"><label>ÁREA</label><select id="filtroArea"><option value="">Todas as Áreas</option></select></div>
-                <div class="filter-item"><label>ADMINISTRADOR</label><select id="filtroAdministrador"><option value="">Todos</option><option value="Leandro">Leandro</option><option value="Nenem Viana">Nenem</option></select></div>
+                <div class="filter-item"><label>ADMINISTRADOR</label><select id="filtroAdministrador"><option value="">Todos</option><option value="Leandro">Leandro</option><option value="Nenem Viana">Nenem Viana</option></select></div>
                 <div class="filter-item"><label>TIPO</label><select id="filtroTipo"><option value="">Todos</option><option value="receita">Receita</option><option value="despesa">Despesa</option></select></div>
                 <div class="filter-item"><label>CATEGORIA</label><select id="filtroCategoria"><option value="">Todas</option></select></div>
                 <div class="filter-item"><label>DATA INÍCIO</label><input type="date" id="filtroDataInicio"></div>
@@ -797,7 +896,7 @@
                     <select id="filtroResumoAdmin" style="min-width:120px;">
                         <option value="">Todos</option>
                         <option value="Leandro">Leandro</option>
-                        <option value="Nenem Viana">Nenem</option>
+                        <option value="Nenem Viana">Nenem Viana</option>
                     </select>
                 </div>
                 <button class="btn btn-primary" onclick="atualizarResumo()">ATUALIZAR</button>
@@ -850,7 +949,7 @@
                             <td id="aRepassarLeandro" style="font-weight:700; color:#1a4a2a;">R$ 0,00</td>
                         </tr>
                         <tr>
-                            <td><strong>Nenem</strong></td>
+                            <td><strong>Nenem Viana</strong></td>
                             <td id="direitoNenem">R$ 0,00</td>
                             <td id="repassadoNenem">R$ 0,00</td>
                             <td id="aRepassarNenem" style="font-weight:700; color:#1a4a2a;">R$ 0,00</td>
@@ -877,7 +976,7 @@
                             <th>SAÍDAS</th>
                             <th>RESULTADO</th>
                             <th>LEANDRO</th>
-                            <th>NENEM</th>
+                            <th>NENEM VIANA</th>
                         </tr>
                     </thead>
                     <tbody id="corpoResumoAreas"></tbody>
@@ -1011,8 +1110,16 @@
                 <label><input type="radio" name="lancamentoTipoRadio" value="despesa" onchange="trocarTipoLancamento('despesa')"> DESPESA</label>
             </div>
         </div>
-        <div class="form-group"><label>DATA <span class="required">*</span></label><input type="date" id="lancamentoData"></div>
-        <div class="form-group"><label>ÁREA <span class="required">*</span></label><select id="lancamentoArea"></select></div>
+        <div class="form-group">
+            <label>DATA <span class="required">*</span></label>
+            <input type="date" id="lancamentoData">
+            <div class="error-message" id="lancDataError">Data é obrigatória</div>
+        </div>
+        <div class="form-group">
+            <label>ÁREA <span class="required">*</span></label>
+            <select id="lancamentoArea"></select>
+            <div class="error-message" id="lancAreaError">Área é obrigatória</div>
+        </div>
         
         <div id="camposReceita" class="tipo-fields active">
             <div class="form-group">
@@ -1023,10 +1130,25 @@
                     <option value="Leandro/Nenem">Leandro / Nenem</option>
                 </select>
             </div>
-            <div class="form-group"><label>SERVIÇO <span class="required">*</span></label><input type="text" id="lancamentoServico" placeholder="Ex: Venda de Farinha"></div>
-            <div class="form-group"><label>QUANTIDADE <span class="required">*</span></label><input type="number" id="lancamentoQuantidade" step="1" min="0" oninput="calcularTotalReceita()"></div>
-            <div class="form-group"><label>VALOR UNITÁRIO (R$) <span class="required">*</span></label><input type="number" id="lancamentoValorUnit" step="0.01" min="0" oninput="calcularTotalReceita()"></div>
-            <div class="form-group"><label>VALOR TOTAL (R$) (calculado)</label><input type="text" id="lancamentoTotalReceita" readonly style="background:#f0f6f0; font-weight:700; color:#1a4a2a;"></div>
+            <div class="form-group">
+                <label>SERVIÇO <span class="required">*</span></label>
+                <input type="text" id="lancamentoServico" placeholder="Ex: Venda de Farinha">
+                <div class="error-message" id="lancServicoError">Serviço é obrigatório</div>
+            </div>
+            <div class="form-group">
+                <label>QUANTIDADE <span class="required">*</span></label>
+                <input type="number" id="lancamentoQuantidade" step="1" min="0" oninput="calcularTotalReceita()">
+                <div class="error-message" id="lancQtdError">Quantidade deve ser maior que zero</div>
+            </div>
+            <div class="form-group">
+                <label>VALOR UNITÁRIO (R$) <span class="required">*</span></label>
+                <input type="number" id="lancamentoValorUnit" step="0.01" min="0" oninput="calcularTotalReceita()">
+                <div class="error-message" id="lancValorUnitError">Valor unitário deve ser maior que zero</div>
+            </div>
+            <div class="form-group">
+                <label>VALOR TOTAL (R$) (calculado)</label>
+                <input type="text" id="lancamentoTotalReceita" readonly style="background:#f0f6f0; font-weight:700; color:#1a4a2a;">
+            </div>
         </div>
         
         <div id="camposDespesa" class="tipo-fields">
@@ -1038,7 +1160,8 @@
                     <option value="Leandro/Nenem">Leandro / Nenem</option>
                 </select>
             </div>
-            <div class="form-group"><label>CATEGORIA <span class="required">*</span></label>
+            <div class="form-group">
+                <label>CATEGORIA <span class="required">*</span></label>
                 <select id="lancamentoCategoria">
                     <option>Combustível</option><option>Operador</option><option>Adubo</option>
                     <option>Veneno</option><option>Pulverização</option><option>Carpina</option>
@@ -1047,7 +1170,11 @@
                 </select>
             </div>
             <div class="form-group"><label>DESCRIÇÃO</label><input type="text" id="lancamentoDescricao" placeholder="Detalhamento"></div>
-            <div class="form-group"><label>VALOR TOTAL (R$) <span class="required">*</span></label><input type="number" id="lancamentoValorDespesa" step="0.01" min="0"></div>
+            <div class="form-group">
+                <label>VALOR TOTAL (R$) <span class="required">*</span></label>
+                <input type="number" id="lancamentoValorDespesa" step="0.01" min="0">
+                <div class="error-message" id="lancValorDespError">Valor deve ser maior que zero</div>
+            </div>
         </div>
         
         <div class="form-group"><label>OBSERVAÇÃO</label><input type="text" id="lancamentoObs" placeholder="Observações..."></div>
@@ -1064,15 +1191,28 @@
     <div class="modal-content">
         <h3>LANÇAR REPASSE</h3>
         <input type="hidden" id="repasseId">
-        <div class="form-group"><label>DATA <span class="required">*</span></label><input type="date" id="repasseData"></div>
-        <div class="form-group"><label>ÁREA <span class="required">*</span></label><select id="repasseArea"></select></div>
-        <div class="form-group"><label>ADMINISTRADOR <span class="required">*</span></label>
+        <div class="form-group">
+            <label>DATA <span class="required">*</span></label>
+            <input type="date" id="repasseData">
+            <div class="error-message" id="repasseDataError">Data é obrigatória</div>
+        </div>
+        <div class="form-group">
+            <label>ÁREA <span class="required">*</span></label>
+            <select id="repasseArea"></select>
+            <div class="error-message" id="repasseAreaError">Área é obrigatória</div>
+        </div>
+        <div class="form-group">
+            <label>ADMINISTRADOR <span class="required">*</span></label>
             <select id="repasseAdministrador">
                 <option value="Leandro">Leandro</option>
-                <option value="Nenem Viana">Nenem</option>
+                <option value="Nenem Viana">Nenem Viana</option>
             </select>
         </div>
-        <div class="form-group"><label>VALOR (R$) <span class="required">*</span></label><input type="number" id="repasseValor" step="0.01"></div>
+        <div class="form-group">
+            <label>VALOR (R$) <span class="required">*</span></label>
+            <input type="number" id="repasseValor" step="0.01">
+            <div class="error-message" id="repasseValorError">Valor deve ser maior que zero</div>
+        </div>
         <div class="form-group"><label>FORMA <span class="required">*</span></label>
             <select id="repasseForma">
                 <option>Pix</option><option>Dinheiro</option><option>Transferência</option>
@@ -1091,15 +1231,56 @@
     <div class="modal-content">
         <h3>LANÇAMENTO PIX</h3>
         <input type="hidden" id="pixEditId">
-        <div class="form-group"><label>DATA LANÇAMENTO <span class="required">*</span></label><input type="date" id="pixData"></div>
-        <div class="form-group"><label>PERÍODO INÍCIO <span class="required">*</span></label><input type="date" id="pixPeriodoIni"></div>
-        <div class="form-group"><label>PERÍODO FIM <span class="required">*</span></label><input type="date" id="pixPeriodoFim"></div>
-        <div class="form-group"><label>RECEBER ATÉ <span class="required">*</span></label><input type="date" id="pixReceberAte"></div>
-        <div class="form-group"><label>PAGADOR/CLIENTE <span class="required">*</span></label><select id="pixCliente"><option value="">Selecione</option></select><button class="btn btn-secondary btn-sm" style="margin-top:5px" onclick="novoClientePix()">+ NOVO CLIENTE</button></div>
-        <div class="form-group"><label>BANCO/CONTA <span class="required">*</span></label><select id="pixBanco"><option value="">Selecione</option></select><button class="btn btn-secondary btn-sm" style="margin-top:5px" onclick="novoBancoPix()">+ NOVO BANCO</button></div>
-        <div class="form-group"><label>VALOR TOTAL <span class="required">*</span></label><input type="number" id="pixValor" step="0.01"></div>
-        <div class="form-group"><label>VALOR RECEBIDO</label><input type="number" id="pixValorRecebido" step="0.01" value="0"></div>
-        <div class="form-group"><label>STATUS</label><select id="pixStatus"><option value="Pendente">Pendente</option><option value="Parcial">Parcial</option><option value="Recebido">Recebido</option><option value="Atrasado">Atrasado</option></select></div>
+        <div class="form-group">
+            <label>DATA LANÇAMENTO <span class="required">*</span></label>
+            <input type="date" id="pixData">
+            <div class="error-message" id="pixDataError">Data é obrigatória</div>
+        </div>
+        <div class="form-group">
+            <label>PERÍODO INÍCIO <span class="required">*</span></label>
+            <input type="date" id="pixPeriodoIni">
+            <div class="error-message" id="pixPeriodoIniError">Período início é obrigatório</div>
+        </div>
+        <div class="form-group">
+            <label>PERÍODO FIM <span class="required">*</span></label>
+            <input type="date" id="pixPeriodoFim">
+            <div class="error-message" id="pixPeriodoFimError">Período fim é obrigatório</div>
+        </div>
+        <div class="form-group">
+            <label>RECEBER ATÉ <span class="required">*</span></label>
+            <input type="date" id="pixReceberAte">
+            <div class="error-message" id="pixReceberAteError">Data limite é obrigatória</div>
+        </div>
+        <div class="form-group">
+            <label>PAGADOR/CLIENTE <span class="required">*</span></label>
+            <select id="pixCliente"><option value="">Selecione</option></select>
+            <button class="btn btn-secondary btn-sm" style="margin-top:5px" onclick="novoClientePix()">+ NOVO CLIENTE</button>
+            <div class="error-message" id="pixClienteError">Cliente é obrigatório</div>
+        </div>
+        <div class="form-group">
+            <label>BANCO/CONTA <span class="required">*</span></label>
+            <select id="pixBanco"><option value="">Selecione</option></select>
+            <button class="btn btn-secondary btn-sm" style="margin-top:5px" onclick="novoBancoPix()">+ NOVO BANCO</button>
+            <div class="error-message" id="pixBancoError">Banco é obrigatório</div>
+        </div>
+        <div class="form-group">
+            <label>VALOR TOTAL <span class="required">*</span></label>
+            <input type="number" id="pixValor" step="0.01">
+            <div class="error-message" id="pixValorError">Valor deve ser maior que zero</div>
+        </div>
+        <div class="form-group">
+            <label>VALOR RECEBIDO</label>
+            <input type="number" id="pixValorRecebido" step="0.01" value="0">
+        </div>
+        <div class="form-group">
+            <label>STATUS</label>
+            <select id="pixStatus">
+                <option value="Pendente">Pendente</option>
+                <option value="Parcial">Parcial</option>
+                <option value="Recebido">Recebido</option>
+                <option value="Atrasado">Atrasado</option>
+            </select>
+        </div>
         <div class="form-group"><label>OBSERVAÇÃO</label><textarea id="pixObs" rows="3" placeholder="Informações adicionais..."></textarea></div>
         <div class="btn-group" style="margin-top:20px">
             <button class="btn btn-secondary" onclick="fecharModal('modalPix')">CANCELAR</button>
@@ -1137,7 +1318,6 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Coleções
     const areasCol = collection(db, "areas");
     const receitasCol = collection(db, "receitas");
     const despesasCol = collection(db, "despesas");
@@ -1160,21 +1340,51 @@
     function ordenarBancos() { bancosPix.sort((a, b) => a.localeCompare(b, 'pt-BR')); }
     function formatarMoeda(valor) { return (valor || 0).toLocaleString('pt-br', { style: 'currency', currency: 'BRL' }); }
     function formatarData(data) { if (!data) return ''; const [ano, mes, dia] = data.split('-'); return `${dia}/${mes}/${ano}`; }
-    function formatarDataBR(data) { if (!data) return '-'; const d = new Date(data + 'T00:00:00'); return d.toLocaleDateString('pt-BR'); }
-    function mostrarFeedback(msg) { const fb = document.getElementById('feedback'); fb.textContent = msg; fb.style.display = 'block'; setTimeout(() => fb.style.display = 'none', 3000); }
-    function mostrarFeedbackErro(msg) {
+    
+    let feedbackTimeout = null;
+    
+    function mostrarFeedback(msg, tipo = 'success') {
         const fb = document.getElementById('feedback');
-        fb.textContent = '❌ ' + msg;
-        fb.style.background = '#dc2626';
+        fb.textContent = msg;
+        fb.className = 'feedback ' + tipo;
         fb.style.display = 'block';
-        setTimeout(() => {
+        if (feedbackTimeout) clearTimeout(feedbackTimeout);
+        feedbackTimeout = setTimeout(() => {
             fb.style.display = 'none';
-            fb.style.background = '#1a4a2a';
+            fb.className = 'feedback';
         }, 5000);
     }
-    
+
+    function mostrarFeedbackErro(msg) { mostrarFeedback('❌ ' + msg, 'error'); }
+    function mostrarFeedbackSucesso(msg) { mostrarFeedback('✅ ' + msg, 'success'); }
+    function mostrarFeedbackAviso(msg) { mostrarFeedback('⚠️ ' + msg, 'warning'); }
+
+    // ===== VALIDAÇÕES =====
+    function validarCamposObrigatorios(campos) {
+        let valido = true;
+        campos.forEach(({ id, errorId }) => {
+            const el = document.getElementById(id);
+            const errorEl = document.getElementById(errorId);
+            if (!el.value || el.value.trim() === '' || el.value === '0' || el.value === '0.00') {
+                el.classList.add('is-invalid');
+                if (errorEl) errorEl.classList.add('show');
+                valido = false;
+            } else {
+                el.classList.remove('is-invalid');
+                if (errorEl) errorEl.classList.remove('show');
+            }
+        });
+        return valido;
+    }
+
+    function limparValidacoes() {
+        document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+        document.querySelectorAll('.error-message.show').forEach(el => el.classList.remove('show'));
+    }
+
     function fecharModal(id) {
         document.getElementById(id).style.display = 'none';
+        limparValidacoes();
         if (id === 'modalPix') {
             document.getElementById('pixEditId').value = '';
             document.getElementById('pixValorRecebido').value = '0';
@@ -1186,20 +1396,26 @@
             document.getElementById('repasseId').value = '';
         }
     }
-    
+
     function escapeHtml(text) { if (!text) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
 
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             document.querySelectorAll('.modal').forEach(modal => {
-                if (modal.style.display === 'flex') modal.style.display = 'none';
+                if (modal.style.display === 'flex') {
+                    modal.style.display = 'none';
+                    limparValidacoes();
+                }
             });
         }
     });
 
     document.addEventListener('click', function(e) {
         document.querySelectorAll('.modal').forEach(modal => {
-            if (e.target === modal) modal.style.display = 'none';
+            if (e.target === modal) {
+                modal.style.display = 'none';
+                limparValidacoes();
+            }
         });
     });
 
@@ -1243,48 +1459,52 @@
 
     function gerarCodigoArea() { return 'A' + String(areas.length + 1).padStart(3, '0'); }
 
-    // ===== FUNÇÃO DE RATEIO CORRIGIDA =====
-    // 🔧 CORRIGIDO: Agora o valor vai para o administrador CORRETO
+    // ============================================================
+    // 🔧 FUNÇÃO DE RATEIO - CORRIGIDA COM PADRÃO DE NOMES
+    // ============================================================
     function calcularRateio(item, tipo) {
-        if (!item || typeof item !== 'object') {
-            return { valorLeandro: 0, valorNenem: 0, valorTotal: 0 };
-        }
+        const valor = item?.valor || 0;
         
-        const valor = item.valor || 0;
-        
-        if (!item.areaId || !areas || areas.length === 0) {
-            return { valorLeandro: 0, valorNenem: 0, valorTotal: valor };
+        if (!item?.areaId || !areas || areas.length === 0) {
+            return { valorLeandro: valor, valorNenem: 0, valorTotal: valor, admin: 'Leandro (fallback)' };
         }
         
         const area = areas.find(a => a.id === item.areaId);
         if (!area) {
-            return { valorLeandro: 0, valorNenem: 0, valorTotal: valor };
+            return { valorLeandro: valor, valorNenem: 0, valorTotal: valor, admin: 'Leandro (área não encontrada)' };
         }
         
         const admin = area.administrador || '';
         
-        // ✅ REGRA CORRETA:
-        // - Se admin = "Leandro" → 100% para Leandro, 0% para Nenem
-        // - Se admin = "Nenem Viana" → 0% para Leandro, 100% para Nenem
-        // - Se admin = "Leandro/Nenem" → 50% para cada
+        // REGRAS DE RATEIO:
+        // - "Leandro" → 100% Leandro
+        // - "Nenem Viana" → 100% Nenem Viana
+        // - "Leandro/Nenem" → 50% para cada
         if (admin === 'Leandro') {
-            return { valorLeandro: valor, valorNenem: 0, valorTotal: valor };
+            return { valorLeandro: valor, valorNenem: 0, valorTotal: valor, admin: 'Leandro' };
         } else if (admin === 'Nenem Viana') {
-            return { valorLeandro: 0, valorNenem: valor, valorTotal: valor };
-        } else if (admin === 'Leandro/Nenem') {
-            return { valorLeandro: valor / 2, valorNenem: valor / 2, valorTotal: valor };
+            return { valorLeandro: 0, valorNenem: valor, valorTotal: valor, admin: 'Nenem Viana' };
+        } else if (admin === 'Leandro/Nenem' || admin === 'Leandro / Nenem') {
+            return { valorLeandro: valor / 2, valorNenem: valor / 2, valorTotal: valor, admin: 'Leandro/Nenem' };
         }
-        // Fallback: se não reconhecer, coloca tudo para Leandro
-        return { valorLeandro: valor, valorNenem: 0, valorTotal: valor };
+        
+        // Fallback
+        console.warn('Administrador não reconhecido:', admin, 'para área:', area.nome);
+        return { valorLeandro: valor, valorNenem: 0, valorTotal: valor, admin: 'Leandro (fallback)' };
     }
 
     // ===== GUIA 1: ÁREAS =====
     function limparFormArea() {
         document.getElementById('areaEditandoId').value = '';
         document.getElementById('areaNome').value = '';
+        document.getElementById('areaNome').classList.remove('is-invalid');
+        document.getElementById('areaNomeError').classList.remove('show');
         document.getElementById('areaCodigo').value = gerarCodigoArea();
         document.getElementById('areaDataCadastro').value = new Date().toISOString().split('T')[0];
+        document.getElementById('areaDataCadastro').classList.remove('is-invalid');
+        document.getElementById('areaDataError').classList.remove('show');
         document.getElementById('areaAdministrador').value = 'Leandro';
+        document.getElementById('areaAdminError').classList.remove('show');
     }
 
     async function salvarArea() {
@@ -1294,7 +1514,12 @@
         const dataCadastro = document.getElementById('areaDataCadastro').value;
         const administrador = document.getElementById('areaAdministrador').value;
 
-        if (!nome || !dataCadastro || !administrador) {
+        const valid = validarCamposObrigatorios([
+            { id: 'areaNome', errorId: 'areaNomeError' },
+            { id: 'areaDataCadastro', errorId: 'areaDataError' }
+        ]);
+
+        if (!valid) {
             mostrarFeedbackErro('Preencha todos os campos obrigatórios!');
             return;
         }
@@ -1302,9 +1527,13 @@
         const novaArea = { nome, codigo, dataCadastro, administrador, ativo: true };
 
         try {
-            if (id) await updateDoc(doc(areasCol, id), novaArea);
-            else await addDoc(areasCol, novaArea);
-            mostrarFeedback('✅ Área salva!');
+            if (id) {
+                await updateDoc(doc(areasCol, id), novaArea);
+                mostrarFeedbackSucesso('Área atualizada!');
+            } else {
+                await addDoc(areasCol, novaArea);
+                mostrarFeedbackSucesso('Área salva!');
+            }
             limparFormArea();
         } catch (e) { 
             mostrarFeedbackErro('Erro: ' + e.message);
@@ -1312,10 +1541,12 @@
     }
 
     async function excluirArea(id) {
-        if (confirm('Tem certeza que quer excluir esta área?')) {
+        const area = areas.find(a => a.id === id);
+        if (!area) return;
+        if (confirm(`Tem certeza que quer excluir a área "${area.nome}"?`)) {
             try {
                 await deleteDoc(doc(areasCol, id));
-                mostrarFeedback('✅ Área excluída!');
+                mostrarFeedbackSucesso('Área excluída!');
             } catch (e) {
                 mostrarFeedbackErro('Erro ao excluir: ' + e.message);
             }
@@ -1324,10 +1555,10 @@
 
     async function inativarArea(id) {
         const area = areas.find(a => a.id === id);
-        if (area && confirm((area.ativo ? 'Inativar' : 'Ativar') + ' a área "' + area.nome + '"?')) {
+        if (area && confirm((area.ativo !== false ? 'Inativar' : 'Ativar') + ' a área "' + area.nome + '"?')) {
             try {
-                await updateDoc(doc(areasCol, id), { ativo: !area.ativo });
-                mostrarFeedback(area.ativo ? '✅ Área inativada!' : '✅ Área ativada!');
+                await updateDoc(doc(areasCol, id), { ativo: area.ativo !== false ? false : true });
+                mostrarFeedbackSucesso(area.ativo !== false ? 'Área inativada!' : 'Área ativada!');
             } catch (e) {
                 mostrarFeedbackErro('Erro: ' + e.message);
             }
@@ -1346,7 +1577,7 @@
         document.getElementById('areaDataCadastro').value = area.dataCadastro || '';
         document.getElementById('areaAdministrador').value = area.administrador || 'Leandro';
         document.getElementById('tab1').scrollIntoView({ behavior: 'smooth' });
-        mostrarFeedback('✏️ Área carregada para edição!');
+        mostrarFeedbackSucesso('Área carregada para edição!');
     }
 
     function renderizarAreas() {
@@ -1364,9 +1595,9 @@
             row.insertCell(3).innerHTML = escapeHtml(a.administrador || '-');
             row.insertCell(4).innerHTML = '<span class="' + (a.ativo !== false ? 'badge-ativo' : 'badge-inativo') + '">' + (a.ativo !== false ? 'ATIVA' : 'INATIVA') + '</span>';
             row.insertCell(5).innerHTML = `
-                <button class="btn btn-primary btn-sm" onclick="editarArea('${a.id}')" title="Editar">E</button>
-                <button class="btn btn-warning btn-sm" onclick="inativarArea('${a.id}')" title="${a.ativo !== false ? 'Inativar' : 'Ativar'}">${a.ativo !== false ? 'I' : 'A'}</button>
-                <button class="btn btn-danger btn-sm" onclick="excluirArea('${a.id}')" title="Excluir">X</button>
+                <button class="btn btn-primary btn-sm" onclick="editarArea('${a.id}')" title="Editar área">✏️</button>
+                <button class="btn btn-warning btn-sm" onclick="inativarArea('${a.id}')" title="${a.ativo !== false ? 'Inativar' : 'Ativar'}">${a.ativo !== false ? '⛔' : '✅'}</button>
+                <button class="btn btn-danger btn-sm" onclick="excluirArea('${a.id}')" title="Excluir área">🗑️</button>
             `;
         });
         const pagDiv = document.getElementById('paginacaoAreas');
@@ -1396,6 +1627,7 @@
             document.getElementById('lancamentoTipo').value = 'despesa';
             document.getElementById('modalLancamentoTitle').textContent = 'NOVA DESPESA';
         }
+        limparValidacoes();
     }
 
     function calcularTotalReceita() {
@@ -1407,6 +1639,7 @@
     }
 
     function abrirModalLancamento(tipo, lancamento = null) {
+        limparValidacoes();
         document.getElementById('lancamentoId').value = lancamento?.id || '';
         document.getElementById('lancamentoData').value = lancamento?.data || new Date().toISOString().split('T')[0];
         document.getElementById('lancamentoArea').value = lancamento?.areaId || '';
@@ -1460,11 +1693,19 @@
         const data = document.getElementById('lancamentoData').value;
         const areaId = document.getElementById('lancamentoArea').value;
         const obs = document.getElementById('lancamentoObs').value.trim();
-        const area = areas.find(a => a.id === areaId);
 
-        if (!data || !areaId) { 
-            mostrarFeedbackErro('Preencha DATA e ÁREA!'); 
-            return; 
+        if (!validarCamposObrigatorios([
+            { id: 'lancamentoData', errorId: 'lancDataError' },
+            { id: 'lancamentoArea', errorId: 'lancAreaError' }
+        ])) {
+            mostrarFeedbackErro('Preencha DATA e ÁREA!');
+            return;
+        }
+
+        const area = areas.find(a => a.id === areaId);
+        if (!area) {
+            mostrarFeedbackErro('Área selecionada não existe!');
+            return;
         }
 
         try {
@@ -1474,27 +1715,56 @@
                 const quantidade = parseFloat(document.getElementById('lancamentoQuantidade').value) || 0;
                 const valorUnit = parseFloat(document.getElementById('lancamentoValorUnit').value) || 0;
                 const valorTotal = quantidade * valorUnit;
-                if (!administrador || !servico || quantidade <= 0 || valorUnit <= 0) { 
-                    mostrarFeedbackErro('Preencha todos os campos da receita!'); 
-                    return; 
+
+                if (!validarCamposObrigatorios([
+                    { id: 'lancamentoServico', errorId: 'lancServicoError' }
+                ])) {
+                    mostrarFeedbackErro('Preencha o serviço!');
+                    return;
                 }
-                const dados = { data, areaId, areaNome: area?.nome || '', administrador, servico, quantidade, valorUnit, valor: valorTotal, obs, tipo: 'receita' };
-                if (id) await updateDoc(doc(receitasCol, id), dados);
-                else await addDoc(receitasCol, dados);
-                mostrarFeedback('✅ Receita salva!');
+
+                if (quantidade <= 0) {
+                    document.getElementById('lancamentoQuantidade').classList.add('is-invalid');
+                    document.getElementById('lancQtdError').classList.add('show');
+                    mostrarFeedbackErro('Quantidade deve ser maior que zero!');
+                    return;
+                }
+                if (valorUnit <= 0) {
+                    document.getElementById('lancamentoValorUnit').classList.add('is-invalid');
+                    document.getElementById('lancValorUnitError').classList.add('show');
+                    mostrarFeedbackErro('Valor unitário deve ser maior que zero!');
+                    return;
+                }
+
+                const dados = { data, areaId, areaNome: area.nome || '', administrador, servico, quantidade, valorUnit, valor: valorTotal, obs, tipo: 'receita', dataAtualizacao: new Date().toISOString() };
+                if (id) {
+                    await updateDoc(doc(receitasCol, id), dados);
+                    mostrarFeedbackSucesso('Receita atualizada!');
+                } else {
+                    await addDoc(receitasCol, dados);
+                    mostrarFeedbackSucesso('Receita salva!');
+                }
             } else {
                 const administrador = document.getElementById('lancamentoAdminDespesa').value;
                 const categoria = document.getElementById('lancamentoCategoria').value;
                 const descricao = document.getElementById('lancamentoDescricao').value.trim();
                 const valor = parseFloat(document.getElementById('lancamentoValorDespesa').value) || 0;
-                if (!administrador || !categoria || valor <= 0) { 
-                    mostrarFeedbackErro('Preencha todos os campos da despesa!'); 
-                    return; 
+
+                if (valor <= 0) {
+                    document.getElementById('lancamentoValorDespesa').classList.add('is-invalid');
+                    document.getElementById('lancValorDespError').classList.add('show');
+                    mostrarFeedbackErro('Valor deve ser maior que zero!');
+                    return;
                 }
-                const dados = { data, areaId, areaNome: area?.nome || '', administrador, categoria, descricao, valor, obs, tipo: 'despesa' };
-                if (id) await updateDoc(doc(despesasCol, id), dados);
-                else await addDoc(despesasCol, dados);
-                mostrarFeedback('✅ Despesa salva!');
+
+                const dados = { data, areaId, areaNome: area.nome || '', administrador, categoria, descricao, valor, obs, tipo: 'despesa', dataAtualizacao: new Date().toISOString() };
+                if (id) {
+                    await updateDoc(doc(despesasCol, id), dados);
+                    mostrarFeedbackSucesso('Despesa atualizada!');
+                } else {
+                    await addDoc(despesasCol, dados);
+                    mostrarFeedbackSucesso('Despesa salva!');
+                }
             }
             fecharModal('modalLancamento');
         } catch (e) { 
@@ -1503,10 +1773,10 @@
     }
 
     async function excluirLancamento(colecao, id, nome) {
-        if (confirm('Tem certeza que quer excluir ' + nome + '?')) {
+        if (confirm(`Tem certeza que quer excluir ${nome}?`)) {
             try {
                 await deleteDoc(doc(colecao, id));
-                mostrarFeedback('✅ ' + nome + ' excluído!');
+                mostrarFeedbackSucesso(`${nome} excluído!`);
             } catch (e) {
                 mostrarFeedbackErro('Erro ao excluir: ' + e.message);
             }
@@ -1528,16 +1798,18 @@
 
         const dadosSemId = JSON.parse(JSON.stringify(original));
         delete dadosSemId.id;
+        delete dadosSemId.dataAtualizacao;
         
         const novo = {
             ...dadosSemId,
             data: new Date().toISOString().split('T')[0],
-            obs: original.obs ? '(Cópia) ' + original.obs : 'Cópia'
+            obs: original.obs ? '(Cópia) ' + original.obs : 'Cópia',
+            dataAtualizacao: new Date().toISOString()
         };
 
         try {
             await addDoc(colecao, novo);
-            mostrarFeedback('📋 Lançamento duplicado com sucesso!');
+            mostrarFeedbackSucesso('Lançamento duplicado!');
         } catch (e) {
             mostrarFeedbackErro('Erro ao duplicar: ' + e.message);
         }
@@ -1591,9 +1863,9 @@
             row.insertCell(6).innerHTML = formatarMoeda(r.valor || 0);
             row.insertCell(7).innerHTML = '<span style="font-size:11px;color:#555;">' + escapeHtml(r.obs || '-') + '</span>';
             row.insertCell(8).innerHTML = `
-                <button class="btn btn-warning btn-sm" onclick="duplicarLancamento(receitasCol, '${r.id}', 'receita')" title="Duplicar">D</button>
-                <button class="btn btn-primary btn-sm" onclick="editarLancamento('${r.id}', 'receita')" title="Editar">E</button>
-                <button class="btn btn-danger btn-sm" onclick="excluirLancamento(receitasCol, '${r.id}', 'Receita')" title="Excluir">X</button>
+                <button class="btn btn-warning btn-sm" onclick="duplicarLancamento(receitasCol, '${r.id}', 'receita')" title="Duplicar receita">📋</button>
+                <button class="btn btn-primary btn-sm" onclick="editarLancamento('${r.id}', 'receita')" title="Editar receita">✏️</button>
+                <button class="btn btn-danger btn-sm" onclick="excluirLancamento(receitasCol, '${r.id}', 'Receita')" title="Excluir receita">🗑️</button>
             `;
         });
         if (paginadas.length > 0) {
@@ -1666,9 +1938,9 @@
             row.insertCell(5).innerHTML = formatarMoeda(d.valor || 0);
             row.insertCell(6).innerHTML = '<span style="font-size:11px;color:#555;">' + escapeHtml(d.obs || '-') + '</span>';
             row.insertCell(7).innerHTML = `
-                <button class="btn btn-warning btn-sm" onclick="duplicarLancamento(despesasCol, '${d.id}', 'despesa')" title="Duplicar">D</button>
-                <button class="btn btn-primary btn-sm" onclick="editarLancamento('${d.id}', 'despesa')" title="Editar">E</button>
-                <button class="btn btn-danger btn-sm" onclick="excluirLancamento(despesasCol, '${d.id}', 'Despesa')" title="Excluir">X</button>
+                <button class="btn btn-warning btn-sm" onclick="duplicarLancamento(despesasCol, '${d.id}', 'despesa')" title="Duplicar despesa">📋</button>
+                <button class="btn btn-primary btn-sm" onclick="editarLancamento('${d.id}', 'despesa')" title="Editar despesa">✏️</button>
+                <button class="btn btn-danger btn-sm" onclick="excluirLancamento(despesasCol, '${d.id}', 'Despesa')" title="Excluir despesa">🗑️</button>
             `;
         });
         if (paginadas.length > 0) {
@@ -1750,6 +2022,7 @@
     // ===== GUIA 3: PRESTAÇÃO + RESUMO =====
     
     function abrirModalRepasse(repasse = null) {
+        limparValidacoes();
         document.getElementById('repasseId').value = repasse?.id || '';
         document.getElementById('repasseData').value = repasse?.data || new Date().toISOString().split('T')[0];
         document.getElementById('repasseArea').value = repasse?.areaId || '';
@@ -1768,18 +2041,37 @@
         const valor = parseFloat(document.getElementById('repasseValor').value) || 0;
         const forma = document.getElementById('repasseForma').value;
         const obs = document.getElementById('repasseObs').value.trim();
-        const area = areas.find(a => a.id === areaId);
 
-        if (!data || !areaId || !administrador || valor <= 0) {
-            mostrarFeedbackErro('Preencha todos os campos!');
+        if (!validarCamposObrigatorios([
+            { id: 'repasseData', errorId: 'repasseDataError' },
+            { id: 'repasseArea', errorId: 'repasseAreaError' }
+        ])) {
+            mostrarFeedbackErro('Preencha DATA e ÁREA!');
             return;
         }
 
-        const dados = { data, areaId, areaNome: area?.nome || '', administrador, valor, forma, obs };
+        if (valor <= 0) {
+            document.getElementById('repasseValor').classList.add('is-invalid');
+            document.getElementById('repasseValorError').classList.add('show');
+            mostrarFeedbackErro('Valor deve ser maior que zero!');
+            return;
+        }
+
+        const area = areas.find(a => a.id === areaId);
+        if (!area) {
+            mostrarFeedbackErro('Área selecionada não existe!');
+            return;
+        }
+
+        const dados = { data, areaId, areaNome: area.nome || '', administrador, valor, forma, obs, dataAtualizacao: new Date().toISOString() };
         try {
-            if (id) await updateDoc(doc(repassesCol, id), dados);
-            else await addDoc(repassesCol, dados);
-            mostrarFeedback('✅ Repasse salvo!');
+            if (id) {
+                await updateDoc(doc(repassesCol, id), dados);
+                mostrarFeedbackSucesso('Repasse atualizado!');
+            } else {
+                await addDoc(repassesCol, dados);
+                mostrarFeedbackSucesso('Repasse salvo!');
+            }
             fecharModal('modalRepasse');
             atualizarResumo();
             renderizarRepasses();
@@ -1792,7 +2084,7 @@
         if (confirm('Tem certeza que quer excluir este repasse?')) {
             try {
                 await deleteDoc(doc(repassesCol, id));
-                mostrarFeedback('✅ Repasse excluído!');
+                mostrarFeedbackSucesso('Repasse excluído!');
                 atualizarResumo();
                 renderizarRepasses();
             } catch (e) {
@@ -1832,8 +2124,8 @@
             row.insertCell(3).innerHTML = formatarMoeda(r.valor);
             row.insertCell(4).innerHTML = escapeHtml(r.forma);
             row.insertCell(5).innerHTML = `
-                <button class="btn btn-primary btn-sm" onclick="editarRepasse('${r.id}')">E</button>
-                <button class="btn btn-danger btn-sm" onclick="excluirRepasse('${r.id}')">X</button>
+                <button class="btn btn-primary btn-sm" onclick="editarRepasse('${r.id}')" title="Editar repasse">✏️</button>
+                <button class="btn btn-danger btn-sm" onclick="excluirRepasse('${r.id}')" title="Excluir repasse">🗑️</button>
             `;
         });
         if (paginadas.length > 0) {
@@ -1858,10 +2150,11 @@
 
     function mudarPaginaRepasses(delta) { paginaRepasses += delta; renderizarRepasses(); }
 
-    // ===== FUNÇÃO PRINCIPAL: ATUALIZAR RESUMO =====
+    // ============================================================
+    // 🔧 ATUALIZAR RESUMO - COM RATEIO CORRETO
+    // ============================================================
     function atualizarResumo() {
         if (!areas.length || !receitas.length || !despesas.length) {
-            console.log('Aguardando dados para atualizar resumo...');
             return;
         }
         
@@ -1895,6 +2188,7 @@
         let direitoLeandro = 0;
         let direitoNenem = 0;
 
+        // Processa receitas com rateio
         receitasFilt.forEach(r => {
             const rateio = calcularRateio(r, 'receita');
             totalReceita += rateio.valorTotal;
@@ -1902,6 +2196,7 @@
             direitoNenem += rateio.valorNenem;
         });
 
+        // Processa despesas com rateio
         despesasFilt.forEach(d => {
             const rateio = calcularRateio(d, 'despesa');
             totalDespesa += rateio.valorTotal;
@@ -1909,12 +2204,14 @@
             direitoNenem -= rateio.valorNenem;
         });
 
+        // Aplica filtro de administrador
         if (adminFiltro === 'Leandro') {
             direitoNenem = 0;
         } else if (adminFiltro === 'Nenem Viana') {
             direitoLeandro = 0;
         }
 
+        // Calcula repasses
         let repassadoLeandro = 0;
         let repassadoNenem = 0;
 
@@ -1935,15 +2232,18 @@
         const resultado = totalReceita - totalDespesa;
         const totalRepassado = repassadoLeandro + repassadoNenem;
         const totalARepassar = resultado - totalRepassado;
+
         const aRepassarLeandro = direitoLeandro - repassadoLeandro;
         const aRepassarNenem = direitoNenem - repassadoNenem;
 
+        // Atualiza cards
         document.getElementById('cardReceita').textContent = formatarMoeda(totalReceita);
         document.getElementById('cardDespesa').textContent = formatarMoeda(totalDespesa);
         document.getElementById('cardResultado').textContent = formatarMoeda(resultado);
         document.getElementById('cardRepassado').textContent = formatarMoeda(totalRepassado);
         document.getElementById('cardARepassar').textContent = formatarMoeda(totalARepassar);
 
+        // Atualiza tabela prestação
         document.getElementById('direitoLeandro').textContent = formatarMoeda(direitoLeandro);
         document.getElementById('direitoNenem').textContent = formatarMoeda(direitoNenem);
         document.getElementById('direitoTotal').innerHTML = '<strong>' + formatarMoeda(direitoLeandro + direitoNenem) + '</strong>';
@@ -1956,6 +2256,7 @@
         document.getElementById('aRepassarNenem').textContent = formatarMoeda(aRepassarNenem);
         document.getElementById('aRepassarTotal').innerHTML = '<strong>' + formatarMoeda(totalARepassar) + '</strong>';
 
+        // Cores
         document.getElementById('aRepassarLeandro').style.color = aRepassarLeandro >= 0 ? '#166534' : '#dc2626';
         document.getElementById('aRepassarNenem').style.color = aRepassarNenem >= 0 ? '#166534' : '#dc2626';
         document.getElementById('cardARepassar').style.color = totalARepassar >= 0 ? '#ffffff' : '#fca5a5';
@@ -1964,7 +2265,9 @@
         renderizarRepasses();
     }
 
-    // ===== TABELA: RESUMO DAS ÁREAS =====
+    // ============================================================
+    // 🔧 TABELA: RESUMO DAS ÁREAS - COM RATEIO CORRETO
+    // ============================================================
     function renderizarResumoAreas(areaFiltro, adminFiltro, dataInicio, dataFim) {
         let areasUnicas = [...new Set(receitas.map(r => r.areaId).concat(despesas.map(d => d.areaId)))];
         
@@ -2153,7 +2456,7 @@
                 <thead><tr><th>ADMINISTRADOR</th><th>DIREITO (Resultado)</th><th>JÁ REPASSADO</th><th>A REPASSAR</th></tr></thead>
                 <tbody>
                     <tr><td><strong>Leandro</strong></td><td>${document.getElementById('direitoLeandro').textContent}</td><td>${document.getElementById('repassadoLeandro').textContent}</td><td>${document.getElementById('aRepassarLeandro').textContent}</td></tr>
-                    <tr><td><strong>Nenem</strong></td><td>${document.getElementById('direitoNenem').textContent}</td><td>${document.getElementById('repassadoNenem').textContent}</td><td>${document.getElementById('aRepassarNenem').textContent}</td></tr>
+                    <tr><td><strong>Nenem Viana</strong></td><td>${document.getElementById('direitoNenem').textContent}</td><td>${document.getElementById('repassadoNenem').textContent}</td><td>${document.getElementById('aRepassarNenem').textContent}</td></tr>
                     <tr class="total"><td><strong>TOTAL</strong></td><td>${document.getElementById('direitoTotal').textContent}</td><td>${document.getElementById('repassadoTotal').textContent}</td><td>${document.getElementById('aRepassarTotal').textContent}</td></tr>
                 </tbody>
             </table>
@@ -2162,7 +2465,7 @@
         w.document.write('<h2>RESUMO DAS ÁREAS</h2>');
         w.document.write(`
             <table>
-                <thead><tr><th>ÁREA</th><th>ADMINISTRADOR</th><th>ENTRADAS</th><th>SAÍDAS</th><th>RESULTADO</th><th>LEANDRO</th><th>NENEM</th></tr></thead>
+                <thead><tr><th>ÁREA</th><th>ADMINISTRADOR</th><th>ENTRADAS</th><th>SAÍDAS</th><th>RESULTADO</th><th>LEANDRO</th><th>NENEM VIANA</th></tr></thead>
                 <tbody id="pdfCorpoAreas"></tbody>
                 <tfoot id="pdfFooterAreas"></tfoot>
             </table>
@@ -2201,9 +2504,10 @@
         const recebido = lancamento.valorRecebido || 0;
         const total = lancamento.valor || 0;
         
-        if (recebido >= total) return 'Recebido';
+        if (recebido >= total && total > 0) return 'Recebido';
         if (recebido > 0 && recebido < total) return 'Parcial';
-        if (lancamento.receberAte && lancamento.receberAte < hoje) return 'Atrasado';
+        if (lancamento.receberAte && lancamento.receberAte < hoje && recebido < total) return 'Atrasado';
+        if (recebido === 0 && total > 0) return 'Pendente';
         return 'Pendente';
     }
 
@@ -2226,7 +2530,7 @@
                     lancamentosPix = JSON.parse(localData);
                     lancamentosPix.forEach(l => { l.status = atualizarStatusPix(l); });
                     lancamentosPix.sort((a, b) => new Date(b.dataLancamento) - new Date(a.dataLancamento));
-                    mostrarFeedback('📁 Dados carregados do localStorage.');
+                    mostrarFeedbackAviso('Dados carregados do localStorage.');
                 }
             }
             
@@ -2299,14 +2603,34 @@
         const valor = parseFloat(document.getElementById('pixValor').value) || 0;
         let valorRecebido = parseFloat(document.getElementById('pixValorRecebido').value) || 0;
         const obs = document.getElementById('pixObs').value || '';
-        let status = document.getElementById('pixStatus').value;
 
-        if (!dataLancamento || !periodoIni || !periodoFim || !receberAte || !cliente || !banco || valor <= 0) {
+        const campos = [
+            { id: 'pixData', errorId: 'pixDataError' },
+            { id: 'pixPeriodoIni', errorId: 'pixPeriodoIniError' },
+            { id: 'pixPeriodoFim', errorId: 'pixPeriodoFimError' },
+            { id: 'pixReceberAte', errorId: 'pixReceberAteError' },
+            { id: 'pixCliente', errorId: 'pixClienteError' },
+            { id: 'pixBanco', errorId: 'pixBancoError' }
+        ];
+
+        if (!validarCamposObrigatorios(campos)) {
             mostrarFeedbackErro('Preencha todos os campos obrigatórios!');
             return;
         }
 
-        status = atualizarStatusPix({ valorRecebido, valor, receberAte });
+        if (valor <= 0) {
+            document.getElementById('pixValor').classList.add('is-invalid');
+            document.getElementById('pixValorError').classList.add('show');
+            mostrarFeedbackErro('Valor deve ser maior que zero!');
+            return;
+        }
+
+        if (periodoIni > periodoFim) {
+            mostrarFeedbackErro('Período início não pode ser maior que período fim!');
+            return;
+        }
+
+        const status = atualizarStatusPix({ valorRecebido, valor, receberAte });
 
         const dados = {
             dataLancamento: dataLancamento || '',
@@ -2329,11 +2653,11 @@
                 if (idx !== -1) {
                     lancamentosPix[idx] = { ...lancamentosPix[idx], ...dados };
                 }
-                mostrarFeedback('✅ Lançamento atualizado com sucesso!');
+                mostrarFeedbackSucesso('Lançamento atualizado!');
             } else {
                 const docRef = await addDoc(pixCol, dados);
                 lancamentosPix.push({ id: docRef.id, ...dados });
-                mostrarFeedback('✅ Lançamento salvo com sucesso!');
+                mostrarFeedbackSucesso('Lançamento salvo!');
             }
 
             lancamentosPix.sort((a, b) => new Date(b.dataLancamento) - new Date(a.dataLancamento));
@@ -2358,7 +2682,7 @@
             lancamentosPix = lancamentosPix.filter(l => l.id !== id);
             pixFiltered = [...lancamentosPix];
             aplicarFiltrosPix();
-            mostrarFeedback('🗑️ Lançamento excluído com sucesso!');
+            mostrarFeedbackSucesso('Lançamento excluído!');
         } catch (error) {
             console.error('Erro ao excluir:', error);
             mostrarFeedbackErro('Erro ao excluir: ' + error.message);
@@ -2371,6 +2695,7 @@
             mostrarFeedbackErro('Lançamento não encontrado!');
             return;
         }
+        limparValidacoes();
         document.getElementById('pixEditId').value = lancamento.id;
         document.getElementById('pixData').value = lancamento.dataLancamento || '';
         document.getElementById('pixPeriodoIni').value = lancamento.periodoIni || '';
@@ -2383,7 +2708,7 @@
         document.getElementById('pixObs').value = lancamento.obs || '';
         document.getElementById('pixStatus').value = lancamento.status || 'Pendente';
         document.getElementById('modalPix').style.display = 'flex';
-        mostrarFeedback('✏️ Lançamento carregado para edição!');
+        mostrarFeedbackSucesso('Lançamento carregado para edição!');
     }
 
     async function clonarLancamentoPix(id) {
@@ -2414,7 +2739,7 @@
             lancamentosPix.sort((a, b) => new Date(b.dataLancamento) - new Date(a.dataLancamento));
             pixFiltered = [...lancamentosPix];
             aplicarFiltrosPix();
-            mostrarFeedback('📋 Lançamento clonado com sucesso!');
+            mostrarFeedbackSucesso('Lançamento clonado!');
         } catch (error) {
             console.error('Erro ao clonar:', error);
             mostrarFeedbackErro('Erro ao clonar: ' + error.message);
@@ -2422,6 +2747,7 @@
     }
 
     function abrirModalPix(lancamento = null) {
+        limparValidacoes();
         document.getElementById('pixEditId').value = lancamento?.id || '';
         document.getElementById('pixData').value = lancamento?.dataLancamento || new Date().toISOString().split('T')[0];
         document.getElementById('pixPeriodoIni').value = lancamento?.periodoIni || '';
@@ -2503,9 +2829,9 @@
                 <td>${formatarData(l.receberAte)}</td>
                 <td class="obs-cell">${escapeHtml(l.obs || '')}</td>
                 <td class="acoes-cell">
-                    <button class="btn btn-warning btn-sm" onclick="clonarLancamentoPix('${l.id}')" title="Duplicar">D</button>
-                    <button class="btn btn-primary btn-sm" onclick="editarLancamentoPix('${l.id}')" title="Editar">E</button>
-                    <button class="btn btn-danger btn-sm" onclick="excluirLancamentoPix('${l.id}')" title="Excluir">X</button>
+                    <button class="btn btn-warning btn-sm" onclick="clonarLancamentoPix('${l.id}')" title="Duplicar">📋</button>
+                    <button class="btn btn-primary btn-sm" onclick="editarLancamentoPix('${l.id}')" title="Editar">✏️</button>
+                    <button class="btn btn-danger btn-sm" onclick="excluirLancamentoPix('${l.id}')" title="Excluir">🗑️</button>
                 </td>`;
         });
         const tfoot = document.getElementById('pixTableFooter');
@@ -2584,14 +2910,14 @@
                 addDoc(pixClientesCol, { nome: nomeLimpo, dataCriacao: new Date().toISOString() })
                     .then(() => {
                         atualizarSelectsPix();
-                        mostrarFeedback('✅ Cliente adicionado!');
+                        mostrarFeedbackSucesso('Cliente adicionado!');
                     })
                     .catch(() => {
                         atualizarSelectsPix();
-                        mostrarFeedback('⚠️ Cliente adicionado localmente, erro no Firebase');
+                        mostrarFeedbackAviso('Cliente adicionado localmente, erro no Firebase');
                     });
             } else {
-                mostrarFeedback('⚠️ Cliente já existe!');
+                mostrarFeedbackAviso('Cliente já existe!');
             }
         }
     }
@@ -2607,14 +2933,14 @@
                 addDoc(pixBancosCol, { nome: nomeLimpo, dataCriacao: new Date().toISOString() })
                     .then(() => {
                         atualizarSelectsPix();
-                        mostrarFeedback('✅ Banco adicionado!');
+                        mostrarFeedbackSucesso('Banco adicionado!');
                     })
                     .catch(() => {
                         atualizarSelectsPix();
-                        mostrarFeedback('⚠️ Banco adicionado localmente, erro no Firebase');
+                        mostrarFeedbackAviso('Banco adicionado localmente, erro no Firebase');
                     });
             } else {
-                mostrarFeedback('⚠️ Banco já existe!');
+                mostrarFeedbackAviso('Banco já existe!');
             }
         }
     }
@@ -2622,7 +2948,7 @@
     function gerenciarClientes() {
         const container = document.getElementById('listaContainer');
         const clientesUnicos = [...new Set(clientesPix)];
-        container.innerHTML = '<ul style="list-style:none; padding:0">' + clientesUnicos.map((c) => `<li style="margin-bottom:8px; display:flex; justify-content:space-between; align-items:center"><span>${escapeHtml(c)}</span><div><button class="btn btn-primary btn-sm" onclick="editarClientePix('${c}')">E</button><button class="btn btn-danger btn-sm" onclick="excluirClientePix('${c}')">X</button></div></li>`).join('') + '</ul>';
+        container.innerHTML = '<ul style="list-style:none; padding:0">' + clientesUnicos.map((c) => `<li style="margin-bottom:8px; display:flex; justify-content:space-between; align-items:center"><span>${escapeHtml(c)}</span><div><button class="btn btn-primary btn-sm" onclick="editarClientePix('${c}')" title="Editar cliente">✏️</button><button class="btn btn-danger btn-sm" onclick="excluirClientePix('${c}')" title="Excluir cliente">🗑️</button></div></li>`).join('') + '</ul>';
         document.getElementById('modalListaTitle').innerText = 'Gerenciar Clientes';
         document.getElementById('modalLista').style.display = 'flex';
         
@@ -2632,6 +2958,7 @@
                 ordenarClientes();
                 atualizarSelectsPix();
                 gerenciarClientes();
+                mostrarFeedbackSucesso('Cliente excluído!');
             }
         };
         
@@ -2644,6 +2971,7 @@
                     ordenarClientes();
                     atualizarSelectsPix();
                     gerenciarClientes();
+                    mostrarFeedbackSucesso('Cliente atualizado!');
                 }
             }
         };
@@ -2652,7 +2980,7 @@
     function gerenciarBancos() {
         const container = document.getElementById('listaContainer');
         const bancosUnicos = [...new Set(bancosPix)];
-        container.innerHTML = '<ul style="list-style:none; padding:0">' + bancosUnicos.map((b) => `<li style="margin-bottom:8px; display:flex; justify-content:space-between; align-items:center"><span>${escapeHtml(b)}</span><div><button class="btn btn-primary btn-sm" onclick="editarBancoPix('${b}')">E</button><button class="btn btn-danger btn-sm" onclick="excluirBancoPix('${b}')">X</button></div></li>`).join('') + '</ul>';
+        container.innerHTML = '<ul style="list-style:none; padding:0">' + bancosUnicos.map((b) => `<li style="margin-bottom:8px; display:flex; justify-content:space-between; align-items:center"><span>${escapeHtml(b)}</span><div><button class="btn btn-primary btn-sm" onclick="editarBancoPix('${b}')" title="Editar banco">✏️</button><button class="btn btn-danger btn-sm" onclick="excluirBancoPix('${b}')" title="Excluir banco">🗑️</button></div></li>`).join('') + '</ul>';
         document.getElementById('modalListaTitle').innerText = 'Gerenciar Bancos';
         document.getElementById('modalLista').style.display = 'flex';
         
@@ -2662,6 +2990,7 @@
                 ordenarBancos();
                 atualizarSelectsPix();
                 gerenciarBancos();
+                mostrarFeedbackSucesso('Banco excluído!');
             }
         };
         
@@ -2674,6 +3003,7 @@
                     ordenarBancos();
                     atualizarSelectsPix();
                     gerenciarBancos();
+                    mostrarFeedbackSucesso('Banco atualizado!');
                 }
             }
         };
@@ -2807,10 +3137,12 @@
             statusDiv.innerHTML = 'RECUPERAÇÃO CONCLUÍDA! ' + count + ' lançamentos recuperados! Atualize a página.';
             setTimeout(() => carregarLancamentosPix(), 1000);
             addLog('Atualize a página (F5) para ver os dados recuperados.', 'info');
+            mostrarFeedbackSucesso('Recuperação concluída! ' + count + ' lançamentos recuperados.');
         } catch (error) {
             addLog('ERRO: ' + error.message, 'error');
             statusDiv.className = 'status-box error';
             statusDiv.innerHTML = 'Erro na recuperação: ' + error.message;
+            mostrarFeedbackErro('Erro na recuperação: ' + error.message);
         } finally {
             btn.disabled = false;
             btn.textContent = 'RECUPERAR PARA NUVEM';
@@ -2914,7 +3246,9 @@
     document.getElementById('areaCodigo').value = 'A001';
     carregarLancamentosPix();
 
-    // ===== EXPOR FUNÇÕES GLOBAIS (TODAS CORRIGIDAS) =====
+    // ============================================================
+    // 🔧 EXPOR FUNÇÕES GLOBAIS
+    // ============================================================
     window.areasCol = areasCol;
     window.receitasCol = receitasCol;
     window.despesasCol = despesasCol;
@@ -2923,7 +3257,6 @@
     window.pixClientesCol = pixClientesCol;
     window.pixBancosCol = pixBancosCol;
 
-    // GUIA 1 - ÁREAS
     window.limparFormArea = limparFormArea;
     window.salvarArea = salvarArea;
     window.editarArea = editarArea;
@@ -2931,7 +3264,6 @@
     window.inativarArea = inativarArea;
     window.mudarPaginaAreas = mudarPaginaAreas;
 
-    // GUIA 2 - LANÇAMENTOS
     window.abrirModalLancamento = abrirModalLancamento;
     window.salvarLancamento = salvarLancamento;
     window.editarLancamento = editarLancamento;
@@ -2945,7 +3277,6 @@
     window.aplicarFiltros = aplicarFiltros;
     window.limparFiltros = limparFiltros;
 
-    // GUIA 3 - PRESTAÇÃO + RESUMO
     window.abrirModalRepasse = abrirModalRepasse;
     window.salvarRepasse = salvarRepasse;
     window.editarRepasse = editarRepasse;
@@ -2958,7 +3289,6 @@
     window.gerarPDFResumo = gerarPDFResumo;
     window.mudarPaginaResumoAreas = mudarPaginaResumoAreas;
 
-    // GUIA 4 - PIX
     window.fecharModal = fecharModal;
     window.aplicarFiltrosPix = aplicarFiltrosPix;
     window.limparFiltrosPix = limparFiltrosPix;
@@ -2975,13 +3305,13 @@
     window.gerenciarClientes = gerenciarClientes;
     window.gerenciarBancos = gerenciarBancos;
 
-    // GUIA 5 - RECUPERAÇÃO
     window.verificarDadosAntigos = verificarDadosAntigos;
     window.recuperarDadosAntigos = recuperarDadosAntigos;
     window.limparRecuperacao = limparRecuperacao;
 
-    // MENSAGEM DE ERRO
     window.mostrarFeedbackErro = mostrarFeedbackErro;
+    window.mostrarFeedbackSucesso = mostrarFeedbackSucesso;
+    window.mostrarFeedbackAviso = mostrarFeedbackAviso;
 </script>
 </body>
 </html>
