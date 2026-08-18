@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestão Roças + Controle PIX | Viana Farinha</title>
+    <title>Gestão de Áreas + Controle PIX | Viana Farinha</title>
     <style>
         * {
             margin: 0;
@@ -630,7 +630,6 @@
             display: block;
         }
 
-        /* 🔧 CORRIGIDO: Estilo específico para o botão toggle PIX */
         #btnTogglePix {
             background: #64748b;
             color: white;
@@ -670,7 +669,7 @@
 
 <div class="container">
     <div class="header">
-        <h1>GESTÃO DE ROÇAS + CONTROLE PIX | VIANA FARINHA</h1>
+        <h1>GESTÃO DE ÁREAS + CONTROLE PIX | VIANA FARINHA</h1>
         <div class="status" id="statusOnline">CONECTADO</div>
     </div>
 
@@ -689,7 +688,7 @@
         <div class="card">
             <div class="card-header"><h2>NOVA ÁREA</h2></div>
             <div class="form-grid">
-                <div class="form-group"><label>NOME DA ÁREA <span class="required">*</span></label><input type="text" id="areaNome" placeholder="Ex: Roça do Nene"></div>
+                <div class="form-group"><label>NOME DA ÁREA <span class="required">*</span></label><input type="text" id="areaNome" placeholder="Ex: Sítio Santa Luzia"></div>
                 <div class="form-group"><label>CÓDIGO</label><input type="text" id="areaCodigo" readonly placeholder="Automático"></div>
                 <div class="form-group"><label>DATA CADASTRO <span class="required">*</span></label><input type="date" id="areaDataCadastro"></div>
                 <div class="form-group"><label>ADMINISTRADOR <span class="required">*</span></label>
@@ -805,18 +804,19 @@
                 <button class="btn btn-secondary" onclick="limparFiltrosResumo()">LIMPAR</button>
             </div>
 
+            <!-- CARDS RESUMO -->
             <div id="resumoCards" style="margin-bottom:20px;">
                 <div class="resumo-cards">
                     <div class="resumo-card">
-                        <h3>RECEITA</h3>
+                        <h3>TOTAL ENTRADAS</h3>
                         <div class="valor" id="cardReceita">R$ 0,00</div>
                     </div>
                     <div class="resumo-card">
-                        <h3>DESPESAS</h3>
+                        <h3>TOTAL SAÍDAS</h3>
                         <div class="valor" id="cardDespesa">R$ 0,00</div>
                     </div>
                     <div class="resumo-card">
-                        <h3>RESULTADO</h3>
+                        <h3>RESULTADO TOTAL</h3>
                         <div class="valor" id="cardResultado">R$ 0,00</div>
                     </div>
                     <div class="resumo-card">
@@ -830,26 +830,27 @@
                 </div>
             </div>
 
+            <!-- TABELA: PRESTAÇÃO POR ADMINISTRADOR -->
             <div class="resumo-section-title">PRESTAÇÃO POR ADMINISTRADOR</div>
             <div class="resumo-table-wrapper">
                 <table class="resumo-table" id="tabelaPrestacao">
                     <thead>
                         <tr>
                             <th>ADMINISTRADOR</th>
-                            <th>DIREITO</th>
+                            <th>DIREITO (Resultado)</th>
                             <th>JÁ REPASSADO</th>
                             <th>A REPASSAR</th>
                         </tr>
                     </thead>
                     <tbody id="corpoPrestacao">
                         <tr>
-                            <td>Leandro</td>
+                            <td><strong>Leandro</strong></td>
                             <td id="direitoLeandro">R$ 0,00</td>
                             <td id="repassadoLeandro">R$ 0,00</td>
                             <td id="aRepassarLeandro" style="font-weight:700; color:#1a4a2a;">R$ 0,00</td>
                         </tr>
                         <tr>
-                            <td>Nenem</td>
+                            <td><strong>Nenem</strong></td>
                             <td id="direitoNenem">R$ 0,00</td>
                             <td id="repassadoNenem">R$ 0,00</td>
                             <td id="aRepassarNenem" style="font-weight:700; color:#1a4a2a;">R$ 0,00</td>
@@ -864,12 +865,14 @@
                 </table>
             </div>
 
+            <!-- TABELA: RESUMO DAS ÁREAS -->
             <div class="resumo-section-title">RESUMO DAS ÁREAS</div>
             <div class="resumo-table-wrapper">
                 <table class="resumo-table" id="tabelaResumoAreas">
                     <thead>
                         <tr>
                             <th>ÁREA</th>
+                            <th>ADMINISTRADOR</th>
                             <th>ENTRADAS</th>
                             <th>SAÍDAS</th>
                             <th>RESULTADO</th>
@@ -883,6 +886,7 @@
             </div>
             <div id="paginacaoResumoAreas" class="pagination"></div>
 
+            <!-- REPASSES -->
             <div style="display:flex; justify-content:space-between; align-items:center; margin-top:28px; flex-wrap:wrap; gap:8px;">
                 <div class="resumo-section-title" style="margin:0;">REPASSES</div>
                 <button class="btn btn-primary btn-sm" onclick="abrirModalRepasse()">+ LANÇAR REPASSE</button>
@@ -914,8 +918,8 @@
             <div class="pix-filters">
                 <div class="filter-item"><label>DATA LANÇAMENTO INÍCIO</label><input type="date" id="pixDataIni"></div>
                 <div class="filter-item"><label>DATA LANÇAMENTO FIM</label><input type="date" id="pixDataFim"></div>
-                <div class="filter-item"><label>PERÍODO ROÇA INÍCIO</label><input type="date" id="pixPeriodoRocaIni"></div>
-                <div class="filter-item"><label>PERÍODO ROÇA FIM</label><input type="date" id="pixPeriodoRocaFim"></div>
+                <div class="filter-item"><label>PERÍODO ÁREA INÍCIO</label><input type="date" id="pixPeriodoRocaIni"></div>
+                <div class="filter-item"><label>PERÍODO ÁREA FIM</label><input type="date" id="pixPeriodoRocaFim"></div>
                 <div class="filter-item"><label>CLIENTE/PAGADOR</label><input type="text" id="pixSearchNome" placeholder="Nome..."></div>
                 <div class="filter-item"><label>STATUS</label><select id="pixFiltroStatus"><option value="">Todos</option><option>Pendente</option><option>Recebido</option><option>Parcial</option><option>Atrasado</option></select></div>
                 <button class="btn btn-primary" onclick="aplicarFiltrosPix()">FILTRAR</button>
@@ -927,7 +931,6 @@
         <div class="card">
             <div class="card-header">
                 <h2>LANÇAMENTOS PIX</h2>
-                <!-- 🔧 CORRIGIDO: ID específico para o botão toggle -->
                 <button class="btn btn-secondary btn-sm" id="btnTogglePix" onclick="toggleTabelaPix()">RECOLHER TABELA</button>
             </div>
             <div class="table-wrapper" id="cardTabelaPix">
@@ -1011,11 +1014,13 @@
         <div class="form-group"><label>DATA <span class="required">*</span></label><input type="date" id="lancamentoData"></div>
         <div class="form-group"><label>ÁREA <span class="required">*</span></label><select id="lancamentoArea"></select></div>
         
-        <div id="camposReceita" class="tipo-fields">
-            <div class="form-group"><label>ADMINISTRADOR <span class="required">*</span></label>
+        <div id="camposReceita" class="tipo-fields active">
+            <div class="form-group">
+                <label>ADMINISTRADOR <span class="required">*</span></label>
                 <select id="lancamentoAdminReceita">
                     <option value="Leandro">Leandro</option>
-                    <option value="Nenem Viana">Nenem</option>
+                    <option value="Nenem Viana">Nenem Viana</option>
+                    <option value="Leandro/Nenem">Leandro / Nenem</option>
                 </select>
             </div>
             <div class="form-group"><label>SERVIÇO <span class="required">*</span></label><input type="text" id="lancamentoServico" placeholder="Ex: Venda de Farinha"></div>
@@ -1025,10 +1030,12 @@
         </div>
         
         <div id="camposDespesa" class="tipo-fields">
-            <div class="form-group"><label>ADMINISTRADOR <span class="required">*</span></label>
+            <div class="form-group">
+                <label>ADMINISTRADOR <span class="required">*</span></label>
                 <select id="lancamentoAdminDespesa">
                     <option value="Leandro">Leandro</option>
-                    <option value="Nenem Viana">Nenem</option>
+                    <option value="Nenem Viana">Nenem Viana</option>
+                    <option value="Leandro/Nenem">Leandro / Nenem</option>
                 </select>
             </div>
             <div class="form-group"><label>CATEGORIA <span class="required">*</span></label>
@@ -1141,7 +1148,6 @@
 
     let areas = [], receitas = [], despesas = [], repasses = [];
     let lancamentosPix = [], clientesPix = [], bancosPix = [];
-    // 🔧 CORRIGIDO: Inicializar pixFiltered como array vazio
     let pixFiltered = [];
     let currentPixPage = 1, tabelaPixVisible = true;
     let paginaAreas = 1, paginaReceitas = 1, paginaDespesas = 1, paginaRepasses = 1;
@@ -1156,8 +1162,6 @@
     function formatarData(data) { if (!data) return ''; const [ano, mes, dia] = data.split('-'); return `${dia}/${mes}/${ano}`; }
     function formatarDataBR(data) { if (!data) return '-'; const d = new Date(data + 'T00:00:00'); return d.toLocaleDateString('pt-BR'); }
     function mostrarFeedback(msg) { const fb = document.getElementById('feedback'); fb.textContent = msg; fb.style.display = 'block'; setTimeout(() => fb.style.display = 'none', 3000); }
-    
-    // 🔧 CORRIGIDO: Adicionar função para feedback de erro
     function mostrarFeedbackErro(msg) {
         const fb = document.getElementById('feedback');
         fb.textContent = '❌ ' + msg;
@@ -1169,10 +1173,8 @@
         }, 5000);
     }
     
-    // 🔧 CORRIGIDO: Fechar modal com reset de campos
     function fecharModal(id) {
         document.getElementById(id).style.display = 'none';
-        // Reset específico por modal
         if (id === 'modalPix') {
             document.getElementById('pixEditId').value = '';
             document.getElementById('pixValorRecebido').value = '0';
@@ -1187,25 +1189,17 @@
     
     function escapeHtml(text) { if (!text) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
 
-    // Fechar modal com ESC
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
-            const modals = document.querySelectorAll('.modal');
-            modals.forEach(modal => {
-                if (modal.style.display === 'flex') {
-                    modal.style.display = 'none';
-                }
+            document.querySelectorAll('.modal').forEach(modal => {
+                if (modal.style.display === 'flex') modal.style.display = 'none';
             });
         }
     });
 
-    // Fechar modal clicando fora
     document.addEventListener('click', function(e) {
-        const modals = document.querySelectorAll('.modal');
-        modals.forEach(modal => {
-            if (e.target === modal) {
-                modal.style.display = 'none';
-            }
+        document.querySelectorAll('.modal').forEach(modal => {
+            if (e.target === modal) modal.style.display = 'none';
         });
     });
 
@@ -1249,27 +1243,30 @@
 
     function gerarCodigoArea() { return 'A' + String(areas.length + 1).padStart(3, '0'); }
 
-    // 🔧 CORRIGIDO: Função calcularRateio com validação de segurança
+    // ===== FUNÇÃO DE RATEIO CORRIGIDA =====
+    // 🔧 CORRIGIDO: Agora o valor vai para o administrador CORRETO
     function calcularRateio(item, tipo) {
-        // Validação de segurança
         if (!item || typeof item !== 'object') {
             return { valorLeandro: 0, valorNenem: 0, valorTotal: 0 };
         }
         
         const valor = item.valor || 0;
         
-        // Se não tem área ou lista de áreas vazia
         if (!item.areaId || !areas || areas.length === 0) {
-            return { valorLeandro: valor, valorNenem: 0, valorTotal: valor };
+            return { valorLeandro: 0, valorNenem: 0, valorTotal: valor };
         }
         
         const area = areas.find(a => a.id === item.areaId);
         if (!area) {
-            return { valorLeandro: valor, valorNenem: 0, valorTotal: valor };
+            return { valorLeandro: 0, valorNenem: 0, valorTotal: valor };
         }
         
         const admin = area.administrador || '';
         
+        // ✅ REGRA CORRETA:
+        // - Se admin = "Leandro" → 100% para Leandro, 0% para Nenem
+        // - Se admin = "Nenem Viana" → 0% para Leandro, 100% para Nenem
+        // - Se admin = "Leandro/Nenem" → 50% para cada
         if (admin === 'Leandro') {
             return { valorLeandro: valor, valorNenem: 0, valorTotal: valor };
         } else if (admin === 'Nenem Viana') {
@@ -1277,7 +1274,8 @@
         } else if (admin === 'Leandro/Nenem') {
             return { valorLeandro: valor / 2, valorNenem: valor / 2, valorTotal: valor };
         }
-        return { valorLeandro: 0, valorNenem: 0, valorTotal: valor };
+        // Fallback: se não reconhecer, coloca tudo para Leandro
+        return { valorLeandro: valor, valorNenem: 0, valorTotal: valor };
     }
 
     // ===== GUIA 1: ÁREAS =====
@@ -1515,7 +1513,6 @@
         }
     }
 
-    // 🔧 CORRIGIDO: Função de duplicação com deep clone
     async function duplicarLancamento(colecao, id, tipo) {
         let original;
         if (tipo === 'receita') {
@@ -1529,7 +1526,6 @@
             return;
         }
 
-        // 🔧 CORRIGIDO: Deep clone usando JSON
         const dadosSemId = JSON.parse(JSON.stringify(original));
         delete dadosSemId.id;
         
@@ -1699,10 +1695,7 @@
 
     function mudarPaginaDespesas(delta) { paginaDespesas += delta; renderizarDespesas(); }
 
-    // 🔧 CORRIGIDO: Função imprimirTabela adicionada
-    function imprimirTabela() {
-        window.print();
-    }
+    function imprimirTabela() { window.print(); }
 
     // ===== FILTROS RÁPIDOS =====
     function filtroRapido(tipo) {
@@ -1865,9 +1858,8 @@
 
     function mudarPaginaRepasses(delta) { paginaRepasses += delta; renderizarRepasses(); }
 
-    // Função principal para atualizar o resumo
+    // ===== FUNÇÃO PRINCIPAL: ATUALIZAR RESUMO =====
     function atualizarResumo() {
-        // 🔧 CORRIGIDO: Verificar se dados estão carregados
         if (!areas.length || !receitas.length || !despesas.length) {
             console.log('Aguardando dados para atualizar resumo...');
             return;
@@ -1943,7 +1935,6 @@
         const resultado = totalReceita - totalDespesa;
         const totalRepassado = repassadoLeandro + repassadoNenem;
         const totalARepassar = resultado - totalRepassado;
-
         const aRepassarLeandro = direitoLeandro - repassadoLeandro;
         const aRepassarNenem = direitoNenem - repassadoNenem;
 
@@ -1970,10 +1961,10 @@
         document.getElementById('cardARepassar').style.color = totalARepassar >= 0 ? '#ffffff' : '#fca5a5';
 
         renderizarResumoAreas(areaFiltro, adminFiltro, dataInicio, dataFim);
-        
         renderizarRepasses();
     }
 
+    // ===== TABELA: RESUMO DAS ÁREAS =====
     function renderizarResumoAreas(areaFiltro, adminFiltro, dataInicio, dataFim) {
         let areasUnicas = [...new Set(receitas.map(r => r.areaId).concat(despesas.map(d => d.areaId)))];
         
@@ -1983,17 +1974,14 @@
         
         let receitasPeriodo = [...receitas];
         let despesasPeriodo = [...despesas];
-        let repassesPeriodo = [...repasses];
         
         if (dataInicio) {
             receitasPeriodo = receitasPeriodo.filter(r => r.data >= dataInicio);
             despesasPeriodo = despesasPeriodo.filter(d => d.data >= dataInicio);
-            repassesPeriodo = repassesPeriodo.filter(r => r.data >= dataInicio);
         }
         if (dataFim) {
             receitasPeriodo = receitasPeriodo.filter(r => r.data <= dataFim);
             despesasPeriodo = despesasPeriodo.filter(d => d.data <= dataFim);
-            repassesPeriodo = repassesPeriodo.filter(r => r.data <= dataFim);
         }
         
         const dadosAreas = [];
@@ -2046,6 +2034,7 @@
             dadosAreas.push({
                 id: id,
                 nome: area.nome || id,
+                administrador: area.administrador || '-',
                 entradas: entradas,
                 saidas: saidas,
                 resultado: resultado,
@@ -2071,8 +2060,10 @@
         pageItems.forEach(item => {
             const row = tbody.insertRow();
             const resultadoClass = item.resultado >= 0 ? 'lucro-positivo' : 'lucro-negativo';
+            const adminDisplay = item.administrador === 'Leandro/Nenem' ? 'Leandro / Nenem' : item.administrador;
             row.innerHTML = `
                 <td><strong>${escapeHtml(item.nome)}</strong></td>
+                <td>${escapeHtml(adminDisplay)}</td>
                 <td>${formatarMoeda(item.entradas)}</td>
                 <td>${formatarMoeda(item.saidas)}</td>
                 <td class="${resultadoClass}">${formatarMoeda(item.resultado)}</td>
@@ -2087,6 +2078,7 @@
             tfoot.innerHTML = `
                 <tr class="total-row">
                     <td><strong>TOTAL</strong></td>
+                    <td></td>
                     <td><strong>${formatarMoeda(totalEntradasGeral)}</strong></td>
                     <td><strong>${formatarMoeda(totalSaidasGeral)}</strong></td>
                     <td class="${totalResultadoClass}"><strong>${formatarMoeda(totalResultadoGeral)}</strong></td>
@@ -2104,11 +2096,8 @@
             return;
         }
         
-        const startItem = start + 1;
-        const endItem = Math.min(start + ITENS_RESUMO_AREAS, totalAreas);
-        
         pagDiv.innerHTML = `
-            <span style="font-size:12px; color:#4a6741; margin-right:8px;">${startItem}–${endItem} de ${totalAreas} áreas</span>
+            <span style="font-size:12px; color:#4a6741; margin-right:8px;">${start + 1}–${Math.min(start + ITENS_RESUMO_AREAS, totalAreas)} de ${totalAreas} áreas</span>
             <button ${paginaResumoAreas <= 1 ? 'disabled' : ''} onclick="mudarPaginaResumoAreas(-1)">◀</button>
             <span>${paginaResumoAreas} / ${totalPages}</span>
             <button ${paginaResumoAreas >= totalPages ? 'disabled' : ''} onclick="mudarPaginaResumoAreas(1)">▶</button>
@@ -2150,8 +2139,8 @@
         
         w.document.write(`
             <div class="cards">
-                <div class="card"><div class="label">RECEITA</div><div class="valor">${totalReceita}</div></div>
-                <div class="card"><div class="label">DESPESAS</div><div class="valor">${totalDespesa}</div></div>
+                <div class="card"><div class="label">TOTAL ENTRADAS</div><div class="valor">${totalReceita}</div></div>
+                <div class="card"><div class="label">TOTAL SAÍDAS</div><div class="valor">${totalDespesa}</div></div>
                 <div class="card"><div class="label">RESULTADO</div><div class="valor">${totalResultado}</div></div>
                 <div class="card"><div class="label">JÁ REPASSADO</div><div class="valor">${totalRepassado}</div></div>
                 <div class="card destaque"><div class="label">A REPASSAR</div><div class="valor">${totalARepassar}</div></div>
@@ -2161,7 +2150,7 @@
         w.document.write('<h2>PRESTAÇÃO POR ADMINISTRADOR</h2>');
         w.document.write(`
             <table>
-                <thead><tr><th>ADMINISTRADOR</th><th>DIREITO</th><th>JÁ REPASSADO</th><th>A REPASSAR</th></tr></thead>
+                <thead><tr><th>ADMINISTRADOR</th><th>DIREITO (Resultado)</th><th>JÁ REPASSADO</th><th>A REPASSAR</th></tr></thead>
                 <tbody>
                     <tr><td><strong>Leandro</strong></td><td>${document.getElementById('direitoLeandro').textContent}</td><td>${document.getElementById('repassadoLeandro').textContent}</td><td>${document.getElementById('aRepassarLeandro').textContent}</td></tr>
                     <tr><td><strong>Nenem</strong></td><td>${document.getElementById('direitoNenem').textContent}</td><td>${document.getElementById('repassadoNenem').textContent}</td><td>${document.getElementById('aRepassarNenem').textContent}</td></tr>
@@ -2173,7 +2162,7 @@
         w.document.write('<h2>RESUMO DAS ÁREAS</h2>');
         w.document.write(`
             <table>
-                <thead><tr><th>ÁREA</th><th>ENTRADAS</th><th>SAÍDAS</th><th>RESULTADO</th><th>LEANDRO</th><th>NENEM</th></tr></thead>
+                <thead><tr><th>ÁREA</th><th>ADMINISTRADOR</th><th>ENTRADAS</th><th>SAÍDAS</th><th>RESULTADO</th><th>LEANDRO</th><th>NENEM</th></tr></thead>
                 <tbody id="pdfCorpoAreas"></tbody>
                 <tfoot id="pdfFooterAreas"></tfoot>
             </table>
@@ -2184,7 +2173,7 @@
         tableRows.forEach(row => {
             const cells = row.querySelectorAll('td');
             if (cells.length > 0) {
-                pdfHtml += `<tr><td>${cells[0].innerHTML}</td><td>${cells[1].textContent}</td><td>${cells[2].textContent}</td><td>${cells[3].textContent}</td><td>${cells[4].textContent}</td><td>${cells[5].textContent}</td></tr>`;
+                pdfHtml += `<tr><td>${cells[0].innerHTML}</td><td>${cells[1].textContent}</td><td>${cells[2].textContent}</td><td>${cells[3].textContent}</td><td>${cells[4].textContent}</td><td>${cells[5].textContent}</td><td>${cells[6].textContent}</td></tr>`;
             }
         });
         document.getElementById('pdfCorpoAreas').innerHTML = pdfHtml;
@@ -2194,12 +2183,12 @@
         footerRows.forEach(row => {
             const cells = row.querySelectorAll('td');
             if (cells.length > 0) {
-                pdfFooterHtml += `<tr class="total"><td>${cells[0].innerHTML}</td><td>${cells[1].textContent}</td><td>${cells[2].textContent}</td><td>${cells[3].textContent}</td><td>${cells[4].textContent}</td><td>${cells[5].textContent}</td></tr>`;
+                pdfFooterHtml += `<tr class="total"><td>${cells[0].innerHTML}</td><td></td><td>${cells[2].textContent}</td><td>${cells[3].textContent}</td><td>${cells[4].textContent}</td><td>${cells[5].textContent}</td><td>${cells[6].textContent}</td></tr>`;
             }
         });
         document.getElementById('pdfFooterAreas').innerHTML = pdfFooterHtml;
         
-        w.document.write('<div class="footer">Sistema de Gestão de Roças - VIANA FARINHA</div></body></html>');
+        w.document.write('<div class="footer">Sistema de Gestão de Áreas - VIANA FARINHA</div></body></html>');
         w.document.close();
         w.print();
     }
@@ -2207,7 +2196,6 @@
     function imprimirResumo() { window.print(); }
 
     // ===== PIX =====
-    // 🔧 CORRIGIDO: Função para atualizar status automaticamente
     function atualizarStatusPix(lancamento) {
         const hoje = new Date().toISOString().slice(0, 10);
         const recebido = lancamento.valorRecebido || 0;
@@ -2225,10 +2213,8 @@
             lancamentosPix = [];
             pixSnapshot.forEach(doc => { 
                 const data = doc.data();
-                // 🔧 CORRIGIDO: Atualizar status automaticamente
                 const statusAtualizado = atualizarStatusPix(data);
                 if (data.status !== statusAtualizado) {
-                    // Atualizar no Firebase se necessário
                     updateDoc(doc.ref, { status: statusAtualizado }).catch(() => {});
                 }
                 lancamentosPix.push({ id: doc.id, ...data, status: statusAtualizado }); 
@@ -2238,6 +2224,7 @@
                 const localData = localStorage.getItem('lancamentosPix');
                 if (localData) {
                     lancamentosPix = JSON.parse(localData);
+                    lancamentosPix.forEach(l => { l.status = atualizarStatusPix(l); });
                     lancamentosPix.sort((a, b) => new Date(b.dataLancamento) - new Date(a.dataLancamento));
                     mostrarFeedback('📁 Dados carregados do localStorage.');
                 }
@@ -2278,7 +2265,6 @@
             ordenarBancos();
             
             atualizarSelectsPix();
-            // 🔧 CORRIGIDO: Inicializar pixFiltered com todos os dados
             pixFiltered = [...lancamentosPix];
             aplicarFiltrosPix();
             
@@ -2292,9 +2278,7 @@
         const dadosSalvos = localStorage.getItem('lancamentosPix');
         if (dadosSalvos) {
             lancamentosPix = JSON.parse(dadosSalvos);
-            lancamentosPix.forEach(l => {
-                l.status = atualizarStatusPix(l);
-            });
+            lancamentosPix.forEach(l => { l.status = atualizarStatusPix(l); });
             lancamentosPix.sort((a, b) => new Date(b.dataLancamento) - new Date(a.dataLancamento));
         } else {
             lancamentosPix = [];
@@ -2322,7 +2306,6 @@
             return;
         }
 
-        // 🔧 CORRIGIDO: Atualizar status automaticamente
         status = atualizarStatusPix({ valorRecebido, valor, receberAte });
 
         const dados = {
@@ -2461,7 +2444,6 @@
         const periodoRocaIni = document.getElementById('pixPeriodoRocaIni').value;
         const periodoRocaFim = document.getElementById('pixPeriodoRocaFim').value;
         
-        // 🔧 CORRIGIDO: Garantir que lancamentosPix seja usado se pixFiltered estiver vazio
         const dadosParaFiltrar = lancamentosPix.length > 0 ? lancamentosPix : [];
         
         pixFiltered = dadosParaFiltrar.filter(l => {
@@ -2697,7 +2679,6 @@
         };
     }
 
-    // 🔧 CORRIGIDO: Função toggle com ID específico
     function toggleTabelaPix() {
         const card = document.getElementById('cardTabelaPix');
         const btn = document.getElementById('btnTogglePix');
@@ -2848,14 +2829,13 @@
         dadosEncontrados = null;
     };
 
-    // ===== LISTENERS com tratamento de erro =====
+    // ===== LISTENERS =====
     onSnapshot(query(areasCol, orderBy("codigo")), 
         (snapshot) => {
             areas = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             atualizarSelects();
             renderizarAreas();
             const catSelect = document.getElementById('filtroCategoria');
-            // 🔧 CORRIGIDO: Adicionar categorias padrão
             const categoriasPadrao = ['Combustível', 'Operador', 'Adubo', 'Veneno', 'Pulverização', 'Carpina', 'Diaristas', 'Maniva', 'Outros', 'Capim', 'Hora', 'Arrancação', 'Frete'];
             const categorias = [...new Set([...categoriasPadrao, ...despesas.map(d => d.categoria), ...receitas.map(r => r.servico)])].filter(Boolean);
             catSelect.innerHTML = '<option value="">Todas</option>' + categorias.map(c => `<option value="${c}">${c}</option>`).join('');
@@ -2934,7 +2914,7 @@
     document.getElementById('areaCodigo').value = 'A001';
     carregarLancamentosPix();
 
-    // 🔧 CORRIGIDO: Expor TODAS as coleções e funções necessárias
+    // ===== EXPOR FUNÇÕES GLOBAIS (TODAS CORRIGIDAS) =====
     window.areasCol = areasCol;
     window.receitasCol = receitasCol;
     window.despesasCol = despesasCol;
@@ -2943,54 +2923,64 @@
     window.pixClientesCol = pixClientesCol;
     window.pixBancosCol = pixBancosCol;
 
-    // Expor funções
-    window.limparFormArea = limparFormArea; 
-    window.salvarArea = salvarArea; 
-    window.editarArea = editarArea; 
-    window.excluirArea = excluirArea; 
-    window.inativarArea = inativarArea; 
+    // GUIA 1 - ÁREAS
+    window.limparFormArea = limparFormArea;
+    window.salvarArea = salvarArea;
+    window.editarArea = editarArea;
+    window.excluirArea = excluirArea;
+    window.inativarArea = inativarArea;
     window.mudarPaginaAreas = mudarPaginaAreas;
-    window.abrirModalLancamento = abrirModalLancamento; 
-    window.salvarLancamento = salvarLancamento; 
-    window.editarLancamento = editarLancamento; 
-    window.excluirLancamento = excluirLancamento; 
+
+    // GUIA 2 - LANÇAMENTOS
+    window.abrirModalLancamento = abrirModalLancamento;
+    window.salvarLancamento = salvarLancamento;
+    window.editarLancamento = editarLancamento;
+    window.excluirLancamento = excluirLancamento;
     window.duplicarLancamento = duplicarLancamento;
-    window.mudarPaginaReceitas = mudarPaginaReceitas; 
+    window.mudarPaginaReceitas = mudarPaginaReceitas;
     window.mudarPaginaDespesas = mudarPaginaDespesas;
-    window.trocarTipoLancamento = trocarTipoLancamento; 
+    window.trocarTipoLancamento = trocarTipoLancamento;
     window.calcularTotalReceita = calcularTotalReceita;
-    window.filtroRapido = filtroRapido; 
-    window.aplicarFiltros = aplicarFiltros; 
+    window.filtroRapido = filtroRapido;
+    window.aplicarFiltros = aplicarFiltros;
     window.limparFiltros = limparFiltros;
-    window.abrirModalRepasse = abrirModalRepasse; 
-    window.salvarRepasse = salvarRepasse; 
-    window.editarRepasse = editarRepasse; 
-    window.excluirRepasse = excluirRepasse; 
+
+    // GUIA 3 - PRESTAÇÃO + RESUMO
+    window.abrirModalRepasse = abrirModalRepasse;
+    window.salvarRepasse = salvarRepasse;
+    window.editarRepasse = editarRepasse;
+    window.excluirRepasse = excluirRepasse;
     window.mudarPaginaRepasses = mudarPaginaRepasses;
-    window.atualizarResumo = atualizarResumo; 
+    window.atualizarResumo = atualizarResumo;
     window.limparFiltrosResumo = limparFiltrosResumo;
     window.imprimirTabela = imprimirTabela;
     window.imprimirResumo = imprimirResumo;
-    window.fecharModal = fecharModal;
-    window.aplicarFiltrosPix = aplicarFiltrosPix; 
-    window.limparFiltrosPix = limparFiltrosPix; 
-    window.abrirModalPix = abrirModalPix;
-    window.salvarLancamentoPix = salvarLancamentoPix; 
-    window.editarLancamentoPix = editarLancamentoPix; 
-    window.excluirLancamentoPix = excluirLancamentoPix;
-    window.clonarLancamentoPix = clonarLancamentoPix; 
-    window.mudarPaginaPix = mudarPaginaPix; 
-    window.toggleTabelaPix = toggleTabelaPix; 
-    window.gerarPDFPix = gerarPDFPix;
-    window.novoClientePix = novoClientePix; 
-    window.novoBancoPix = novoBancoPix; 
-    window.gerenciarClientes = gerenciarClientes; 
-    window.gerenciarBancos = gerenciarBancos;
-    window.verificarDadosAntigos = verificarDadosAntigos; 
-    window.recuperarDadosAntigos = recuperarDadosAntigos; 
-    window.limparRecuperacao = limparRecuperacao;
     window.gerarPDFResumo = gerarPDFResumo;
     window.mudarPaginaResumoAreas = mudarPaginaResumoAreas;
+
+    // GUIA 4 - PIX
+    window.fecharModal = fecharModal;
+    window.aplicarFiltrosPix = aplicarFiltrosPix;
+    window.limparFiltrosPix = limparFiltrosPix;
+    window.abrirModalPix = abrirModalPix;
+    window.salvarLancamentoPix = salvarLancamentoPix;
+    window.editarLancamentoPix = editarLancamentoPix;
+    window.excluirLancamentoPix = excluirLancamentoPix;
+    window.clonarLancamentoPix = clonarLancamentoPix;
+    window.mudarPaginaPix = mudarPaginaPix;
+    window.toggleTabelaPix = toggleTabelaPix;
+    window.gerarPDFPix = gerarPDFPix;
+    window.novoClientePix = novoClientePix;
+    window.novoBancoPix = novoBancoPix;
+    window.gerenciarClientes = gerenciarClientes;
+    window.gerenciarBancos = gerenciarBancos;
+
+    // GUIA 5 - RECUPERAÇÃO
+    window.verificarDadosAntigos = verificarDadosAntigos;
+    window.recuperarDadosAntigos = recuperarDadosAntigos;
+    window.limparRecuperacao = limparRecuperacao;
+
+    // MENSAGEM DE ERRO
     window.mostrarFeedbackErro = mostrarFeedbackErro;
 </script>
 </body>
