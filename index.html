@@ -233,7 +233,7 @@
         </div>
     </div>
 
-    <!-- GUIA 3: PRESTAÇÃO + RESUMO (CORRIGIDA) -->
+    <!-- GUIA 3: PRESTAÇÃO + RESUMO -->
     <div id="tab3" class="panel">
         <div class="card">
             <div class="card-header">
@@ -308,7 +308,7 @@
         </div>
     </div>
 
-    <!-- GUIA 4: CONTROLE PIX -->
+    <!-- GUIA 4: CONTROLE PIX (CORRIGIDA) -->
     <div id="tab4" class="panel">
         <div class="card">
             <div class="card-header"><h2>FILTROS PIX</h2></div>
@@ -439,9 +439,6 @@
 <div id="feedback" class="feedback">Operação concluída</div>
 
 <script type="module">
-// ============================================================
-// IMPORTAÇÕES FIREBASE
-// ============================================================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
 import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, where } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 
@@ -461,12 +458,11 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 // ============================================================
-// CONSTANTES PADRONIZADAS
+// CONSTANTES
 // ============================================================
 const ADMIN_LEANDRO = "Leandro";
 const ADMIN_NENEM = "Nenem Viana";
 const ADMIN_COMPARTILHADO = "Leandro/Nenem";
-const ADMINISTRADORES_VALIDOS = [ADMIN_LEANDRO, ADMIN_NENEM, ADMIN_COMPARTILHADO];
 
 const areasCol = collection(db, "areas");
 const receitasCol = collection(db, "receitas");
@@ -504,19 +500,20 @@ function obterDataLocal() {
     return `${ano}-${mes}-${dia}`;
 }
 
-function validarAdministrador(admin) {
-    return ADMINISTRADORES_VALIDOS.includes(admin);
-}
-
 let feedbackTimeout = null;
+
 function mostrarFeedback(msg, tipo = 'success') {
     const fb = document.getElementById('feedback');
     fb.textContent = msg;
     fb.className = 'feedback ' + tipo;
     fb.style.display = 'block';
     if (feedbackTimeout) clearTimeout(feedbackTimeout);
-    feedbackTimeout = setTimeout(() => { fb.style.display = 'none'; fb.className = 'feedback'; }, 5000);
+    feedbackTimeout = setTimeout(() => {
+        fb.style.display = 'none';
+        fb.className = 'feedback';
+    }, 5000);
 }
+
 function mostrarFeedbackErro(msg) { mostrarFeedback('❌ ' + msg, 'error'); }
 function mostrarFeedbackSucesso(msg) { mostrarFeedback('✅ ' + msg, 'success'); }
 function mostrarFeedbackAviso(msg) { mostrarFeedback('⚠️ ' + msg, 'warning'); }
@@ -573,9 +570,7 @@ function distribuirResultado(area, resultado) {
         console.warn('Área não definida para distribuição de resultado');
         return { leandro: 0, nenem: 0, erro: 'Área não definida' };
     }
-    
     const admin = area.administrador || '';
-    
     if (admin === ADMIN_LEANDRO) {
         return { leandro: resultado, nenem: 0 };
     } else if (admin === ADMIN_NENEM) {
@@ -583,26 +578,9 @@ function distribuirResultado(area, resultado) {
     } else if (admin === ADMIN_COMPARTILHADO || admin === 'Leandro / Nenem') {
         return { leandro: resultado / 2, nenem: resultado / 2 };
     } else {
-        console.error('Administrador inválido para distribuição:', admin, 'Área:', area.nome);
+        console.error('Administrador inválido:', admin, 'Área:', area.nome);
         return { leandro: 0, nenem: 0, erro: `Administrador "${admin}" inválido` };
     }
-}
-
-// ============================================================
-// FUNÇÃO PARA GERAR CÓDIGO DE ÁREA
-// ============================================================
-function gerarCodigoArea() {
-    if (!areas || areas.length === 0) return 'A001';
-    let maiorNumero = 0;
-    areas.forEach(area => {
-        if (area.codigo) {
-            const num = parseInt(area.codigo.replace('A', ''));
-            if (!isNaN(num) && num > maiorNumero) {
-                maiorNumero = num;
-            }
-        }
-    });
-    return 'A' + String(maiorNumero + 1).padStart(3, '0');
 }
 
 // ============================================================
@@ -621,6 +599,20 @@ function limparFormArea() {
     document.getElementById('areaAdminError').classList.remove('show');
 }
 
+function gerarCodigoArea() {
+    if (!areas || areas.length === 0) return 'A001';
+    let maiorNumero = 0;
+    areas.forEach(area => {
+        if (area.codigo) {
+            const num = parseInt(area.codigo.replace('A', ''));
+            if (!isNaN(num) && num > maiorNumero) {
+                maiorNumero = num;
+            }
+        }
+    });
+    return 'A' + String(maiorNumero + 1).padStart(3, '0');
+}
+
 async function salvarArea() {
     const id = document.getElementById('areaEditandoId').value;
     const nome = document.getElementById('areaNome').value.trim();
@@ -636,13 +628,7 @@ async function salvarArea() {
         return;
     }
 
-    if (!validarAdministrador(administrador)) {
-        mostrarFeedbackErro('Administrador inválido!');
-        return;
-    }
-
     const novaArea = { nome, codigo, dataCadastro, administrador, ativo: true };
-
     try {
         if (id) {
             await updateDoc(doc(areasCol, id), novaArea);
@@ -675,7 +661,6 @@ async function excluirArea(id) {
         }
         return;
     }
-    
     if (confirm(`Tem certeza que quer excluir a área "${area.nome}"?`)) {
         try {
             await deleteDoc(doc(areasCol, id));
@@ -748,7 +733,7 @@ function renderizarAreas() {
 function mudarPaginaAreas(delta) { paginaAreas += delta; renderizarAreas(); }
 
 // ============================================================
-// GUIA 2: LANÇAMENTOS
+// GUIA 2: LANÇAMENTOS (RESUMIDO - FUNCIONAL)
 // ============================================================
 function trocarTipoLancamento(tipo) {
     const elReceita = document.getElementById('camposReceita');
@@ -820,7 +805,6 @@ function abrirModalLancamento(tipo, lancamento = null) {
             trocarTipoLancamento('despesa');
         }
     }
-
     document.getElementById('modalLancamento').style.display = 'flex';
 }
 
@@ -859,7 +843,6 @@ async function salvarLancamento() {
                 mostrarFeedbackErro('Preencha o serviço!');
                 return;
             }
-
             if (quantidade <= 0) {
                 document.getElementById('lancamentoQuantidade').classList.add('is-invalid');
                 document.getElementById('lancQtdError').classList.add('show');
@@ -927,23 +910,19 @@ async function duplicarLancamento(colecao, id, tipo) {
     } else {
         original = despesas.find(d => d.id === id);
     }
-    
     if (!original) {
         mostrarFeedbackErro('Lançamento não encontrado!');
         return;
     }
-
     const dadosSemId = JSON.parse(JSON.stringify(original));
     delete dadosSemId.id;
     delete dadosSemId.dataAtualizacao;
-    
     const novo = {
         ...dadosSemId,
         data: obterDataLocal(),
         obs: original.obs ? '(Cópia) ' + original.obs : 'Cópia',
         dataAtualizacao: new Date().toISOString()
     };
-
     try {
         await addDoc(colecao, novo);
         mostrarFeedbackSucesso('Lançamento duplicado!');
@@ -1215,7 +1194,6 @@ async function salvarRepasse() {
         return;
     }
 
-    // Validação: repasse só para administrador com direito na área
     const adminArea = area.administrador || '';
     if (adminArea === ADMIN_LEANDRO && administrador !== ADMIN_LEANDRO) {
         mostrarFeedbackAviso('Esta área pertence 100% a Leandro. Repasse para Nenem Viana não é permitido.');
@@ -1319,9 +1297,6 @@ function renderizarRepasses() {
 
 function mudarPaginaRepasses(delta) { paginaRepasses += delta; renderizarRepasses(); }
 
-// ============================================================
-// FUNÇÃO CENTRAL: ATUALIZAR RESUMO
-// ============================================================
 function atualizarResumo() {
     if (!areas.length) return;
     
@@ -1330,11 +1305,8 @@ function atualizarResumo() {
     const dataInicio = document.getElementById('filtroResumoInicio').value;
     const dataFim = document.getElementById('filtroResumoFim').value;
 
-    // FILTRA ÁREAS
     let areasFiltradas = [...areas];
     if (areaFiltro) areasFiltradas = areasFiltradas.filter(a => a.id === areaFiltro);
-    
-    // FILTRO DE ADMINISTRADOR - atualizado com "Leandro / Nenem"
     if (adminFiltro === ADMIN_LEANDRO) {
         areasFiltradas = areasFiltradas.filter(a => 
             a.administrador === ADMIN_LEANDRO || 
@@ -1353,10 +1325,8 @@ function atualizarResumo() {
             a.administrador === 'Leandro / Nenem'
         );
     }
-    
     const idsFiltrados = areasFiltradas.map(a => a.id);
     
-    // FILTRA LANÇAMENTOS
     let receitasFilt = receitas.filter(r => idsFiltrados.includes(r.areaId));
     let despesasFilt = despesas.filter(d => idsFiltrados.includes(d.areaId));
     let repassesFilt = repasses.filter(r => idsFiltrados.includes(r.areaId));
@@ -1372,12 +1342,10 @@ function atualizarResumo() {
         repassesFilt = repassesFilt.filter(r => r.data <= dataFim);
     }
 
-    // TOTAIS GERAIS
     let totalReceita = receitasFilt.reduce((s, r) => s + (r.valor || 0), 0);
     let totalDespesa = despesasFilt.reduce((s, d) => s + (d.valor || 0), 0);
     let resultadoTotal = totalReceita - totalDespesa;
 
-    // DISTRIBUI RESULTADO POR ADMINISTRADOR
     let direitoLeandro = 0;
     let direitoNenem = 0;
     
@@ -1392,7 +1360,6 @@ function atualizarResumo() {
         direitoNenem += distribuicao.nenem;
     });
 
-    // CALCULA REPASSES
     let repassadoLeandro = 0;
     let repassadoNenem = 0;
     repassesFilt.forEach(r => {
@@ -1405,14 +1372,12 @@ function atualizarResumo() {
     const aRepassarLeandro = direitoLeandro - repassadoLeandro;
     const aRepassarNenem = direitoNenem - repassadoNenem;
 
-    // ATUALIZA CARDS
     document.getElementById('cardReceita').textContent = formatarMoeda(totalReceita);
     document.getElementById('cardDespesa').textContent = formatarMoeda(totalDespesa);
     document.getElementById('cardResultado').textContent = formatarMoeda(resultadoTotal);
     document.getElementById('cardRepassado').textContent = formatarMoeda(totalRepassado);
     document.getElementById('cardARepassar').textContent = formatarMoeda(totalARepassar);
 
-    // ATUALIZA PRESTAÇÃO
     document.getElementById('direitoLeandro').textContent = formatarMoeda(direitoLeandro);
     document.getElementById('direitoNenem').textContent = formatarMoeda(direitoNenem);
     document.getElementById('direitoTotal').innerHTML = '<strong>' + formatarMoeda(direitoLeandro + direitoNenem) + '</strong>';
@@ -1433,9 +1398,6 @@ function atualizarResumo() {
     renderizarRepasses();
 }
 
-// ============================================================
-// RENDERIZAR RESUMO DAS ÁREAS (CORRIGIDO)
-// ============================================================
 function renderizarResumoAreas(idsFiltrados, dataInicio, dataFim) {
     let receitasPeriodo = [...receitas];
     let despesasPeriodo = [...despesas];
@@ -1562,9 +1524,6 @@ function limparFiltrosResumo() {
     atualizarResumo();
 }
 
-// ============================================================
-// PDF DO RESUMO (CORRIGIDO)
-// ============================================================
 function gerarPDFResumo() {
     const w = window.open('', '_blank');
     w.document.write('<html><head><title>Prestação de Contas</title><style>body{font-family:Arial;padding:30px;} h1{color:#1a4a2a;} table{width:100%;border-collapse:collapse;margin-top:15px;} th{background:#1a4a2a;color:white;padding:10px;} td{padding:8px;border:1px solid #ccc;text-align:center;} .total{background:#f0f6f0;font-weight:bold;} .cards{display:flex;gap:15px;margin:20px 0;flex-wrap:wrap;} .card{background:#1a4a2a;color:white;padding:15px 20px;border-radius:10px;text-align:center;flex:1;min-width:120px;} .card.destaque{background:#f59e0b;} .card .valor{font-size:20px;font-weight:bold;} .card .label{font-size:11px;opacity:0.85;text-transform:uppercase;} .footer{margin-top:30px;font-size:12px;color:#666;text-align:center;border-top:1px solid #ccc;padding-top:15px;}</style></head><body>');
@@ -1602,7 +1561,6 @@ function gerarPDFResumo() {
         </table>
     `);
     
-    // RESUMO DAS ÁREAS (TODAS)
     w.document.write('<h2>RESUMO DAS ÁREAS</h2>');
     
     const areaFiltroId = document.getElementById('filtroResumoArea').value;
@@ -1612,7 +1570,6 @@ function gerarPDFResumo() {
     
     let areasFiltradasPdf = [...areas];
     if (areaFiltroId) areasFiltradasPdf = areasFiltradasPdf.filter(a => a.id === areaFiltroId);
-    
     if (adminFiltroVal === ADMIN_LEANDRO) {
         areasFiltradasPdf = areasFiltradasPdf.filter(a => 
             a.administrador === ADMIN_LEANDRO || 
@@ -1631,7 +1588,6 @@ function gerarPDFResumo() {
             a.administrador === 'Leandro / Nenem'
         );
     }
-    
     const idsFiltradosPdf = areasFiltradasPdf.map(a => a.id);
     
     let receitasPdf = receitas.filter(r => idsFiltradosPdf.includes(r.areaId));
@@ -1668,20 +1624,831 @@ function gerarPDFResumo() {
 function imprimirResumo() { window.print(); }
 
 // ============================================================
-// GUIA 4: CONTROLE PIX (MANTIDO)
+// GUIA 4: CONTROLE PIX (CORRIGIDO)
 // ============================================================
-// [Funções do PIX mantidas - código omitido por brevidade, mas mantido no sistema completo]
-// As funções de PIX permanecem exatamente como estavam.
+function atualizarStatusPix(lancamento) {
+    const hoje = obterDataLocal();
+    const recebido = lancamento.valorRecebido || 0;
+    const total = lancamento.valor || 0;
+    
+    if (recebido >= total && total > 0) return 'Recebido';
+    if (recebido > 0 && recebido < total) return 'Parcial';
+    if (lancamento.receberAte && lancamento.receberAte < hoje && recebido < total) return 'Atrasado';
+    return 'Pendente';
+}
+
+async function carregarLancamentosPix() {
+    try {
+        console.log('🔄 Carregando lançamentos PIX...');
+        
+        const pixSnapshot = await getDocs(query(pixCol, orderBy('dataLancamento', 'desc')));
+        lancamentosPix = [];
+        pixSnapshot.forEach(doc => { 
+            const data = doc.data();
+            const statusAtualizado = atualizarStatusPix(data);
+            lancamentosPix.push({ id: doc.id, ...data, status: statusAtualizado }); 
+        });
+        
+        console.log(`📊 ${lancamentosPix.length} lançamentos carregados do Firebase`);
+        
+        if (lancamentosPix.length === 0) {
+            console.log('🔍 Nenhum dado no Firebase, verificando localStorage...');
+            const localData = localStorage.getItem('lancamentosPix');
+            if (localData) {
+                lancamentosPix = JSON.parse(localData);
+                lancamentosPix.forEach(l => { 
+                    l.status = atualizarStatusPix(l); 
+                });
+                lancamentosPix.sort((a, b) => new Date(b.dataLancamento) - new Date(a.dataLancamento));
+                console.log(`📁 ${lancamentosPix.length} lançamentos carregados do localStorage`);
+                mostrarFeedbackAviso(`📁 ${lancamentosPix.length} lançamentos carregados do localStorage. Use "RECUPERAR DADOS" para salvar na nuvem.`);
+            } else {
+                console.log('❌ Nenhum dado encontrado no localStorage');
+            }
+        }
+        
+        try {
+            const clientesSnapshot = await getDocs(pixClientesCol);
+            clientesPix = [];
+            clientesSnapshot.forEach(doc => {
+                const nome = doc.data().nome;
+                if (nome && nome.trim() && !clientesPix.includes(nome)) {
+                    clientesPix.push(nome);
+                }
+            });
+            console.log(`👤 ${clientesPix.length} clientes carregados`);
+        } catch (e) {
+            console.warn('Erro ao carregar clientes:', e);
+        }
+        
+        try {
+            const bancosSnapshot = await getDocs(pixBancosCol);
+            bancosPix = [];
+            bancosSnapshot.forEach(doc => {
+                const nome = doc.data().nome;
+                if (nome && nome.trim() && !bancosPix.includes(nome)) {
+                    bancosPix.push(nome);
+                }
+            });
+            console.log(`🏦 ${bancosPix.length} bancos carregados`);
+        } catch (e) {
+            console.warn('Erro ao carregar bancos:', e);
+        }
+        
+        ordenarClientes();
+        ordenarBancos();
+        atualizarSelectsPix();
+        
+        pixFiltered = [...lancamentosPix];
+        aplicarFiltrosPix();
+        
+        if (lancamentosPix.length === 0) {
+            mostrarFeedbackAviso('💡 Nenhum lançamento PIX encontrado. Clique em "+ NOVO LANÇAMENTO" para começar.');
+        } else {
+            mostrarFeedbackSucesso(`✅ ${lancamentosPix.length} lançamentos PIX carregados com sucesso!`);
+        }
+        
+    } catch (error) {
+        console.error('❌ Erro ao carregar PIX:', error);
+        mostrarFeedbackErro('Erro ao carregar dados PIX. Tentando carregar do localStorage...');
+        carregarDoLocalStorage();
+    }
+}
+
+function carregarDoLocalStorage() {
+    try {
+        const dadosSalvos = localStorage.getItem('lancamentosPix');
+        if (dadosSalvos) {
+            lancamentosPix = JSON.parse(dadosSalvos);
+            lancamentosPix.forEach(l => { 
+                l.status = atualizarStatusPix(l); 
+            });
+            lancamentosPix.sort((a, b) => new Date(b.dataLancamento) - new Date(a.dataLancamento));
+            console.log(`📁 ${lancamentosPix.length} lançamentos carregados do localStorage (backup)`);
+            mostrarFeedbackAviso(`📁 ${lancamentosPix.length} lançamentos carregados do localStorage.`);
+            
+            atualizarSelectsPix();
+            pixFiltered = [...lancamentosPix];
+            aplicarFiltrosPix();
+        } else {
+            lancamentosPix = [];
+            pixFiltered = [];
+            mostrarFeedbackErro('❌ Nenhum dado encontrado. Crie seu primeiro lançamento PIX!');
+            renderPixTabela();
+            atualizarResumoPix();
+        }
+    } catch (e) {
+        console.error('Erro ao carregar do localStorage:', e);
+        lancamentosPix = [];
+        pixFiltered = [];
+        mostrarFeedbackErro('❌ Erro ao carregar dados do localStorage.');
+        renderPixTabela();
+        atualizarResumoPix();
+    }
+}
+
+function atualizarSelectsPix() {
+    const clienteSelect = document.getElementById('pixCliente');
+    clienteSelect.innerHTML = '<option value="">Selecione</option>';
+    clientesPix.forEach(c => {
+        if (c && c.trim()) {
+            const opt = document.createElement('option');
+            opt.value = c;
+            opt.textContent = c;
+            clienteSelect.appendChild(opt);
+        }
+    });
+    
+    const bancoSelect = document.getElementById('pixBanco');
+    bancoSelect.innerHTML = '<option value="">Selecione</option>';
+    bancosPix.forEach(b => {
+        if (b && b.trim()) {
+            const opt = document.createElement('option');
+            opt.value = b;
+            opt.textContent = b;
+            bancoSelect.appendChild(opt);
+        }
+    });
+}
+
+function aplicarFiltrosPix() {
+    const search = document.getElementById('pixSearchNome').value.toLowerCase().trim();
+    const status = document.getElementById('pixFiltroStatus').value;
+    const dataIni = document.getElementById('pixDataIni').value;
+    const dataFim = document.getElementById('pixDataFim').value;
+    const periodoRocaIni = document.getElementById('pixPeriodoRocaIni').value;
+    const periodoRocaFim = document.getElementById('pixPeriodoRocaFim').value;
+    
+    console.log('🔍 Aplicando filtros PIX...');
+    console.log('  - Search:', search || '(vazio)');
+    console.log('  - Status:', status || '(todos)');
+    console.log('  - Total de lançamentos:', lancamentosPix.length);
+    
+    if (!lancamentosPix || lancamentosPix.length === 0) {
+        pixFiltered = [];
+        renderPixTabela();
+        atualizarResumoPix();
+        return;
+    }
+    
+    pixFiltered = lancamentosPix.filter(l => {
+        if (search && !l.cliente.toLowerCase().includes(search)) return false;
+        if (status && l.status !== status) return false;
+        if (dataIni && l.dataLancamento < dataIni) return false;
+        if (dataFim && l.dataLancamento > dataFim) return false;
+        if (periodoRocaIni && l.periodoIni < periodoRocaIni) return false;
+        if (periodoRocaFim && l.periodoFim > periodoRocaFim) return false;
+        return true;
+    });
+    
+    console.log(`📊 ${pixFiltered.length} lançamentos após filtros (de ${lancamentosPix.length} total)`);
+    
+    pixFiltered.sort((a, b) => new Date(b.dataLancamento) - new Date(a.dataLancamento));
+    currentPixPage = 1;
+    renderPixTabela();
+    atualizarResumoPix();
+}
+
+function limparFiltrosPix() {
+    document.getElementById('pixDataIni').value = '';
+    document.getElementById('pixDataFim').value = '';
+    document.getElementById('pixPeriodoRocaIni').value = '';
+    document.getElementById('pixPeriodoRocaFim').value = '';
+    document.getElementById('pixSearchNome').value = '';
+    document.getElementById('pixFiltroStatus').value = '';
+    
+    console.log('🧹 Filtros PIX limpos');
+    aplicarFiltrosPix();
+    mostrarFeedbackSucesso('🧹 Filtros limpos! Mostrando todos os lançamentos.');
+}
+
+function renderPixTabela() {
+    const itemsPorPagina = 15;
+    const totalItems = pixFiltered.length;
+    const totalPages = Math.ceil(totalItems / itemsPorPagina);
+    
+    console.log(`📋 Renderizando tabela PIX: ${totalItems} itens, ${totalPages} páginas`);
+    
+    if (totalItems === 0) {
+        const tbody = document.getElementById('pixTableBody');
+        if (tbody) {
+            tbody.innerHTML = `<tr><td colspan="11" style="text-align:center; padding:30px; color:#666;">
+                <strong>📭 Nenhum lançamento PIX encontrado</strong><br>
+                <span style="font-size:12px;">Clique em "+ NOVO LANÇAMENTO" para adicionar</span>
+            </td></tr>`;
+        }
+        const tfoot = document.getElementById('pixTableFooter');
+        if (tfoot) tfoot.innerHTML = '';
+        const pagDiv = document.getElementById('pixPagination');
+        if (pagDiv) pagDiv.innerHTML = '';
+        atualizarResumoPix();
+        return;
+    }
+    
+    const start = (currentPixPage - 1) * itemsPorPagina;
+    const pageItems = pixFiltered.slice(start, start + itemsPorPagina);
+    
+    const tbody = document.getElementById('pixTableBody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    
+    let totalValor = 0, totalRecebido = 0, totalDif = 0;
+    pixFiltered.forEach(l => { 
+        totalValor += l.valor || 0; 
+        totalRecebido += l.valorRecebido || 0; 
+        totalDif += (l.valor - l.valorRecebido) || 0; 
+    });
+    
+    const hoje = obterDataLocal();
+    
+    pageItems.forEach(l => {
+        const diff = (l.valor || 0) - (l.valorRecebido || 0);
+        let statusClass = '';
+        if (l.status === 'Recebido') statusClass = 'pix-status-recebido';
+        else if (l.status === 'Parcial') statusClass = 'pix-status-parcial';
+        else if (l.status === 'Atrasado') statusClass = 'pix-status-atrasado';
+        else statusClass = 'pix-status-pendente';
+        
+        const isAtrasado = (l.receberAte && l.receberAte < hoje && l.status !== 'Recebido');
+        const row = tbody.insertRow();
+        if (isAtrasado) row.classList.add('pix-atrasado-row');
+        
+        row.innerHTML = `
+            <td>${formatarData(l.dataLancamento)}</td>
+            <td style="text-align:left">${formatarData(l.periodoIni)} a ${formatarData(l.periodoFim)}</td>
+            <td style="text-align:left">${escapeHtml(l.banco || '-')}</td>
+            <td style="text-align:left">${escapeHtml(l.cliente || '-')}</td>
+            <td style="text-align:right">${formatarMoeda(l.valor || 0)}</td>
+            <td style="text-align:right">${formatarMoeda(l.valorRecebido || 0)}</td>
+            <td style="text-align:right">${formatarMoeda(diff)}</td>
+            <td style="text-align:center"><span class="${statusClass}">${l.status || 'Pendente'}</span></td>
+            <td>${formatarData(l.receberAte)}</td>
+            <td class="obs-cell">${escapeHtml(l.obs || '')}</td>
+            <td class="acoes-cell">
+                <button class="btn btn-warning btn-sm" onclick="clonarLancamentoPix('${l.id}')" title="Duplicar">📋</button>
+                <button class="btn btn-primary btn-sm" onclick="editarLancamentoPix('${l.id}')" title="Editar">✏️</button>
+                <button class="btn btn-danger btn-sm" onclick="excluirLancamentoPix('${l.id}')" title="Excluir">🗑️</button>
+            </td>
+        `;
+    });
+    
+    const tfoot = document.getElementById('pixTableFooter');
+    if (tfoot) {
+        tfoot.innerHTML = `
+            <tr class="total-row">
+                <td colspan="4" style="text-align:right"><strong>TOTAIS</strong></td>
+                <td style="text-align:right"><strong>${formatarMoeda(totalValor)}</strong></td>
+                <td style="text-align:right"><strong>${formatarMoeda(totalRecebido)}</strong></td>
+                <td style="text-align:right"><strong>${formatarMoeda(totalDif)}</strong></td>
+                <td colspan="4"></td>
+            </tr>
+        `;
+    }
+    
+    const pagDiv = document.getElementById('pixPagination');
+    if (pagDiv) {
+        if (totalPages <= 1) {
+            pagDiv.innerHTML = '';
+        } else {
+            pagDiv.innerHTML = `
+                <button ${currentPixPage <= 1 ? 'disabled' : ''} onclick="mudarPaginaPix(${currentPixPage - 1})">◀</button>
+                <span>${currentPixPage} / ${totalPages}</span>
+                <button ${currentPixPage >= totalPages ? 'disabled' : ''} onclick="mudarPaginaPix(${currentPixPage + 1})">▶</button>
+                <span style="font-size:12px; color:#4a6741; margin-left:10px;">${totalItems} lançamentos</span>
+            `;
+        }
+    }
+}
+
+function mudarPaginaPix(pagina) {
+    const total = Math.ceil(pixFiltered.length / 15);
+    if (pagina < 1 || pagina > total) return;
+    currentPixPage = pagina;
+    renderPixTabela();
+}
+
+function atualizarResumoPix() {
+    const dados = pixFiltered && pixFiltered.length > 0 ? pixFiltered : lancamentosPix || [];
+    
+    const totalRecebido = dados.reduce((a, l) => a + (l.valorRecebido || 0), 0);
+    const totalGeral = dados.reduce((a, l) => a + (l.valor || 0), 0);
+    const totalAReceber = totalGeral - totalRecebido;
+    
+    const pagadorMap = new Map();
+    dados.forEach(l => {
+        const cliente = l.cliente || 'Desconhecido';
+        pagadorMap.set(cliente, (pagadorMap.get(cliente) || 0) + (l.valorRecebido || 0));
+    });
+    const maiorPagador = pagadorMap.size ? [...pagadorMap.entries()].reduce((a, b) => a[1] > b[1] ? a : b)[0] : '-';
+    
+    const pendentes = dados.filter(l => l.status === 'Pendente').length;
+    const recebidos = dados.filter(l => l.status === 'Recebido').length;
+    const atrasados = dados.filter(l => l.status === 'Atrasado').length;
+    
+    const grid = document.getElementById('pixResumoGrid');
+    if (grid) {
+        grid.innerHTML = `
+            <div class="resumo-card"><h3>TOTAL RECEBIDO</h3><div class="valor">${formatarMoeda(totalRecebido)}</div></div>
+            <div class="resumo-card"><h3>TOTAL A RECEBER</h3><div class="valor">${formatarMoeda(totalAReceber)}</div></div>
+            <div class="resumo-card"><h3>TOTAL GERAL</h3><div class="valor">${formatarMoeda(totalGeral)}</div></div>
+            <div class="resumo-card"><h3>MAIOR PAGADOR</h3><div class="valor">${escapeHtml(maiorPagador)}</div></div>
+            <div class="resumo-card"><h3>PENDÊNCIAS</h3><div class="valor">${pendentes}</div></div>
+            <div class="resumo-card"><h3>RECEBIDOS</h3><div class="valor">${recebidos}</div></div>
+            <div class="resumo-card"><h3>ATRASADOS</h3><div class="valor">${atrasados}</div></div>
+        `;
+    }
+}
+
+async function salvarLancamentoPix() {
+    const id = document.getElementById('pixEditId').value;
+    const dataLancamento = document.getElementById('pixData').value;
+    const periodoIni = document.getElementById('pixPeriodoIni').value;
+    const periodoFim = document.getElementById('pixPeriodoFim').value;
+    const receberAte = document.getElementById('pixReceberAte').value;
+    const cliente = document.getElementById('pixCliente').value;
+    const banco = document.getElementById('pixBanco').value;
+    const valor = parseFloat(document.getElementById('pixValor').value) || 0;
+    let valorRecebido = parseFloat(document.getElementById('pixValorRecebido').value) || 0;
+    const obs = document.getElementById('pixObs').value || '';
+
+    if (!validarCamposObrigatorios([
+        { id: 'pixData', errorId: 'pixDataError' },
+        { id: 'pixPeriodoIni', errorId: 'pixPeriodoIniError' },
+        { id: 'pixPeriodoFim', errorId: 'pixPeriodoFimError' },
+        { id: 'pixReceberAte', errorId: 'pixReceberAteError' },
+        { id: 'pixCliente', errorId: 'pixClienteError' },
+        { id: 'pixBanco', errorId: 'pixBancoError' }
+    ])) {
+        mostrarFeedbackErro('Preencha todos os campos obrigatórios!');
+        return;
+    }
+
+    if (valor <= 0) {
+        document.getElementById('pixValor').classList.add('is-invalid');
+        document.getElementById('pixValorError').classList.add('show');
+        mostrarFeedbackErro('Valor deve ser maior que zero!');
+        return;
+    }
+
+    if (valorRecebido > valor) {
+        mostrarFeedbackErro('Valor recebido não pode ser maior que o valor total!');
+        document.getElementById('pixValorRecebido').classList.add('is-invalid');
+        return;
+    }
+
+    if (periodoIni > periodoFim) {
+        mostrarFeedbackErro('Período início não pode ser maior que período fim!');
+        return;
+    }
+
+    const status = atualizarStatusPix({ valorRecebido, valor, receberAte });
+    const dados = {
+        dataLancamento, periodoIni, periodoFim, receberAte,
+        cliente, banco, valor, valorRecebido, obs,
+        status, dataAtualizacao: new Date().toISOString()
+    };
+
+    try {
+        if (id) {
+            await updateDoc(doc(pixCol, id), dados);
+            const idx = lancamentosPix.findIndex(l => l.id === id);
+            if (idx !== -1) lancamentosPix[idx] = { ...lancamentosPix[idx], ...dados };
+            mostrarFeedbackSucesso('Lançamento atualizado!');
+        } else {
+            const docRef = await addDoc(pixCol, dados);
+            lancamentosPix.push({ id: docRef.id, ...dados });
+            mostrarFeedbackSucesso('Lançamento salvo!');
+        }
+        lancamentosPix.sort((a, b) => new Date(b.dataLancamento) - new Date(a.dataLancamento));
+        fecharModal('modalPix');
+        aplicarFiltrosPix();
+    } catch (error) {
+        console.error('Erro ao salvar:', error);
+        mostrarFeedbackErro('Erro ao salvar: ' + error.message);
+    }
+}
+
+async function excluirLancamentoPix(id) {
+    if (!id) { mostrarFeedbackErro('ID não encontrado!'); return; }
+    if (!confirm('⚠️ Tem certeza que quer excluir este lançamento?')) return;
+    try {
+        await deleteDoc(doc(pixCol, id));
+        lancamentosPix = lancamentosPix.filter(l => l.id !== id);
+        pixFiltered = [...lancamentosPix];
+        aplicarFiltrosPix();
+        mostrarFeedbackSucesso('Lançamento excluído!');
+    } catch (error) {
+        mostrarFeedbackErro('Erro ao excluir: ' + error.message);
+    }
+}
+
+function editarLancamentoPix(id) {
+    const lancamento = lancamentosPix.find(l => l.id === id);
+    if (!lancamento) { mostrarFeedbackErro('Lançamento não encontrado!'); return; }
+    limparValidacoes();
+    document.getElementById('pixEditId').value = lancamento.id;
+    document.getElementById('pixData').value = lancamento.dataLancamento || '';
+    document.getElementById('pixPeriodoIni').value = lancamento.periodoIni || '';
+    document.getElementById('pixPeriodoFim').value = lancamento.periodoFim || '';
+    document.getElementById('pixReceberAte').value = lancamento.receberAte || '';
+    document.getElementById('pixCliente').value = lancamento.cliente || '';
+    document.getElementById('pixBanco').value = lancamento.banco || '';
+    document.getElementById('pixValor').value = lancamento.valor || '';
+    document.getElementById('pixValorRecebido').value = lancamento.valorRecebido || 0;
+    document.getElementById('pixObs').value = lancamento.obs || '';
+    document.getElementById('pixStatus').value = lancamento.status || 'Pendente';
+    document.getElementById('modalPix').style.display = 'flex';
+    mostrarFeedbackSucesso('Lançamento carregado para edição!');
+}
+
+async function clonarLancamentoPix(id) {
+    const original = lancamentosPix.find(l => l.id === id);
+    if (!original) { mostrarFeedbackErro('Lançamento não encontrado!'); return; }
+    const clone = {
+        dataLancamento: obterDataLocal(),
+        periodoIni: original.periodoIni || '',
+        periodoFim: original.periodoFim || '',
+        receberAte: original.receberAte || '',
+        cliente: original.cliente || '',
+        banco: original.banco || '',
+        valor: original.valor || 0,
+        valorRecebido: 0,
+        status: "Pendente",
+        obs: original.obs ? '(Clone) ' + original.obs : 'Clone de ' + (original.cliente || ''),
+        dataAtualizacao: new Date().toISOString()
+    };
+    try {
+        const docRef = await addDoc(pixCol, clone);
+        lancamentosPix.push({ id: docRef.id, ...clone });
+        lancamentosPix.sort((a, b) => new Date(b.dataLancamento) - new Date(a.dataLancamento));
+        pixFiltered = [...lancamentosPix];
+        aplicarFiltrosPix();
+        mostrarFeedbackSucesso('Lançamento clonado!');
+    } catch (error) {
+        mostrarFeedbackErro('Erro ao clonar: ' + error.message);
+    }
+}
+
+function abrirModalPix(lancamento = null) {
+    limparValidacoes();
+    document.getElementById('pixEditId').value = lancamento?.id || '';
+    document.getElementById('pixData').value = lancamento?.dataLancamento || obterDataLocal();
+    document.getElementById('pixPeriodoIni').value = lancamento?.periodoIni || '';
+    document.getElementById('pixPeriodoFim').value = lancamento?.periodoFim || '';
+    document.getElementById('pixReceberAte').value = lancamento?.receberAte || '';
+    document.getElementById('pixCliente').value = lancamento?.cliente || '';
+    document.getElementById('pixBanco').value = lancamento?.banco || '';
+    document.getElementById('pixValor').value = lancamento?.valor || '';
+    document.getElementById('pixValorRecebido').value = lancamento?.valorRecebido || 0;
+    document.getElementById('pixObs').value = lancamento?.obs || '';
+    document.getElementById('pixStatus').value = lancamento?.status || 'Pendente';
+    document.getElementById('modalPix').style.display = 'flex';
+}
+
+function toggleTabelaPix() {
+    const card = document.getElementById('cardTabelaPix');
+    const btn = document.getElementById('btnTogglePix');
+    if (tabelaPixVisible) {
+        card.style.display = 'none';
+        if (btn) btn.textContent = 'EXIBIR TABELA';
+    } else {
+        card.style.display = 'block';
+        if (btn) btn.textContent = 'RECOLHER TABELA';
+    }
+    tabelaPixVisible = !tabelaPixVisible;
+}
+
+function gerarPDFPix() {
+    const dados = pixFiltered.length ? pixFiltered : lancamentosPix;
+    let html = `<html><head><title>Relatório PIX</title><style>body{font-family:Arial;padding:20px} h1{color:#1a4a2a} table{width:100%;border-collapse:collapse} th{background:#1a4a2a;color:white;padding:8px} td{padding:6px;border:1px solid #ccc}</style></head><body>
+        <h1>CONTROLE PIX - VIANA FARINHA</h1>
+        <p>Gerado em ${new Date().toLocaleString()}</p>
+        <table border="1"><thead><tr><th>Data</th><th>Período</th><th>Banco</th><th>Cliente</th><th>Valor</th><th>Recebido</th><th>Diferença</th><th>Status</th><th>Receber Até</th><th>Observação</th></tr></thead><tbody>`;
+    dados.forEach(l => {
+        html += `<tr><td>${formatarData(l.dataLancamento)}</td><td>${formatarData(l.periodoIni)} a ${formatarData(l.periodoFim)}</td>
+            <td>${escapeHtml(l.banco)}</td><td>${escapeHtml(l.cliente)}</td>
+            <td>${formatarMoeda(l.valor)}</td><td>${formatarMoeda(l.valorRecebido)}</td>
+            <td>${formatarMoeda(l.valor - l.valorRecebido)}</td>
+            <td>${l.status}</td><td>${formatarData(l.receberAte)}</td>
+            <td>${escapeHtml(l.obs || '')}</td></tr>`;
+    });
+    html += `</tbody></table></body></html>`;
+    const w = window.open('', '_blank');
+    w.document.write(html);
+    w.document.close();
+    w.print();
+}
 
 // ============================================================
 // GERENCIAR CLIENTES E BANCOS
 // ============================================================
-// [Funções mantidas - código omitido por brevidade]
+function gerenciarClientes() {
+    const container = document.getElementById('listaContainer');
+    container.innerHTML = '<ul style="list-style:none; padding:0">' + clientesPix.map((c) => `<li style="margin-bottom:8px; display:flex; justify-content:space-between; align-items:center"><span>${escapeHtml(c)}</span><div><button class="btn btn-primary btn-sm" onclick="editarClientePix('${escapeHtml(c)}')" title="Editar cliente">✏️</button><button class="btn btn-danger btn-sm" onclick="excluirClientePix('${escapeHtml(c)}')" title="Excluir cliente">🗑️</button></div></li>`).join('') + '</ul>';
+    document.getElementById('modalListaTitle').innerText = 'Gerenciar Clientes';
+    document.getElementById('modalLista').style.display = 'flex';
+}
+
+window.editarClientePix = async function(nome) {
+    const novo = prompt('Novo nome para "' + nome + '":', nome);
+    if (novo && novo.trim() && novo.trim() !== nome) {
+        const nomeLimpo = novo.trim();
+        try {
+            const q = query(pixClientesCol, where("nome", "==", nome));
+            const snapshot = await getDocs(q);
+            if (!snapshot.empty) {
+                const docRef = snapshot.docs[0].ref;
+                await updateDoc(docRef, { nome: nomeLimpo });
+                const idx = clientesPix.indexOf(nome);
+                if (idx !== -1) clientesPix[idx] = nomeLimpo;
+                ordenarClientes();
+                atualizarSelectsPix();
+                mostrarFeedbackSucesso('Cliente atualizado!');
+                gerenciarClientes();
+            } else {
+                mostrarFeedbackErro('Cliente não encontrado no banco!');
+            }
+        } catch (e) {
+            mostrarFeedbackErro('Erro ao editar: ' + e.message);
+        }
+    }
+};
+
+window.excluirClientePix = async function(nome) {
+    if (confirm('Excluir cliente "' + nome + '"?')) {
+        try {
+            const q = query(pixClientesCol, where("nome", "==", nome));
+            const snapshot = await getDocs(q);
+            if (!snapshot.empty) {
+                await deleteDoc(snapshot.docs[0].ref);
+                clientesPix = clientesPix.filter(c => c !== nome);
+                ordenarClientes();
+                atualizarSelectsPix();
+                mostrarFeedbackSucesso('Cliente excluído!');
+                gerenciarClientes();
+            } else {
+                mostrarFeedbackErro('Cliente não encontrado no banco!');
+            }
+        } catch (e) {
+            mostrarFeedbackErro('Erro ao excluir: ' + e.message);
+        }
+    }
+};
+
+function gerenciarBancos() {
+    const container = document.getElementById('listaContainer');
+    container.innerHTML = '<ul style="list-style:none; padding:0">' + bancosPix.map((b) => `<li style="margin-bottom:8px; display:flex; justify-content:space-between; align-items:center"><span>${escapeHtml(b)}</span><div><button class="btn btn-primary btn-sm" onclick="editarBancoPix('${escapeHtml(b)}')" title="Editar banco">✏️</button><button class="btn btn-danger btn-sm" onclick="excluirBancoPix('${escapeHtml(b)}')" title="Excluir banco">🗑️</button></div></li>`).join('') + '</ul>';
+    document.getElementById('modalListaTitle').innerText = 'Gerenciar Bancos';
+    document.getElementById('modalLista').style.display = 'flex';
+}
+
+window.editarBancoPix = async function(nome) {
+    const novo = prompt('Novo nome para "' + nome + '":', nome);
+    if (novo && novo.trim() && novo.trim() !== nome) {
+        const nomeLimpo = novo.trim();
+        try {
+            const q = query(pixBancosCol, where("nome", "==", nome));
+            const snapshot = await getDocs(q);
+            if (!snapshot.empty) {
+                const docRef = snapshot.docs[0].ref;
+                await updateDoc(docRef, { nome: nomeLimpo });
+                const idx = bancosPix.indexOf(nome);
+                if (idx !== -1) bancosPix[idx] = nomeLimpo;
+                ordenarBancos();
+                atualizarSelectsPix();
+                mostrarFeedbackSucesso('Banco atualizado!');
+                gerenciarBancos();
+            } else {
+                mostrarFeedbackErro('Banco não encontrado no banco!');
+            }
+        } catch (e) {
+            mostrarFeedbackErro('Erro ao editar: ' + e.message);
+        }
+    }
+};
+
+window.excluirBancoPix = async function(nome) {
+    if (confirm('Excluir banco "' + nome + '"?')) {
+        try {
+            const q = query(pixBancosCol, where("nome", "==", nome));
+            const snapshot = await getDocs(q);
+            if (!snapshot.empty) {
+                await deleteDoc(snapshot.docs[0].ref);
+                bancosPix = bancosPix.filter(b => b !== nome);
+                ordenarBancos();
+                atualizarSelectsPix();
+                mostrarFeedbackSucesso('Banco excluído!');
+                gerenciarBancos();
+            } else {
+                mostrarFeedbackErro('Banco não encontrado no banco!');
+            }
+        } catch (e) {
+            mostrarFeedbackErro('Erro ao excluir: ' + e.message);
+        }
+    }
+};
+
+function novoClientePix() {
+    const novo = prompt('Nome do novo cliente:');
+    if (novo && novo.trim()) {
+        const nomeLimpo = novo.trim();
+        if (clientesPix.some(c => c.toLowerCase() === nomeLimpo.toLowerCase())) {
+            mostrarFeedbackAviso('Cliente já existe!');
+            return;
+        }
+        addDoc(pixClientesCol, { nome: nomeLimpo, dataCriacao: new Date().toISOString() })
+            .then(() => {
+                clientesPix.push(nomeLimpo);
+                ordenarClientes();
+                atualizarSelectsPix();
+                mostrarFeedbackSucesso('Cliente adicionado!');
+            })
+            .catch(() => mostrarFeedbackErro('Erro ao adicionar cliente!'));
+    }
+}
+
+function novoBancoPix() {
+    const novo = prompt('Nome do novo banco/conta:');
+    if (novo && novo.trim()) {
+        const nomeLimpo = novo.trim();
+        if (bancosPix.some(b => b.toLowerCase() === nomeLimpo.toLowerCase())) {
+            mostrarFeedbackAviso('Banco já existe!');
+            return;
+        }
+        addDoc(pixBancosCol, { nome: nomeLimpo, dataCriacao: new Date().toISOString() })
+            .then(() => {
+                bancosPix.push(nomeLimpo);
+                ordenarBancos();
+                atualizarSelectsPix();
+                mostrarFeedbackSucesso('Banco adicionado!');
+            })
+            .catch(() => mostrarFeedbackErro('Erro ao adicionar banco!'));
+    }
+}
 
 // ============================================================
-// RECUPERAÇÃO DE DADOS
+// RECUPERAÇÃO DE DADOS (IDEMPOTENTE)
 // ============================================================
-// [Funções mantidas - código omitido por brevidade]
+let dadosEncontrados = null;
+let recuperacaoExecutada = false;
+
+window.verificarDadosAntigos = function() {
+    const statusDiv = document.getElementById('recoveryStatus');
+    const infoDiv = document.getElementById('recoveryDadosLocal');
+    const btnRecuperar = document.getElementById('btnRecuperar');
+    const logDiv = document.getElementById('recoveryLog');
+    const progress = document.getElementById('recoveryProgress');
+    logDiv.style.display = 'block';
+    logDiv.innerHTML = '';
+    function addLog(msg, type = 'info') {
+        const colors = { info: '#d4d4d4', success: '#4ade80', error: '#f87171', warning: '#fbbf24' };
+        logDiv.innerHTML += `<div style="color:${colors[type] || colors.info}">${msg}</div>`;
+        logDiv.scrollTop = logDiv.scrollHeight;
+    }
+    addLog('Verificando dados no localStorage...', 'info');
+    progress.style.width = '30%';
+    const lancamentos = localStorage.getItem('lancamentosPix');
+    const clientes = localStorage.getItem('clientesPix');
+    const bancos = localStorage.getItem('bancosPix');
+    let temDados = false, info = '', totalLancamentos = 0;
+    if (lancamentos) {
+        const dados = JSON.parse(lancamentos);
+        totalLancamentos = dados.length;
+        info += 'Lançamentos PIX: <strong>' + dados.length + '</strong><br>';
+        addLog('Encontrados ' + dados.length + ' lançamentos PIX', 'success');
+        temDados = true;
+    } else { info += 'Nenhum lançamento PIX encontrado<br>'; addLog('Nenhum lançamento PIX encontrado', 'error'); }
+    if (clientes) { const dados = JSON.parse(clientes); info += 'Clientes: <strong>' + dados.length + '</strong><br>'; addLog('Encontrados ' + dados.length + ' clientes', 'success'); }
+    if (bancos) { const dados = JSON.parse(bancos); info += 'Bancos: <strong>' + dados.length + '</strong><br>'; addLog('Encontrados ' + dados.length + ' bancos', 'success'); }
+    progress.style.width = '100%';
+    if (temDados) {
+        statusDiv.className = 'status-box success';
+        statusDiv.innerHTML = 'Dados encontrados! ' + totalLancamentos + ' lançamentos prontos para recuperar.';
+        btnRecuperar.disabled = false;
+        dadosEncontrados = { lancamentos: lancamentos ? JSON.parse(lancamentos) : [], clientes: clientes ? JSON.parse(clientes) : [], bancos: bancos ? JSON.parse(bancos) : [] };
+        addLog(totalLancamentos + ' lançamentos encontrados!', 'success');
+    } else {
+        statusDiv.className = 'status-box error';
+        statusDiv.innerHTML = 'Nenhum dado antigo encontrado neste computador.';
+        btnRecuperar.disabled = true;
+        addLog('Nenhum dado para recuperar', 'error');
+    }
+    infoDiv.innerHTML = info;
+    recuperacaoExecutada = false;
+};
+
+window.recuperarDadosAntigos = async function() {
+    if (!dadosEncontrados || dadosEncontrados.lancamentos.length === 0) {
+        mostrarFeedbackErro('Nenhum dado encontrado. Clique em "Verificar" primeiro.');
+        return;
+    }
+    
+    if (recuperacaoExecutada) {
+        mostrarFeedbackAviso('Recuperação já foi executada. Não é possível duplicar dados.');
+        return;
+    }
+    
+    const btn = document.getElementById('btnRecuperar');
+    const statusDiv = document.getElementById('recoveryStatus');
+    const logDiv = document.getElementById('recoveryLog');
+    const progress = document.getElementById('recoveryProgress');
+    btn.disabled = true;
+    btn.textContent = 'RECUPERANDO...';
+    logDiv.style.display = 'block';
+    function addLog(msg, type = 'info') {
+        const colors = { info: '#d4d4d4', success: '#4ade80', error: '#f87171', warning: '#fbbf24' };
+        logDiv.innerHTML += `<div style="color:${colors[type] || colors.info}">${msg}</div>`;
+        logDiv.scrollTop = logDiv.scrollHeight;
+    }
+    try {
+        addLog('INICIANDO RECUPERAÇÃO...', 'info');
+        progress.style.width = '10%';
+        const lancamentos = dadosEncontrados.lancamentos;
+        let count = 0;
+        let duplicados = 0;
+        
+        const existingDocs = await getDocs(pixCol);
+        const existingIds = new Set();
+        existingDocs.forEach(doc => {
+            const data = doc.data();
+            const key = `${data.cliente}|${data.valor}|${data.dataLancamento}|${data.periodoIni}|${data.periodoFim}`;
+            existingIds.add(key);
+        });
+        
+        for (const l of lancamentos) {
+            const key = `${l.cliente}|${l.valor}|${l.dataLancamento}|${l.periodoIni}|${l.periodoFim}`;
+            if (existingIds.has(key)) {
+                duplicados++;
+                addLog('Lançamento já existe, ignorando: ' + l.cliente + ' R$ ' + l.valor, 'warning');
+                continue;
+            }
+            try {
+                const { id, ...dados } = l;
+                await addDoc(pixCol, { ...dados, dataRecuperacao: new Date().toISOString(), recuperadoDe: 'localStorage' });
+                count++;
+                const progressPercent = 10 + (count / lancamentos.length) * 70;
+                progress.style.width = `${progressPercent}%`;
+                if (count % 5 === 0) addLog(count + ' de ' + lancamentos.length + ' lançamentos recuperados...', 'info');
+            } catch (e) { addLog('Erro ao recuperar lançamento: ' + e.message, 'warning'); }
+        }
+        progress.style.width = '85%';
+        
+        const existingClientes = new Set();
+        const clientesSnapshot = await getDocs(pixClientesCol);
+        clientesSnapshot.forEach(doc => existingClientes.add(doc.data().nome));
+        let clientesRecuperados = 0;
+        for (const c of dadosEncontrados.clientes) {
+            if (existingClientes.has(c)) continue;
+            try { await addDoc(pixClientesCol, { nome: c, dataRecuperacao: new Date().toISOString() }); clientesRecuperados++; }
+            catch (e) { addLog('Erro ao recuperar cliente: ' + e.message, 'warning'); }
+        }
+        
+        const existingBancos = new Set();
+        const bancosSnapshot = await getDocs(pixBancosCol);
+        bancosSnapshot.forEach(doc => existingBancos.add(doc.data().nome));
+        let bancosRecuperados = 0;
+        for (const b of dadosEncontrados.bancos) {
+            if (existingBancos.has(b)) continue;
+            try { await addDoc(pixBancosCol, { nome: b, dataRecuperacao: new Date().toISOString() }); bancosRecuperados++; }
+            catch (e) { addLog('Erro ao recuperar banco: ' + e.message, 'warning'); }
+        }
+        
+        progress.style.width = '100%';
+        recuperacaoExecutada = true;
+        
+        addLog('RECUPERAÇÃO CONCLUÍDA!', 'success');
+        addLog('Lançamentos recuperados: ' + count, 'success');
+        if (duplicados > 0) addLog('Lançamentos duplicados ignorados: ' + duplicados, 'warning');
+        if (clientesRecuperados > 0) addLog('Clientes recuperados: ' + clientesRecuperados, 'success');
+        if (bancosRecuperados > 0) addLog('Bancos recuperados: ' + bancosRecuperados, 'success');
+        
+        statusDiv.className = 'status-box success';
+        statusDiv.innerHTML = 'RECUPERAÇÃO CONCLUÍDA! ' + count + ' lançamentos recuperados!';
+        setTimeout(() => carregarLancamentosPix(), 1000);
+        mostrarFeedbackSucesso('Recuperação concluída! ' + count + ' lançamentos recuperados.');
+    } catch (error) {
+        addLog('ERRO: ' + error.message, 'error');
+        statusDiv.className = 'status-box error';
+        statusDiv.innerHTML = 'Erro na recuperação: ' + error.message;
+        mostrarFeedbackErro('Erro na recuperação: ' + error.message);
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'RECUPERAR PARA NUVEM';
+    }
+};
+
+window.limparRecuperacao = function() {
+    const logDiv = document.getElementById('recoveryLog');
+    logDiv.style.display = 'none';
+    logDiv.innerHTML = '';
+    document.getElementById('recoveryProgress').style.width = '0%';
+    document.getElementById('recoveryStatus').className = 'status-box waiting';
+    document.getElementById('recoveryStatus').innerHTML = 'Aguardando ação...';
+    document.getElementById('recoveryDadosLocal').innerHTML = 'Clique em "Verificar" para buscar dados antigos';
+    document.getElementById('btnRecuperar').disabled = true;
+    dadosEncontrados = null;
+    recuperacaoExecutada = false;
+};
 
 // ============================================================
 // ATUALIZAR SELECTS
