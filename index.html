@@ -149,7 +149,9 @@
     </div>
     <button class="btn-top" id="btnTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
+    <!-- ============================================================ -->
     <!-- GUIA 1: CADASTRO DE ÁREAS -->
+    <!-- ============================================================ -->
     <div id="tab1" class="panel active">
         <div class="card">
             <div class="card-header"><h2>NOVA ÁREA</h2></div>
@@ -184,7 +186,9 @@
         </div>
     </div>
 
+    <!-- ============================================================ -->
     <!-- GUIA 2: LANÇAMENTO RECEITA/DESPESA -->
+    <!-- ============================================================ -->
     <div id="tab2" class="panel">
         <div class="card">
             <div class="card-header"><h2>FILTROS</h2></div>
@@ -233,7 +237,9 @@
         </div>
     </div>
 
-    <!-- GUIA 3: PRESTAÇÃO + RESUMO -->
+    <!-- ============================================================ -->
+    <!-- GUIA 3: PRESTAÇÃO + RESUMO (CORRIGIDA) -->
+    <!-- ============================================================ -->
     <div id="tab3" class="panel">
         <div class="card">
             <div class="card-header">
@@ -308,7 +314,9 @@
         </div>
     </div>
 
-    <!-- GUIA 4: CONTROLE PIX (CORRIGIDA) -->
+    <!-- ============================================================ -->
+    <!-- GUIA 4: CONTROLE PIX -->
+    <!-- ============================================================ -->
     <div id="tab4" class="panel">
         <div class="card">
             <div class="card-header"><h2>FILTROS PIX</h2></div>
@@ -359,7 +367,9 @@
         </div>
     </div>
 
+    <!-- ============================================================ -->
     <!-- GUIA 5: RECUPERAR DADOS -->
+    <!-- ============================================================ -->
     <div id="tab5" class="panel">
         <div class="card">
             <div class="card-header">
@@ -388,7 +398,11 @@
     </div>
 </div>
 
+<!-- ============================================================ -->
 <!-- MODAIS -->
+<!-- ============================================================ -->
+
+<!-- MODAL LANÇAMENTO -->
 <div id="modalLancamento" class="modal"><div class="modal-content"><h3 id="modalLancamentoTitle">NOVO LANÇAMENTO</h3><input type="hidden" id="lancamentoId"><input type="hidden" id="lancamentoTipo">
     <div class="form-group"><label>TIPO <span class="required">*</span></label><div class="radio-group"><label><input type="radio" name="lancamentoTipoRadio" value="receita" onchange="trocarTipoLancamento('receita')"> RECEITA</label><label><input type="radio" name="lancamentoTipoRadio" value="despesa" onchange="trocarTipoLancamento('despesa')"> DESPESA</label></div></div>
     <div class="form-group"><label>DATA <span class="required">*</span></label><input type="date" id="lancamentoData"><div class="error-message" id="lancDataError">Data é obrigatória</div></div>
@@ -410,6 +424,7 @@
     <div class="btn-group" style="margin-top:20px"><button class="btn btn-secondary" onclick="fecharModal('modalLancamento')">CANCELAR</button><button class="btn btn-primary" onclick="salvarLancamento()">SALVAR</button></div>
 </div></div>
 
+<!-- MODAL REPASSE -->
 <div id="modalRepasse" class="modal"><div class="modal-content"><h3>LANÇAR REPASSE</h3><input type="hidden" id="repasseId">
     <div class="form-group"><label>DATA <span class="required">*</span></label><input type="date" id="repasseData"><div class="error-message" id="repasseDataError">Data é obrigatória</div></div>
     <div class="form-group"><label>ÁREA <span class="required">*</span></label><select id="repasseArea"></select><div class="error-message" id="repasseAreaError">Área é obrigatória</div></div>
@@ -420,6 +435,7 @@
     <div class="btn-group" style="margin-top:20px"><button class="btn btn-secondary" onclick="fecharModal('modalRepasse')">CANCELAR</button><button class="btn btn-primary" onclick="salvarRepasse()">SALVAR</button></div>
 </div></div>
 
+<!-- MODAL PIX -->
 <div id="modalPix" class="modal"><div class="modal-content"><h3>LANÇAMENTO PIX</h3><input type="hidden" id="pixEditId">
     <div class="form-group"><label>DATA LANÇAMENTO <span class="required">*</span></label><input type="date" id="pixData"><div class="error-message" id="pixDataError">Data é obrigatória</div></div>
     <div class="form-group"><label>PERÍODO INÍCIO <span class="required">*</span></label><input type="date" id="pixPeriodoIni"><div class="error-message" id="pixPeriodoIniError">Período início é obrigatório</div></div>
@@ -434,6 +450,7 @@
     <div class="btn-group" style="margin-top:20px"><button class="btn btn-secondary" onclick="fecharModal('modalPix')">CANCELAR</button><button class="btn btn-primary" onclick="salvarLancamentoPix()">SALVAR</button></div>
 </div></div>
 
+<!-- MODAL LISTA -->
 <div id="modalLista" class="modal"><div class="modal-content"><h3 id="modalListaTitle">Gerenciar</h3><div id="listaContainer" style="max-height: 400px; overflow-y: auto;"></div><div class="btn-group" style="margin-top:20px"><button class="btn btn-secondary" onclick="fecharModal('modalLista')">FECHAR</button></div></div></div>
 
 <div id="feedback" class="feedback">Operação concluída</div>
@@ -543,6 +560,50 @@ function limparValidacoes() {
 function escapeHtml(text) { if (!text) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
 
 // ============================================================
+// FUNÇÃO DE NORMALIZAÇÃO DE ADMINISTRADOR
+// ============================================================
+function normalizarAdmin(admin) {
+    if (!admin) return '';
+    const adminLower = admin.toLowerCase().trim();
+    if (adminLower === 'leandro') return ADMIN_LEANDRO;
+    if (adminLower === 'nenem viana' || adminLower === 'nenem') return ADMIN_NENEM;
+    if (adminLower.includes('leandro') && adminLower.includes('nenem')) return ADMIN_COMPARTILHADO;
+    return admin;
+}
+
+// ============================================================
+// FUNÇÃO PARA VERIFICAR SE UM ADMINISTRADOR PERTENCE AO FILTRO
+// ============================================================
+function adminPertenceAoFiltro(adminArea, filtro) {
+    const adminNorm = normalizarAdmin(adminArea);
+    const filtroNorm = normalizarAdmin(filtro);
+    if (!filtro) return true;
+    if (filtroNorm === ADMIN_LEANDRO) {
+        return adminNorm === ADMIN_LEANDRO || adminNorm === ADMIN_COMPARTILHADO;
+    }
+    if (filtroNorm === ADMIN_NENEM) {
+        return adminNorm === ADMIN_NENEM || adminNorm === ADMIN_COMPARTILHADO;
+    }
+    if (filtroNorm === ADMIN_COMPARTILHADO) {
+        return adminNorm === ADMIN_COMPARTILHADO;
+    }
+    return true;
+}
+
+// ============================================================
+// FUNÇÃO CENTRAL DE DISTRIBUIÇÃO DE RESULTADO
+// ============================================================
+function distribuirResultado(area, resultado) {
+    if (!area) return { leandro: 0, nenem: 0, erro: 'Área não definida' };
+    const admin = normalizarAdmin(area.administrador || '');
+    if (admin === ADMIN_LEANDRO) return { leandro: resultado, nenem: 0 };
+    if (admin === ADMIN_NENEM) return { leandro: 0, nenem: resultado };
+    if (admin === ADMIN_COMPARTILHADO) return { leandro: resultado / 2, nenem: resultado / 2 };
+    console.error('Administrador inválido:', admin, 'Área:', area.nome);
+    return { leandro: 0, nenem: 0, erro: `Administrador "${admin}" inválido` };
+}
+
+// ============================================================
 // FUNÇÃO CENTRAL DE FECHAMENTO DE MODAIS
 // ============================================================
 function fecharModal(id) {
@@ -559,27 +620,6 @@ function fecharModal(id) {
     }
     if (id === 'modalRepasse') {
         document.getElementById('repasseId').value = '';
-    }
-}
-
-// ============================================================
-// FUNÇÃO CENTRAL DE DISTRIBUIÇÃO DE RESULTADO
-// ============================================================
-function distribuirResultado(area, resultado) {
-    if (!area) {
-        console.warn('Área não definida para distribuição de resultado');
-        return { leandro: 0, nenem: 0, erro: 'Área não definida' };
-    }
-    const admin = area.administrador || '';
-    if (admin === ADMIN_LEANDRO) {
-        return { leandro: resultado, nenem: 0 };
-    } else if (admin === ADMIN_NENEM) {
-        return { leandro: 0, nenem: resultado };
-    } else if (admin === ADMIN_COMPARTILHADO || admin === 'Leandro / Nenem') {
-        return { leandro: resultado / 2, nenem: resultado / 2 };
-    } else {
-        console.error('Administrador inválido:', admin, 'Área:', area.nome);
-        return { leandro: 0, nenem: 0, erro: `Administrador "${admin}" inválido` };
     }
 }
 
@@ -605,9 +645,7 @@ function gerarCodigoArea() {
     areas.forEach(area => {
         if (area.codigo) {
             const num = parseInt(area.codigo.replace('A', ''));
-            if (!isNaN(num) && num > maiorNumero) {
-                maiorNumero = num;
-            }
+            if (!isNaN(num) && num > maiorNumero) maiorNumero = num;
         }
     });
     return 'A' + String(maiorNumero + 1).padStart(3, '0');
@@ -630,17 +668,11 @@ async function salvarArea() {
 
     const novaArea = { nome, codigo, dataCadastro, administrador, ativo: true };
     try {
-        if (id) {
-            await updateDoc(doc(areasCol, id), novaArea);
-            mostrarFeedbackSucesso('Área atualizada!');
-        } else {
-            await addDoc(areasCol, novaArea);
-            mostrarFeedbackSucesso('Área salva!');
-        }
+        if (id) await updateDoc(doc(areasCol, id), novaArea);
+        else await addDoc(areasCol, novaArea);
+        mostrarFeedbackSucesso('Área salva!');
         limparFormArea();
-    } catch (e) { 
-        mostrarFeedbackErro('Erro: ' + e.message);
-    }
+    } catch (e) { mostrarFeedbackErro('Erro: ' + e.message); }
 }
 
 async function excluirArea(id) {
@@ -656,18 +688,12 @@ async function excluirArea(id) {
         if (temDespesas) msg += '- Despesas\n';
         if (temRepasses) msg += '- Repasses\n';
         msg += '\nDeseja inativar a área em vez de excluir?';
-        if (confirm(msg)) {
-            await inativarArea(id);
-        }
+        if (confirm(msg)) { await inativarArea(id); }
         return;
     }
     if (confirm(`Tem certeza que quer excluir a área "${area.nome}"?`)) {
-        try {
-            await deleteDoc(doc(areasCol, id));
-            mostrarFeedbackSucesso('Área excluída!');
-        } catch (e) {
-            mostrarFeedbackErro('Erro ao excluir: ' + e.message);
-        }
+        try { await deleteDoc(doc(areasCol, id)); mostrarFeedbackSucesso('Área excluída!'); }
+        catch (e) { mostrarFeedbackErro('Erro: ' + e.message); }
     }
 }
 
@@ -679,18 +705,13 @@ async function inativarArea(id) {
         try {
             await updateDoc(doc(areasCol, id), { ativo: novoStatus });
             mostrarFeedbackSucesso(area.ativo !== false ? 'Área inativada!' : 'Área ativada!');
-        } catch (e) {
-            mostrarFeedbackErro('Erro: ' + e.message);
-        }
+        } catch (e) { mostrarFeedbackErro('Erro: ' + e.message); }
     }
 }
 
 function editarArea(id) {
     const area = areas.find(a => a.id === id);
-    if (!area) {
-        mostrarFeedbackErro('Área não encontrada!');
-        return;
-    }
+    if (!area) { mostrarFeedbackErro('Área não encontrada!'); return; }
     document.getElementById('areaEditandoId').value = area.id;
     document.getElementById('areaNome').value = area.nome || '';
     document.getElementById('areaCodigo').value = area.codigo || '';
@@ -733,7 +754,7 @@ function renderizarAreas() {
 function mudarPaginaAreas(delta) { paginaAreas += delta; renderizarAreas(); }
 
 // ============================================================
-// GUIA 2: LANÇAMENTOS (RESUMIDO - FUNCIONAL)
+// GUIA 2: LANÇAMENTOS
 // ============================================================
 function trocarTipoLancamento(tipo) {
     const elReceita = document.getElementById('camposReceita');
@@ -824,10 +845,7 @@ async function salvarLancamento() {
     }
 
     const area = areas.find(a => a.id === areaId);
-    if (!area) {
-        mostrarFeedbackErro('Área selecionada não existe!');
-        return;
-    }
+    if (!area) { mostrarFeedbackErro('Área selecionada não existe!'); return; }
 
     try {
         if (tipo === 'receita') {
@@ -837,9 +855,7 @@ async function salvarLancamento() {
             const valorUnit = parseFloat(document.getElementById('lancamentoValorUnit').value) || 0;
             const valorTotal = quantidade * valorUnit;
 
-            if (!validarCamposObrigatorios([
-                { id: 'lancamentoServico', errorId: 'lancServicoError' }
-            ])) {
+            if (!validarCamposObrigatorios([{ id: 'lancamentoServico', errorId: 'lancServicoError' }])) {
                 mostrarFeedbackErro('Preencha o serviço!');
                 return;
             }
@@ -857,13 +873,9 @@ async function salvarLancamento() {
             }
 
             const dados = { data, areaId, areaNome: area.nome || '', administrador, servico, quantidade, valorUnit, valor: valorTotal, obs, tipo: 'receita', dataAtualizacao: new Date().toISOString() };
-            if (id) {
-                await updateDoc(doc(receitasCol, id), dados);
-                mostrarFeedbackSucesso('Receita atualizada!');
-            } else {
-                await addDoc(receitasCol, dados);
-                mostrarFeedbackSucesso('Receita salva!');
-            }
+            if (id) await updateDoc(doc(receitasCol, id), dados);
+            else await addDoc(receitasCol, dados);
+            mostrarFeedbackSucesso('Receita salva!');
         } else {
             const administrador = document.getElementById('lancamentoAdminDespesa').value;
             const categoria = document.getElementById('lancamentoCategoria').value;
@@ -878,57 +890,32 @@ async function salvarLancamento() {
             }
 
             const dados = { data, areaId, areaNome: area.nome || '', administrador, categoria, descricao, valor, obs, tipo: 'despesa', dataAtualizacao: new Date().toISOString() };
-            if (id) {
-                await updateDoc(doc(despesasCol, id), dados);
-                mostrarFeedbackSucesso('Despesa atualizada!');
-            } else {
-                await addDoc(despesasCol, dados);
-                mostrarFeedbackSucesso('Despesa salva!');
-            }
+            if (id) await updateDoc(doc(despesasCol, id), dados);
+            else await addDoc(despesasCol, dados);
+            mostrarFeedbackSucesso('Despesa salva!');
         }
         fecharModal('modalLancamento');
-    } catch (e) { 
-        mostrarFeedbackErro('Erro: ' + e.message);
-    }
+    } catch (e) { mostrarFeedbackErro('Erro: ' + e.message); }
 }
 
 async function excluirLancamento(colecao, id, nome) {
     if (confirm(`Tem certeza que quer excluir ${nome}?`)) {
-        try {
-            await deleteDoc(doc(colecao, id));
-            mostrarFeedbackSucesso(`${nome} excluído!`);
-        } catch (e) {
-            mostrarFeedbackErro('Erro ao excluir: ' + e.message);
-        }
+        try { await deleteDoc(doc(colecao, id)); mostrarFeedbackSucesso(`${nome} excluído!`); }
+        catch (e) { mostrarFeedbackErro('Erro ao excluir: ' + e.message); }
     }
 }
 
 async function duplicarLancamento(colecao, id, tipo) {
     let original;
-    if (tipo === 'receita') {
-        original = receitas.find(r => r.id === id);
-    } else {
-        original = despesas.find(d => d.id === id);
-    }
-    if (!original) {
-        mostrarFeedbackErro('Lançamento não encontrado!');
-        return;
-    }
+    if (tipo === 'receita') original = receitas.find(r => r.id === id);
+    else original = despesas.find(d => d.id === id);
+    if (!original) { mostrarFeedbackErro('Lançamento não encontrado!'); return; }
     const dadosSemId = JSON.parse(JSON.stringify(original));
     delete dadosSemId.id;
     delete dadosSemId.dataAtualizacao;
-    const novo = {
-        ...dadosSemId,
-        data: obterDataLocal(),
-        obs: original.obs ? '(Cópia) ' + original.obs : 'Cópia',
-        dataAtualizacao: new Date().toISOString()
-    };
-    try {
-        await addDoc(colecao, novo);
-        mostrarFeedbackSucesso('Lançamento duplicado!');
-    } catch (e) {
-        mostrarFeedbackErro('Erro ao duplicar: ' + e.message);
-    }
+    const novo = { ...dadosSemId, data: obterDataLocal(), obs: original.obs ? '(Cópia) ' + original.obs : 'Cópia', dataAtualizacao: new Date().toISOString() };
+    try { await addDoc(colecao, novo); mostrarFeedbackSucesso('Lançamento duplicado!'); }
+    catch (e) { mostrarFeedbackErro('Erro ao duplicar: ' + e.message); }
 }
 
 function editarLancamento(id, tipo) {
@@ -1150,7 +1137,7 @@ function limparFiltros() {
 }
 
 // ============================================================
-// GUIA 3: PRESTAÇÃO + RESUMO (FUNÇÕES CORRIGIDAS)
+// GUIA 3: PRESTAÇÃO + RESUMO
 // ============================================================
 function abrirModalRepasse(repasse = null) {
     limparValidacoes();
@@ -1189,22 +1176,21 @@ async function salvarRepasse() {
     }
 
     const area = areas.find(a => a.id === areaId);
-    if (!area) {
-        mostrarFeedbackErro('Área selecionada não existe!');
-        return;
-    }
+    if (!area) { mostrarFeedbackErro('Área selecionada não existe!'); return; }
 
-    const adminArea = area.administrador || '';
-    if (adminArea === ADMIN_LEANDRO && administrador !== ADMIN_LEANDRO) {
+    const adminArea = normalizarAdmin(area.administrador || '');
+    const adminRepasse = normalizarAdmin(administrador);
+    
+    if (adminArea === ADMIN_LEANDRO && adminRepasse !== ADMIN_LEANDRO) {
         mostrarFeedbackAviso('Esta área pertence 100% a Leandro. Repasse para Nenem Viana não é permitido.');
         return;
     }
-    if (adminArea === ADMIN_NENEM && administrador !== ADMIN_NENEM) {
+    if (adminArea === ADMIN_NENEM && adminRepasse !== ADMIN_NENEM) {
         mostrarFeedbackAviso('Esta área pertence 100% a Nenem Viana. Repasse para Leandro não é permitido.');
         return;
     }
-    if ((adminArea === ADMIN_COMPARTILHADO || adminArea === 'Leandro / Nenem')) {
-        if (administrador !== ADMIN_LEANDRO && administrador !== ADMIN_NENEM) {
+    if (adminArea === ADMIN_COMPARTILHADO) {
+        if (adminRepasse !== ADMIN_LEANDRO && adminRepasse !== ADMIN_NENEM) {
             mostrarFeedbackAviso('Para áreas compartilhadas, o repasse deve ser para Leandro ou Nenem Viana.');
             return;
         }
@@ -1212,31 +1198,19 @@ async function salvarRepasse() {
 
     const dados = { data, areaId, areaNome: area.nome || '', administrador, valor, forma, obs, dataAtualizacao: new Date().toISOString() };
     try {
-        if (id) {
-            await updateDoc(doc(repassesCol, id), dados);
-            mostrarFeedbackSucesso('Repasse atualizado!');
-        } else {
-            await addDoc(repassesCol, dados);
-            mostrarFeedbackSucesso('Repasse salvo!');
-        }
+        if (id) await updateDoc(doc(repassesCol, id), dados);
+        else await addDoc(repassesCol, dados);
+        mostrarFeedbackSucesso('Repasse salvo!');
         fecharModal('modalRepasse');
         atualizarResumo();
         renderizarRepasses();
-    } catch (e) { 
-        mostrarFeedbackErro('Erro: ' + e.message);
-    }
+    } catch (e) { mostrarFeedbackErro('Erro: ' + e.message); }
 }
 
 async function excluirRepasse(id) {
     if (confirm('Tem certeza que quer excluir este repasse?')) {
-        try {
-            await deleteDoc(doc(repassesCol, id));
-            mostrarFeedbackSucesso('Repasse excluído!');
-            atualizarResumo();
-            renderizarRepasses();
-        } catch (e) {
-            mostrarFeedbackErro('Erro ao excluir: ' + e.message);
-        }
+        try { await deleteDoc(doc(repassesCol, id)); mostrarFeedbackSucesso('Repasse excluído!'); atualizarResumo(); renderizarRepasses(); }
+        catch (e) { mostrarFeedbackErro('Erro ao excluir: ' + e.message); }
     }
 }
 
@@ -1297,6 +1271,9 @@ function renderizarRepasses() {
 
 function mudarPaginaRepasses(delta) { paginaRepasses += delta; renderizarRepasses(); }
 
+// ============================================================
+// FUNÇÃO CENTRAL: ATUALIZAR RESUMO
+// ============================================================
 function atualizarResumo() {
     if (!areas.length) return;
     
@@ -1307,24 +1284,8 @@ function atualizarResumo() {
 
     let areasFiltradas = [...areas];
     if (areaFiltro) areasFiltradas = areasFiltradas.filter(a => a.id === areaFiltro);
-    if (adminFiltro === ADMIN_LEANDRO) {
-        areasFiltradas = areasFiltradas.filter(a => 
-            a.administrador === ADMIN_LEANDRO || 
-            a.administrador === ADMIN_COMPARTILHADO || 
-            a.administrador === 'Leandro / Nenem'
-        );
-    } else if (adminFiltro === ADMIN_NENEM) {
-        areasFiltradas = areasFiltradas.filter(a => 
-            a.administrador === ADMIN_NENEM || 
-            a.administrador === ADMIN_COMPARTILHADO || 
-            a.administrador === 'Leandro / Nenem'
-        );
-    } else if (adminFiltro === ADMIN_COMPARTILHADO || adminFiltro === 'Leandro / Nenem') {
-        areasFiltradas = areasFiltradas.filter(a => 
-            a.administrador === ADMIN_COMPARTILHADO || 
-            a.administrador === 'Leandro / Nenem'
-        );
-    }
+    if (adminFiltro) areasFiltradas = areasFiltradas.filter(a => adminPertenceAoFiltro(a.administrador, adminFiltro));
+    
     const idsFiltrados = areasFiltradas.map(a => a.id);
     
     let receitasFilt = receitas.filter(r => idsFiltrados.includes(r.areaId));
@@ -1360,12 +1321,19 @@ function atualizarResumo() {
         direitoNenem += distribuicao.nenem;
     });
 
+    const adminFiltroNorm = normalizarAdmin(adminFiltro || '');
+    if (adminFiltroNorm === ADMIN_LEANDRO) direitoNenem = 0;
+    else if (adminFiltroNorm === ADMIN_NENEM) direitoLeandro = 0;
+
     let repassadoLeandro = 0;
     let repassadoNenem = 0;
     repassesFilt.forEach(r => {
         if (r.administrador === ADMIN_LEANDRO) repassadoLeandro += r.valor || 0;
         else if (r.administrador === ADMIN_NENEM) repassadoNenem += r.valor || 0;
     });
+
+    if (adminFiltroNorm === ADMIN_LEANDRO) repassadoNenem = 0;
+    else if (adminFiltroNorm === ADMIN_NENEM) repassadoLeandro = 0;
 
     const totalRepassado = repassadoLeandro + repassadoNenem;
     const totalARepassar = resultadoTotal - totalRepassado;
@@ -1394,11 +1362,14 @@ function atualizarResumo() {
     document.getElementById('aRepassarNenem').style.color = aRepassarNenem >= 0 ? '#166534' : '#dc2626';
     document.getElementById('cardARepassar').style.color = totalARepassar >= 0 ? '#ffffff' : '#fca5a5';
 
-    renderizarResumoAreas(idsFiltrados, dataInicio, dataFim);
+    renderizarResumoAreas(idsFiltrados, dataInicio, dataFim, adminFiltro);
     renderizarRepasses();
 }
 
-function renderizarResumoAreas(idsFiltrados, dataInicio, dataFim) {
+// ============================================================
+// RENDERIZAR RESUMO DAS ÁREAS
+// ============================================================
+function renderizarResumoAreas(idsFiltrados, dataInicio, dataFim, adminFiltro) {
     let receitasPeriodo = [...receitas];
     let despesasPeriodo = [...despesas];
     
@@ -1422,6 +1393,8 @@ function renderizarResumoAreas(idsFiltrados, dataInicio, dataFim) {
     let totalLeandroGeral = 0;
     let totalNenemGeral = 0;
     
+    const adminFiltroNorm = normalizarAdmin(adminFiltro || '');
+    
     areasUnicas.forEach(id => {
         const area = areas.find(a => a.id === id);
         if (!area) return;
@@ -1436,11 +1409,16 @@ function renderizarResumoAreas(idsFiltrados, dataInicio, dataFim) {
         
         const distribuicao = distribuirResultado(area, resultado);
         
+        let leandro = distribuicao.leandro;
+        let nenem = distribuicao.nenem;
+        if (adminFiltroNorm === ADMIN_LEANDRO) nenem = 0;
+        else if (adminFiltroNorm === ADMIN_NENEM) leandro = 0;
+        
         totalEntradasGeral += entradas;
         totalSaidasGeral += saidas;
         totalResultadoGeral += resultado;
-        totalLeandroGeral += distribuicao.leandro;
-        totalNenemGeral += distribuicao.nenem;
+        totalLeandroGeral += leandro;
+        totalNenemGeral += nenem;
         
         dadosAreas.push({
             id: id,
@@ -1449,8 +1427,8 @@ function renderizarResumoAreas(idsFiltrados, dataInicio, dataFim) {
             entradas: entradas,
             saidas: saidas,
             resultado: resultado,
-            leandro: distribuicao.leandro,
-            nenem: distribuicao.nenem
+            leandro: leandro,
+            nenem: nenem
         });
     });
     
@@ -1524,6 +1502,9 @@ function limparFiltrosResumo() {
     atualizarResumo();
 }
 
+// ============================================================
+// PDF DO RESUMO
+// ============================================================
 function gerarPDFResumo() {
     const w = window.open('', '_blank');
     w.document.write('<html><head><title>Prestação de Contas</title><style>body{font-family:Arial;padding:30px;} h1{color:#1a4a2a;} table{width:100%;border-collapse:collapse;margin-top:15px;} th{background:#1a4a2a;color:white;padding:10px;} td{padding:8px;border:1px solid #ccc;text-align:center;} .total{background:#f0f6f0;font-weight:bold;} .cards{display:flex;gap:15px;margin:20px 0;flex-wrap:wrap;} .card{background:#1a4a2a;color:white;padding:15px 20px;border-radius:10px;text-align:center;flex:1;min-width:120px;} .card.destaque{background:#f59e0b;} .card .valor{font-size:20px;font-weight:bold;} .card .label{font-size:11px;opacity:0.85;text-transform:uppercase;} .footer{margin-top:30px;font-size:12px;color:#666;text-align:center;border-top:1px solid #ccc;padding-top:15px;}</style></head><body>');
@@ -1570,30 +1551,15 @@ function gerarPDFResumo() {
     
     let areasFiltradasPdf = [...areas];
     if (areaFiltroId) areasFiltradasPdf = areasFiltradasPdf.filter(a => a.id === areaFiltroId);
-    if (adminFiltroVal === ADMIN_LEANDRO) {
-        areasFiltradasPdf = areasFiltradasPdf.filter(a => 
-            a.administrador === ADMIN_LEANDRO || 
-            a.administrador === ADMIN_COMPARTILHADO || 
-            a.administrador === 'Leandro / Nenem'
-        );
-    } else if (adminFiltroVal === ADMIN_NENEM) {
-        areasFiltradasPdf = areasFiltradasPdf.filter(a => 
-            a.administrador === ADMIN_NENEM || 
-            a.administrador === ADMIN_COMPARTILHADO || 
-            a.administrador === 'Leandro / Nenem'
-        );
-    } else if (adminFiltroVal === ADMIN_COMPARTILHADO || adminFiltroVal === 'Leandro / Nenem') {
-        areasFiltradasPdf = areasFiltradasPdf.filter(a => 
-            a.administrador === ADMIN_COMPARTILHADO || 
-            a.administrador === 'Leandro / Nenem'
-        );
-    }
+    if (adminFiltroVal) areasFiltradasPdf = areasFiltradasPdf.filter(a => adminPertenceAoFiltro(a.administrador, adminFiltroVal));
     const idsFiltradosPdf = areasFiltradasPdf.map(a => a.id);
     
     let receitasPdf = receitas.filter(r => idsFiltradosPdf.includes(r.areaId));
     let despesasPdf = despesas.filter(d => idsFiltradosPdf.includes(d.areaId));
     if (dataInicioVal) { receitasPdf = receitasPdf.filter(r => r.data >= dataInicioVal); despesasPdf = despesasPdf.filter(d => d.data >= dataInicioVal); }
     if (dataFimVal) { receitasPdf = receitasPdf.filter(r => r.data <= dataFimVal); despesasPdf = despesasPdf.filter(d => d.data <= dataFimVal); }
+    
+    const adminFiltroNorm = normalizarAdmin(adminFiltroVal || '');
     
     let pdfHtml = '<table><thead><tr><th>ÁREA</th><th>ADMINISTRADOR</th><th>ENTRADAS</th><th>SAÍDAS</th><th>RESULTADO</th><th>DIREITO LEANDRO</th><th>DIREITO NENEM VIANA</th></tr></thead><tbody>';
     let pdfTotalEntradas = 0, pdfTotalSaidas = 0, pdfTotalResultado = 0, pdfTotalLeandro = 0, pdfTotalNenem = 0;
@@ -1607,9 +1573,15 @@ function gerarPDFResumo() {
         let sai = despArea.reduce((s, d) => s + (d.valor || 0), 0);
         let res = ent - sai;
         const dist = distribuirResultado(area, res);
-        pdfTotalEntradas += ent; pdfTotalSaidas += sai; pdfTotalResultado += res; pdfTotalLeandro += dist.leandro; pdfTotalNenem += dist.nenem;
+        
+        let leandro = dist.leandro;
+        let nenem = dist.nenem;
+        if (adminFiltroNorm === ADMIN_LEANDRO) nenem = 0;
+        else if (adminFiltroNorm === ADMIN_NENEM) leandro = 0;
+        
+        pdfTotalEntradas += ent; pdfTotalSaidas += sai; pdfTotalResultado += res; pdfTotalLeandro += leandro; pdfTotalNenem += nenem;
         const resClass = res >= 0 ? 'positivo' : 'negativo';
-        pdfHtml += `<tr><td>${escapeHtml(area.nome)}</td><td>${escapeHtml(area.administrador)}</td><td>${formatarMoeda(ent)}</td><td>${formatarMoeda(sai)}</td><td class="${resClass}">${formatarMoeda(res)}</td><td>${formatarMoeda(dist.leandro)}</td><td>${formatarMoeda(dist.nenem)}</td></tr>`;
+        pdfHtml += `<tr><td>${escapeHtml(area.nome)}</td><td>${escapeHtml(area.administrador)}</td><td>${formatarMoeda(ent)}</td><td>${formatarMoeda(sai)}</td><td class="${resClass}">${formatarMoeda(res)}</td><td>${formatarMoeda(leandro)}</td><td>${formatarMoeda(nenem)}</td></tr>`;
     });
     const totalResClass = pdfTotalResultado >= 0 ? 'positivo' : 'negativo';
     pdfHtml += `<tr class="total"><td><strong>TOTAL</strong></td><td></td><td><strong>${formatarMoeda(pdfTotalEntradas)}</strong></td><td><strong>${formatarMoeda(pdfTotalSaidas)}</strong></td><td class="${totalResClass}"><strong>${formatarMoeda(pdfTotalResultado)}</strong></td><td><strong>${formatarMoeda(pdfTotalLeandro)}</strong></td><td><strong>${formatarMoeda(pdfTotalNenem)}</strong></td></tr>`;
@@ -1624,13 +1596,12 @@ function gerarPDFResumo() {
 function imprimirResumo() { window.print(); }
 
 // ============================================================
-// GUIA 4: CONTROLE PIX (CORRIGIDO)
+// GUIA 4: CONTROLE PIX
 // ============================================================
 function atualizarStatusPix(lancamento) {
     const hoje = obterDataLocal();
     const recebido = lancamento.valorRecebido || 0;
     const total = lancamento.valor || 0;
-    
     if (recebido >= total && total > 0) return 'Recebido';
     if (recebido > 0 && recebido < total) return 'Parcial';
     if (lancamento.receberAte && lancamento.receberAte < hoje && recebido < total) return 'Atrasado';
@@ -1640,7 +1611,6 @@ function atualizarStatusPix(lancamento) {
 async function carregarLancamentosPix() {
     try {
         console.log('🔄 Carregando lançamentos PIX...');
-        
         const pixSnapshot = await getDocs(query(pixCol, orderBy('dataLancamento', 'desc')));
         lancamentosPix = [];
         pixSnapshot.forEach(doc => { 
@@ -1648,7 +1618,6 @@ async function carregarLancamentosPix() {
             const statusAtualizado = atualizarStatusPix(data);
             lancamentosPix.push({ id: doc.id, ...data, status: statusAtualizado }); 
         });
-        
         console.log(`📊 ${lancamentosPix.length} lançamentos carregados do Firebase`);
         
         if (lancamentosPix.length === 0) {
@@ -1656,9 +1625,7 @@ async function carregarLancamentosPix() {
             const localData = localStorage.getItem('lancamentosPix');
             if (localData) {
                 lancamentosPix = JSON.parse(localData);
-                lancamentosPix.forEach(l => { 
-                    l.status = atualizarStatusPix(l); 
-                });
+                lancamentosPix.forEach(l => { l.status = atualizarStatusPix(l); });
                 lancamentosPix.sort((a, b) => new Date(b.dataLancamento) - new Date(a.dataLancamento));
                 console.log(`📁 ${lancamentosPix.length} lançamentos carregados do localStorage`);
                 mostrarFeedbackAviso(`📁 ${lancamentosPix.length} lançamentos carregados do localStorage. Use "RECUPERAR DADOS" para salvar na nuvem.`);
@@ -1672,33 +1639,24 @@ async function carregarLancamentosPix() {
             clientesPix = [];
             clientesSnapshot.forEach(doc => {
                 const nome = doc.data().nome;
-                if (nome && nome.trim() && !clientesPix.includes(nome)) {
-                    clientesPix.push(nome);
-                }
+                if (nome && nome.trim() && !clientesPix.includes(nome)) clientesPix.push(nome);
             });
             console.log(`👤 ${clientesPix.length} clientes carregados`);
-        } catch (e) {
-            console.warn('Erro ao carregar clientes:', e);
-        }
+        } catch (e) { console.warn('Erro ao carregar clientes:', e); }
         
         try {
             const bancosSnapshot = await getDocs(pixBancosCol);
             bancosPix = [];
             bancosSnapshot.forEach(doc => {
                 const nome = doc.data().nome;
-                if (nome && nome.trim() && !bancosPix.includes(nome)) {
-                    bancosPix.push(nome);
-                }
+                if (nome && nome.trim() && !bancosPix.includes(nome)) bancosPix.push(nome);
             });
             console.log(`🏦 ${bancosPix.length} bancos carregados`);
-        } catch (e) {
-            console.warn('Erro ao carregar bancos:', e);
-        }
+        } catch (e) { console.warn('Erro ao carregar bancos:', e); }
         
         ordenarClientes();
         ordenarBancos();
         atualizarSelectsPix();
-        
         pixFiltered = [...lancamentosPix];
         aplicarFiltrosPix();
         
@@ -1707,7 +1665,6 @@ async function carregarLancamentosPix() {
         } else {
             mostrarFeedbackSucesso(`✅ ${lancamentosPix.length} lançamentos PIX carregados com sucesso!`);
         }
-        
     } catch (error) {
         console.error('❌ Erro ao carregar PIX:', error);
         mostrarFeedbackErro('Erro ao carregar dados PIX. Tentando carregar do localStorage...');
@@ -1720,13 +1677,10 @@ function carregarDoLocalStorage() {
         const dadosSalvos = localStorage.getItem('lancamentosPix');
         if (dadosSalvos) {
             lancamentosPix = JSON.parse(dadosSalvos);
-            lancamentosPix.forEach(l => { 
-                l.status = atualizarStatusPix(l); 
-            });
+            lancamentosPix.forEach(l => { l.status = atualizarStatusPix(l); });
             lancamentosPix.sort((a, b) => new Date(b.dataLancamento) - new Date(a.dataLancamento));
             console.log(`📁 ${lancamentosPix.length} lançamentos carregados do localStorage (backup)`);
             mostrarFeedbackAviso(`📁 ${lancamentosPix.length} lançamentos carregados do localStorage.`);
-            
             atualizarSelectsPix();
             pixFiltered = [...lancamentosPix];
             aplicarFiltrosPix();
@@ -1758,7 +1712,6 @@ function atualizarSelectsPix() {
             clienteSelect.appendChild(opt);
         }
     });
-    
     const bancoSelect = document.getElementById('pixBanco');
     bancoSelect.innerHTML = '<option value="">Selecione</option>';
     bancosPix.forEach(b => {
@@ -1780,17 +1733,12 @@ function aplicarFiltrosPix() {
     const periodoRocaFim = document.getElementById('pixPeriodoRocaFim').value;
     
     console.log('🔍 Aplicando filtros PIX...');
-    console.log('  - Search:', search || '(vazio)');
-    console.log('  - Status:', status || '(todos)');
-    console.log('  - Total de lançamentos:', lancamentosPix.length);
-    
     if (!lancamentosPix || lancamentosPix.length === 0) {
         pixFiltered = [];
         renderPixTabela();
         atualizarResumoPix();
         return;
     }
-    
     pixFiltered = lancamentosPix.filter(l => {
         if (search && !l.cliente.toLowerCase().includes(search)) return false;
         if (status && l.status !== status) return false;
@@ -1800,9 +1748,7 @@ function aplicarFiltrosPix() {
         if (periodoRocaFim && l.periodoFim > periodoRocaFim) return false;
         return true;
     });
-    
     console.log(`📊 ${pixFiltered.length} lançamentos após filtros (de ${lancamentosPix.length} total)`);
-    
     pixFiltered.sort((a, b) => new Date(b.dataLancamento) - new Date(a.dataLancamento));
     currentPixPage = 1;
     renderPixTabela();
@@ -1816,7 +1762,6 @@ function limparFiltrosPix() {
     document.getElementById('pixPeriodoRocaFim').value = '';
     document.getElementById('pixSearchNome').value = '';
     document.getElementById('pixFiltroStatus').value = '';
-    
     console.log('🧹 Filtros PIX limpos');
     aplicarFiltrosPix();
     mostrarFeedbackSucesso('🧹 Filtros limpos! Mostrando todos os lançamentos.');
@@ -1826,9 +1771,6 @@ function renderPixTabela() {
     const itemsPorPagina = 15;
     const totalItems = pixFiltered.length;
     const totalPages = Math.ceil(totalItems / itemsPorPagina);
-    
-    console.log(`📋 Renderizando tabela PIX: ${totalItems} itens, ${totalPages} páginas`);
-    
     if (totalItems === 0) {
         const tbody = document.getElementById('pixTableBody');
         if (tbody) {
@@ -1844,23 +1786,14 @@ function renderPixTabela() {
         atualizarResumoPix();
         return;
     }
-    
     const start = (currentPixPage - 1) * itemsPorPagina;
     const pageItems = pixFiltered.slice(start, start + itemsPorPagina);
-    
     const tbody = document.getElementById('pixTableBody');
     if (!tbody) return;
     tbody.innerHTML = '';
-    
     let totalValor = 0, totalRecebido = 0, totalDif = 0;
-    pixFiltered.forEach(l => { 
-        totalValor += l.valor || 0; 
-        totalRecebido += l.valorRecebido || 0; 
-        totalDif += (l.valor - l.valorRecebido) || 0; 
-    });
-    
+    pixFiltered.forEach(l => { totalValor += l.valor || 0; totalRecebido += l.valorRecebido || 0; totalDif += (l.valor - l.valorRecebido) || 0; });
     const hoje = obterDataLocal();
-    
     pageItems.forEach(l => {
         const diff = (l.valor || 0) - (l.valorRecebido || 0);
         let statusClass = '';
@@ -1868,11 +1801,9 @@ function renderPixTabela() {
         else if (l.status === 'Parcial') statusClass = 'pix-status-parcial';
         else if (l.status === 'Atrasado') statusClass = 'pix-status-atrasado';
         else statusClass = 'pix-status-pendente';
-        
         const isAtrasado = (l.receberAte && l.receberAte < hoje && l.status !== 'Recebido');
         const row = tbody.insertRow();
         if (isAtrasado) row.classList.add('pix-atrasado-row');
-        
         row.innerHTML = `
             <td>${formatarData(l.dataLancamento)}</td>
             <td style="text-align:left">${formatarData(l.periodoIni)} a ${formatarData(l.periodoFim)}</td>
@@ -1891,7 +1822,6 @@ function renderPixTabela() {
             </td>
         `;
     });
-    
     const tfoot = document.getElementById('pixTableFooter');
     if (tfoot) {
         tfoot.innerHTML = `
@@ -1904,12 +1834,9 @@ function renderPixTabela() {
             </tr>
         `;
     }
-    
     const pagDiv = document.getElementById('pixPagination');
     if (pagDiv) {
-        if (totalPages <= 1) {
-            pagDiv.innerHTML = '';
-        } else {
+        if (totalPages <= 1) { pagDiv.innerHTML = ''; } else {
             pagDiv.innerHTML = `
                 <button ${currentPixPage <= 1 ? 'disabled' : ''} onclick="mudarPaginaPix(${currentPixPage - 1})">◀</button>
                 <span>${currentPixPage} / ${totalPages}</span>
@@ -1929,22 +1856,18 @@ function mudarPaginaPix(pagina) {
 
 function atualizarResumoPix() {
     const dados = pixFiltered && pixFiltered.length > 0 ? pixFiltered : lancamentosPix || [];
-    
     const totalRecebido = dados.reduce((a, l) => a + (l.valorRecebido || 0), 0);
     const totalGeral = dados.reduce((a, l) => a + (l.valor || 0), 0);
     const totalAReceber = totalGeral - totalRecebido;
-    
     const pagadorMap = new Map();
     dados.forEach(l => {
         const cliente = l.cliente || 'Desconhecido';
         pagadorMap.set(cliente, (pagadorMap.get(cliente) || 0) + (l.valorRecebido || 0));
     });
     const maiorPagador = pagadorMap.size ? [...pagadorMap.entries()].reduce((a, b) => a[1] > b[1] ? a : b)[0] : '-';
-    
     const pendentes = dados.filter(l => l.status === 'Pendente').length;
     const recebidos = dados.filter(l => l.status === 'Recebido').length;
     const atrasados = dados.filter(l => l.status === 'Atrasado').length;
-    
     const grid = document.getElementById('pixResumoGrid');
     if (grid) {
         grid.innerHTML = `
@@ -2287,7 +2210,7 @@ function novoBancoPix() {
 }
 
 // ============================================================
-// RECUPERAÇÃO DE DADOS (IDEMPOTENTE)
+// RECUPERAÇÃO DE DADOS
 // ============================================================
 let dadosEncontrados = null;
 let recuperacaoExecutada = false;
@@ -2342,12 +2265,10 @@ window.recuperarDadosAntigos = async function() {
         mostrarFeedbackErro('Nenhum dado encontrado. Clique em "Verificar" primeiro.');
         return;
     }
-    
     if (recuperacaoExecutada) {
         mostrarFeedbackAviso('Recuperação já foi executada. Não é possível duplicar dados.');
         return;
     }
-    
     const btn = document.getElementById('btnRecuperar');
     const statusDiv = document.getElementById('recoveryStatus');
     const logDiv = document.getElementById('recoveryLog');
@@ -2366,7 +2287,6 @@ window.recuperarDadosAntigos = async function() {
         const lancamentos = dadosEncontrados.lancamentos;
         let count = 0;
         let duplicados = 0;
-        
         const existingDocs = await getDocs(pixCol);
         const existingIds = new Set();
         existingDocs.forEach(doc => {
@@ -2374,7 +2294,6 @@ window.recuperarDadosAntigos = async function() {
             const key = `${data.cliente}|${data.valor}|${data.dataLancamento}|${data.periodoIni}|${data.periodoFim}`;
             existingIds.add(key);
         });
-        
         for (const l of lancamentos) {
             const key = `${l.cliente}|${l.valor}|${l.dataLancamento}|${l.periodoIni}|${l.periodoFim}`;
             if (existingIds.has(key)) {
@@ -2392,7 +2311,6 @@ window.recuperarDadosAntigos = async function() {
             } catch (e) { addLog('Erro ao recuperar lançamento: ' + e.message, 'warning'); }
         }
         progress.style.width = '85%';
-        
         const existingClientes = new Set();
         const clientesSnapshot = await getDocs(pixClientesCol);
         clientesSnapshot.forEach(doc => existingClientes.add(doc.data().nome));
@@ -2402,7 +2320,6 @@ window.recuperarDadosAntigos = async function() {
             try { await addDoc(pixClientesCol, { nome: c, dataRecuperacao: new Date().toISOString() }); clientesRecuperados++; }
             catch (e) { addLog('Erro ao recuperar cliente: ' + e.message, 'warning'); }
         }
-        
         const existingBancos = new Set();
         const bancosSnapshot = await getDocs(pixBancosCol);
         bancosSnapshot.forEach(doc => existingBancos.add(doc.data().nome));
@@ -2412,16 +2329,13 @@ window.recuperarDadosAntigos = async function() {
             try { await addDoc(pixBancosCol, { nome: b, dataRecuperacao: new Date().toISOString() }); bancosRecuperados++; }
             catch (e) { addLog('Erro ao recuperar banco: ' + e.message, 'warning'); }
         }
-        
         progress.style.width = '100%';
         recuperacaoExecutada = true;
-        
         addLog('RECUPERAÇÃO CONCLUÍDA!', 'success');
         addLog('Lançamentos recuperados: ' + count, 'success');
         if (duplicados > 0) addLog('Lançamentos duplicados ignorados: ' + duplicados, 'warning');
         if (clientesRecuperados > 0) addLog('Clientes recuperados: ' + clientesRecuperados, 'success');
         if (bancosRecuperados > 0) addLog('Bancos recuperados: ' + bancosRecuperados, 'success');
-        
         statusDiv.className = 'status-box success';
         statusDiv.innerHTML = 'RECUPERAÇÃO CONCLUÍDA! ' + count + ' lançamentos recuperados!';
         setTimeout(() => carregarLancamentosPix(), 1000);
