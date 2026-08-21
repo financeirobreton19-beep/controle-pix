@@ -69,13 +69,15 @@
         .pix-status-atrasado { background-color: #fee2e2; color: #991b1b; font-weight: bold; border-radius: 20px; padding: 4px 12px; display: inline-block; }
         .pix-status-pendente { background-color: #dbeafe; color: #1e40af; font-weight: bold; border-radius: 20px; padding: 4px 12px; display: inline-block; }
         .pix-atrasado-row { background-color: #fff0f0 !important; }
-        .resumo-cards { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin-bottom: 24px; }
+        .resumo-cards { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; margin-bottom: 24px; }
         .resumo-card { background: linear-gradient(135deg, #1a4a2a, #2d6a4f); color: white; padding: 16px; border-radius: 12px; text-align: center; transition: transform 0.2s; }
         .resumo-card:hover { transform: translateY(-2px); }
         .resumo-card h3 { font-size: 11px; opacity: 0.85; text-transform: uppercase; margin-bottom: 4px; letter-spacing: 0.5px; }
         .resumo-card .valor { font-size: 20px; font-weight: 800; }
         .resumo-card.destaque { background: linear-gradient(135deg, #f59e0b, #d97706); border: 2px solid #fbbf24; }
         .resumo-card.destaque .valor { font-size: 22px; }
+        .resumo-card.negativo { background: linear-gradient(135deg, #991b1b, #dc2626); }
+        .resumo-card.negativo .valor { color: #fca5a5; }
         .resumo-table-wrapper { overflow-x: auto; margin-top: 16px; border-radius: 12px; border: 1px solid #e0eae0; }
         .resumo-table { width: 100%; border-collapse: collapse; background: white; font-size: 13px; }
         .resumo-table th { background: #1a4a2a; color: white; padding: 10px 8px; text-align: center; font-weight: 700; }
@@ -85,6 +87,9 @@
         .resumo-table .total-row td { background: #f0f6f0 !important; }
         .resumo-table .lucro-positivo { color: #166534; font-weight: 700; }
         .resumo-table .lucro-negativo { color: #991b1b; font-weight: 700; }
+        .resumo-table .status-a-repassar { background: #bbf7d0; color: #166534; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-block; }
+        .resumo-table .status-quitado { background: #dbeafe; color: #1e40af; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-block; }
+        .resumo-table .status-responsabilidade { background: #fee2e2; color: #991b1b; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-block; }
         .resumo-section-title { font-size: 15px; font-weight: 700; color: #1a4a2a; margin: 20px 0 12px 0; padding-bottom: 8px; border-bottom: 2px solid #e0eae0; }
         .badge-ativo { background: #bbf7d0; color: #166534; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-block; }
         .badge-inativo { background: #fee2e2; color: #991b1b; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-block; }
@@ -130,6 +135,14 @@
         #btnTogglePix:hover:not(:disabled) { background: #475569; }
         .btn[title] { position: relative; }
         .btn[title]:hover::after { content: attr(title); position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 500; white-space: nowrap; z-index: 10; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+        .conferencia-box { background: #f0f6f0; border-radius: 12px; padding: 16px 20px; margin-top: 16px; }
+        .conferencia-box .linha { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #d4e2d4; }
+        .conferencia-box .linha:last-child { border-bottom: none; font-weight: 700; font-size: 16px; }
+        .conferencia-box .linha .label { color: #4a6741; }
+        .conferencia-box .linha .valor { font-weight: 600; }
+        .conferencia-box .linha.total { border-top: 2px solid #1a4a2a; padding-top: 8px; margin-top: 4px; }
+        .conferencia-box .conferido { color: #166534; font-weight: 700; }
+        .conferencia-box .divergente { color: #991b1b; font-weight: 700; }
         @media (max-width: 700px) { body { padding: 12px; } .resumo-cards { grid-template-columns: 1fr 1fr; } .filters, .pix-filters { flex-direction: column; align-items: stretch; } .form-grid { grid-template-columns: 1fr; } .card-header { flex-direction: column; align-items: flex-start; } td, th { padding: 6px 4px; font-size: 10px; } .btn-sm { padding: 3px 6px; font-size: 9px; } .obs-cell { max-width: 80px; } .acoes-cell { min-width: 70px; } .radio-group { gap: 12px; } .radio-group label { font-size: 13px; } .resumo-table { font-size: 11px; } .resumo-table td, .resumo-table th { padding: 6px 4px; } .btn-top { width: 40px; height: 40px; font-size: 18px; bottom: 70px; right: 10px; } .resumo-cards { grid-template-columns: 1fr 1fr; } .btn[title]:hover::after { display: none; } }
         @media print { .btn, .btn-group, .tabs, .header .status, .no-print, .btn-top { display: none !important; } .card { border: 1px solid #ccc !important; box-shadow: none !important; } body { background: white !important; padding: 10px !important; } .panel { display: block !important; } .tab-btn { display: none !important; } }
     </style>
@@ -149,9 +162,7 @@
     </div>
     <button class="btn-top" id="btnTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
-    <!-- ============================================================ -->
     <!-- GUIA 1: CADASTRO DE ÁREAS -->
-    <!-- ============================================================ -->
     <div id="tab1" class="panel active">
         <div class="card">
             <div class="card-header"><h2>NOVA ÁREA</h2></div>
@@ -162,7 +173,7 @@
                 <div class="form-group"><label>ADMINISTRADOR <span class="required">*</span></label>
                     <select id="areaAdministrador">
                         <option value="Leandro">Leandro</option>
-                        <option value="Nenem Viana">Nenem Viana</option>
+                        <option value="Neném Viana">Neném Viana</option>
                         <option value="Leandro/Nenem">Leandro / Nenem</option>
                     </select>
                     <div class="error-message" id="areaAdminError">Administrador é obrigatório</div>
@@ -186,9 +197,7 @@
         </div>
     </div>
 
-    <!-- ============================================================ -->
     <!-- GUIA 2: LANÇAMENTO RECEITA/DESPESA -->
-    <!-- ============================================================ -->
     <div id="tab2" class="panel">
         <div class="card">
             <div class="card-header"><h2>FILTROS</h2></div>
@@ -237,9 +246,7 @@
         </div>
     </div>
 
-    <!-- ============================================================ -->
-    <!-- GUIA 3: PRESTAÇÃO + RESUMO (CORRIGIDA) -->
-    <!-- ============================================================ -->
+    <!-- GUIA 3: PRESTAÇÃO + RESUMO (REESTRUTURADA) -->
     <div id="tab3" class="panel">
         <div class="card">
             <div class="card-header">
@@ -261,26 +268,20 @@
                 <button class="btn btn-primary" onclick="atualizarResumo()">ATUALIZAR</button>
                 <button class="btn btn-secondary" onclick="limparFiltrosResumo()">LIMPAR</button>
             </div>
+            
+            <!-- CARDS PRINCIPAIS -->
             <div id="resumoCards" style="margin-bottom:20px;">
                 <div class="resumo-cards">
                     <div class="resumo-card"><h3>TOTAL ENTRADAS</h3><div class="valor" id="cardReceita">R$ 0,00</div></div>
                     <div class="resumo-card"><h3>TOTAL SAÍDAS</h3><div class="valor" id="cardDespesa">R$ 0,00</div></div>
-                    <div class="resumo-card"><h3>RESULTADO TOTAL</h3><div class="valor" id="cardResultado">R$ 0,00</div></div>
+                    <div class="resumo-card destaque"><h3>RESULTADO TOTAL</h3><div class="valor" id="cardResultado">R$ 0,00</div></div>
                     <div class="resumo-card"><h3>JÁ REPASSADO</h3><div class="valor" id="cardRepassado">R$ 0,00</div></div>
                     <div class="resumo-card destaque"><h3>A REPASSAR</h3><div class="valor" id="cardARepassar">R$ 0,00</div></div>
+                    <div class="resumo-card negativo" id="cardResponsabilidade"><h3>RESPONSABILIDADES</h3><div class="valor" id="cardResponsabilidadeValor">R$ 0,00</div></div>
                 </div>
             </div>
-            <div class="resumo-section-title">PRESTAÇÃO POR ADMINISTRADOR</div>
-            <div class="resumo-table-wrapper">
-                <table class="resumo-table">
-                    <thead><tr><th>ADMINISTRADOR</th><th>DIREITO (Resultado)</th><th>JÁ REPASSADO</th><th>A REPASSAR</th></tr></thead>
-                    <tbody id="corpoPrestacao">
-                        <tr><td><strong>Leandro</strong></td><td id="direitoLeandro">R$ 0,00</td><td id="repassadoLeandro">R$ 0,00</td><td id="aRepassarLeandro" style="font-weight:700; color:#1a4a2a;">R$ 0,00</td></tr>
-                        <tr><td><strong>Nenem Viana</strong></td><td id="direitoNenem">R$ 0,00</td><td id="repassadoNenem">R$ 0,00</td><td id="aRepassarNenem" style="font-weight:700; color:#1a4a2a;">R$ 0,00</td></tr>
-                        <tr class="total-row"><td><strong>TOTAL</strong></td><td id="direitoTotal"><strong>R$ 0,00</strong></td><td id="repassadoTotal"><strong>R$ 0,00</strong></td><td id="aRepassarTotal" style="font-weight:700; color:#1a4a2a;"><strong>R$ 0,00</strong></td></tr>
-                    </tbody>
-                </table>
-            </div>
+
+            <!-- PRIMEIRA TABELA: RESUMO DAS ÁREAS (somente áreas com lançamentos, sem coluna "Responsável") -->
             <div class="resumo-section-title">RESUMO DAS ÁREAS</div>
             <div class="resumo-table-wrapper">
                 <table class="resumo-table">
@@ -300,6 +301,27 @@
                 </table>
             </div>
             <div id="paginacaoResumoAreas" class="pagination"></div>
+
+            <!-- SEGUNDA TABELA: POSIÇÃO DOS ADMINISTRADORES -->
+            <div class="resumo-section-title">POSIÇÃO DOS ADMINISTRADORES</div>
+            <div class="resumo-table-wrapper">
+                <table class="resumo-table">
+                    <thead>
+                        <tr>
+                            <th>ADMINISTRADOR</th>
+                            <th>RESULTADO</th>
+                            <th>JÁ REPASSADO</th>
+                            <th>A REPASSAR</th>
+                            <th>RESPONSABILIDADE</th>
+                            <th>STATUS</th>
+                        </tr>
+                    </thead>
+                    <tbody id="corpoPosicaoAdmin"></tbody>
+                    <tfoot id="footerPosicaoAdmin"></tfoot>
+                </table>
+            </div>
+
+            <!-- TERCEIRA TABELA: REPASSES -->
             <div style="display:flex; justify-content:space-between; align-items:center; margin-top:28px; flex-wrap:wrap; gap:8px;">
                 <div class="resumo-section-title" style="margin:0;">REPASSES</div>
                 <button class="btn btn-primary btn-sm" onclick="abrirModalRepasse()">+ LANÇAR REPASSE</button>
@@ -311,12 +333,20 @@
                 </table>
             </div>
             <div id="paginacaoRepasses" class="pagination"></div>
+
+            <!-- CONFERÊNCIA DA PRESTAÇÃO -->
+            <div class="resumo-section-title" style="margin-top:28px;">CONFERÊNCIA DA PRESTAÇÃO</div>
+            <div class="conferencia-box" id="conferenciaBox">
+                <div class="linha"><span class="label">Total de Entradas</span><span class="valor" id="confEntradas">R$ 0,00</span></div>
+                <div class="linha"><span class="label">(-) Total de Saídas</span><span class="valor" id="confSaidas">R$ 0,00</span></div>
+                <div class="linha"><span class="label">(=) Resultado Geral</span><span class="valor" id="confResultado">R$ 0,00</span></div>
+                <div class="linha"><span class="label">Soma dos Resultados dos Administradores</span><span class="valor" id="confSomaAdmins">R$ 0,00</span></div>
+                <div class="linha total"><span class="label">DIFERENÇA DE CONFERÊNCIA</span><span class="valor" id="confDiferenca">R$ 0,00 ✅ CONFERIDO</span></div>
+            </div>
         </div>
     </div>
 
-    <!-- ============================================================ -->
     <!-- GUIA 4: CONTROLE PIX -->
-    <!-- ============================================================ -->
     <div id="tab4" class="panel">
         <div class="card">
             <div class="card-header"><h2>FILTROS PIX</h2></div>
@@ -367,9 +397,7 @@
         </div>
     </div>
 
-    <!-- ============================================================ -->
     <!-- GUIA 5: RECUPERAR DADOS -->
-    <!-- ============================================================ -->
     <div id="tab5" class="panel">
         <div class="card">
             <div class="card-header">
@@ -398,11 +426,7 @@
     </div>
 </div>
 
-<!-- ============================================================ -->
 <!-- MODAIS -->
-<!-- ============================================================ -->
-
-<!-- MODAL LANÇAMENTO -->
 <div id="modalLancamento" class="modal"><div class="modal-content"><h3 id="modalLancamentoTitle">NOVO LANÇAMENTO</h3><input type="hidden" id="lancamentoId"><input type="hidden" id="lancamentoTipo">
     <div class="form-group"><label>TIPO <span class="required">*</span></label><div class="radio-group"><label><input type="radio" name="lancamentoTipoRadio" value="receita" onchange="trocarTipoLancamento('receita')"> RECEITA</label><label><input type="radio" name="lancamentoTipoRadio" value="despesa" onchange="trocarTipoLancamento('despesa')"> DESPESA</label></div></div>
     <div class="form-group"><label>DATA <span class="required">*</span></label><input type="date" id="lancamentoData"><div class="error-message" id="lancDataError">Data é obrigatória</div></div>
@@ -424,7 +448,6 @@
     <div class="btn-group" style="margin-top:20px"><button class="btn btn-secondary" onclick="fecharModal('modalLancamento')">CANCELAR</button><button class="btn btn-primary" onclick="salvarLancamento()">SALVAR</button></div>
 </div></div>
 
-<!-- MODAL REPASSE -->
 <div id="modalRepasse" class="modal"><div class="modal-content"><h3>LANÇAR REPASSE</h3><input type="hidden" id="repasseId">
     <div class="form-group"><label>DATA <span class="required">*</span></label><input type="date" id="repasseData"><div class="error-message" id="repasseDataError">Data é obrigatória</div></div>
     <div class="form-group"><label>ÁREA <span class="required">*</span></label><select id="repasseArea"></select><div class="error-message" id="repasseAreaError">Área é obrigatória</div></div>
@@ -435,7 +458,6 @@
     <div class="btn-group" style="margin-top:20px"><button class="btn btn-secondary" onclick="fecharModal('modalRepasse')">CANCELAR</button><button class="btn btn-primary" onclick="salvarRepasse()">SALVAR</button></div>
 </div></div>
 
-<!-- MODAL PIX -->
 <div id="modalPix" class="modal"><div class="modal-content"><h3>LANÇAMENTO PIX</h3><input type="hidden" id="pixEditId">
     <div class="form-group"><label>DATA LANÇAMENTO <span class="required">*</span></label><input type="date" id="pixData"><div class="error-message" id="pixDataError">Data é obrigatória</div></div>
     <div class="form-group"><label>PERÍODO INÍCIO <span class="required">*</span></label><input type="date" id="pixPeriodoIni"><div class="error-message" id="pixPeriodoIniError">Período início é obrigatório</div></div>
@@ -450,7 +472,6 @@
     <div class="btn-group" style="margin-top:20px"><button class="btn btn-secondary" onclick="fecharModal('modalPix')">CANCELAR</button><button class="btn btn-primary" onclick="salvarLancamentoPix()">SALVAR</button></div>
 </div></div>
 
-<!-- MODAL LISTA -->
 <div id="modalLista" class="modal"><div class="modal-content"><h3 id="modalListaTitle">Gerenciar</h3><div id="listaContainer" style="max-height: 400px; overflow-y: auto;"></div><div class="btn-group" style="margin-top:20px"><button class="btn btn-secondary" onclick="fecharModal('modalLista')">FECHAR</button></div></div></div>
 
 <div id="feedback" class="feedback">Operação concluída</div>
@@ -560,11 +581,13 @@ function limparValidacoes() {
 function escapeHtml(text) { if (!text) return ''; const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
 
 // ============================================================
-// FUNÇÃO DE NORMALIZAÇÃO DE ADMINISTRADOR
+// FUNÇÃO DE NORMALIZAÇÃO DE ADMINISTRADOR (CORRIGIDA)
 // ============================================================
 function normalizarAdmin(admin) {
     if (!admin) return '';
-    const adminLower = admin.toLowerCase().trim();
+    // Remove acentos
+    const semAcento = admin.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const adminLower = semAcento.toLowerCase().trim();
     if (adminLower === 'leandro') return ADMIN_LEANDRO;
     if (adminLower === 'nenem viana' || adminLower === 'nenem') return ADMIN_NENEM;
     if (adminLower.includes('leandro') && adminLower.includes('nenem')) return ADMIN_COMPARTILHADO;
@@ -591,16 +614,200 @@ function adminPertenceAoFiltro(adminArea, filtro) {
 }
 
 // ============================================================
-// FUNÇÃO CENTRAL DE DISTRIBUIÇÃO DE RESULTADO
+// FUNÇÃO DE DISTRIBUIÇÃO COM ARREDONDAMENTO CONSISTENTE
 // ============================================================
 function distribuirResultado(area, resultado) {
     if (!area) return { leandro: 0, nenem: 0, erro: 'Área não definida' };
     const admin = normalizarAdmin(area.administrador || '');
     if (admin === ADMIN_LEANDRO) return { leandro: resultado, nenem: 0 };
     if (admin === ADMIN_NENEM) return { leandro: 0, nenem: resultado };
-    if (admin === ADMIN_COMPARTILHADO) return { leandro: resultado / 2, nenem: resultado / 2 };
+    if (admin === ADMIN_COMPARTILHADO) {
+        let leandro = Math.round((resultado / 2) * 100) / 100;
+        let nenem = Math.round((resultado - leandro) * 100) / 100;
+        const diff = resultado - (leandro + nenem);
+        if (Math.abs(diff) > 0.0001) {
+            nenem = Math.round((nenem + diff) * 100) / 100;
+        }
+        return { leandro, nenem };
+    }
     console.error('Administrador inválido:', admin, 'Área:', area.nome);
     return { leandro: 0, nenem: 0, erro: `Administrador "${admin}" inválido` };
+}
+
+// ============================================================
+// FUNÇÃO CENTRAL: CALCULAR PRESTAÇÃO (CORRIGIDA)
+// ============================================================
+function calcularPrestacao() {
+    const areaFiltro = document.getElementById('filtroResumoArea').value;
+    const adminFiltro = document.getElementById('filtroResumoAdmin').value;
+    const dataInicio = document.getElementById('filtroResumoInicio').value;
+    const dataFim = document.getElementById('filtroResumoFim').value;
+
+    // 1. Filtrar áreas
+    let areasFiltradas = [...areas];
+    if (areaFiltro) areasFiltradas = areasFiltradas.filter(a => a.id === areaFiltro);
+    if (adminFiltro) areasFiltradas = areasFiltradas.filter(a => adminPertenceAoFiltro(a.administrador, adminFiltro));
+
+    const idsFiltrados = areasFiltradas.map(a => a.id);
+
+    // 2. Filtrar lançamentos
+    let receitasFilt = receitas.filter(r => idsFiltrados.includes(r.areaId));
+    let despesasFilt = despesas.filter(d => idsFiltrados.includes(d.areaId));
+    let repassesFilt = repasses.filter(r => idsFiltrados.includes(r.areaId));
+
+    if (dataInicio) {
+        receitasFilt = receitasFilt.filter(r => r.data >= dataInicio);
+        despesasFilt = despesasFilt.filter(d => d.data >= dataInicio);
+        repassesFilt = repassesFilt.filter(r => r.data >= dataInicio);
+    }
+    if (dataFim) {
+        receitasFilt = receitasFilt.filter(r => r.data <= dataFim);
+        despesasFilt = despesasFilt.filter(d => d.data <= dataFim);
+        repassesFilt = repassesFilt.filter(r => r.data <= dataFim);
+    }
+
+    // 3. Totais gerais
+    const totalReceita = receitasFilt.reduce((s, r) => s + (r.valor || 0), 0);
+    const totalDespesa = despesasFilt.reduce((s, d) => s + (d.valor || 0), 0);
+    const resultadoTotal = totalReceita - totalDespesa;
+
+    // 4. Calcular por área
+    const areasComResultado = [];
+    let direitoLeandro = 0;
+    let direitoNenem = 0;
+
+    areasFiltradas.forEach(area => {
+        const recArea = receitasFilt.filter(r => r.areaId === area.id);
+        const despArea = despesasFilt.filter(d => d.areaId === area.id);
+        const entradas = recArea.reduce((s, r) => s + (r.valor || 0), 0);
+        const saidas = despArea.reduce((s, d) => s + (d.valor || 0), 0);
+        const resultado = entradas - saidas;
+
+        // Distribui o resultado (inclusive se for zero)
+        const distribuicao = distribuirResultado(area, resultado);
+        direitoLeandro += distribuicao.leandro;
+        direitoNenem += distribuicao.nenem;
+
+        if (entradas !== 0 || saidas !== 0) {
+            areasComResultado.push({
+                area: area,
+                entradas: entradas,
+                saidas: saidas,
+                resultado: resultado,
+                leandro: distribuicao.leandro,
+                nenem: distribuicao.nenem
+            });
+        }
+    });
+
+    // 5. Aplicar filtro de administrador (se houver)
+    const adminFiltroNorm = normalizarAdmin(adminFiltro || '');
+    let direitoLeandroFinal = direitoLeandro;
+    let direitoNenemFinal = direitoNenem;
+
+    if (adminFiltroNorm === ADMIN_LEANDRO) {
+        direitoNenemFinal = 0;
+    } else if (adminFiltroNorm === ADMIN_NENEM) {
+        direitoLeandroFinal = 0;
+    }
+
+    // 6. Repasses
+    let repassadoLeandro = 0;
+    let repassadoNenem = 0;
+    repassesFilt.forEach(r => {
+        if (r.administrador === ADMIN_LEANDRO) repassadoLeandro += r.valor || 0;
+        else if (r.administrador === ADMIN_NENEM) repassadoNenem += r.valor || 0;
+    });
+    if (adminFiltroNorm === ADMIN_LEANDRO) repassadoNenem = 0;
+    else if (adminFiltroNorm === ADMIN_NENEM) repassadoLeandro = 0;
+
+    // 7. Calcular "A Repassar" / Responsabilidade / Status
+    const aRepassarLeandro = direitoLeandroFinal - repassadoLeandro;
+    const aRepassarNenem = direitoNenemFinal - repassadoNenem;
+
+    const aRepassarLeandroPos = aRepassarLeandro > 0 ? aRepassarLeandro : 0;
+    const aRepassarNenemPos = aRepassarNenem > 0 ? aRepassarNenem : 0;
+
+    const responsabilidadeLeandro = aRepassarLeandro < 0 ? aRepassarLeandro : 0;
+    const responsabilidadeNenem = aRepassarNenem < 0 ? aRepassarNenem : 0;
+
+    const statusLeandro = aRepassarLeandro > 0 ? 'A REPASSAR' : (aRepassarLeandro === 0 ? 'QUITADO' : 'RESPONSABILIDADE');
+    const statusNenem = aRepassarNenem > 0 ? 'A REPASSAR' : (aRepassarNenem === 0 ? 'QUITADO' : 'RESPONSABILIDADE');
+
+    // 8. Conferência
+    const somaResultadosAdmins = direitoLeandroFinal + direitoNenemFinal;
+    const diferencaConferencia = resultadoTotal - somaResultadosAdmins;
+
+    // Ajuste de arredondamento
+    if (Math.abs(diferencaConferencia) > 0.0001) {
+        direitoNenemFinal = Math.round((direitoNenemFinal + diferencaConferencia) * 100) / 100;
+        const novoARepassarNenem = direitoNenemFinal - repassadoNenem;
+        const novoARepassarNenemPos = novoARepassarNenem > 0 ? novoARepassarNenem : 0;
+        const novaResponsabilidadeNenem = novoARepassarNenem < 0 ? novoARepassarNenem : 0;
+        const novoStatusNenem = novoARepassarNenem > 0 ? 'A REPASSAR' : (novoARepassarNenem === 0 ? 'QUITADO' : 'RESPONSABILIDADE');
+
+        return {
+            areasFiltradas,
+            idsFiltrados,
+            receitasFilt,
+            despesasFilt,
+            repassesFilt,
+            adminFiltroNorm,
+            totalReceita,
+            totalDespesa,
+            resultadoTotal,
+            direitoLeandro: direitoLeandroFinal,
+            direitoNenem: direitoNenemFinal,
+            somaDireitos: direitoLeandroFinal + direitoNenemFinal,
+            repassadoLeandro,
+            repassadoNenem,
+            totalRepassado: repassadoLeandro + repassadoNenem,
+            aRepassarLeandro,
+            aRepassarNenem: novoARepassarNenem,
+            aRepassarLeandroPos,
+            aRepassarNenemPos: novoARepassarNenemPos,
+            totalAReceber: aRepassarLeandroPos + novoARepassarNenemPos,
+            responsabilidadeLeandro,
+            responsabilidadeNenem: novaResponsabilidadeNenem,
+            totalResponsabilidades: responsabilidadeLeandro + novaResponsabilidadeNenem,
+            statusLeandro,
+            statusNenem: novoStatusNenem,
+            areasComResultado,
+            somaResultadosAdmins: direitoLeandroFinal + direitoNenemFinal,
+            diferencaConferencia: 0
+        };
+    }
+
+    return {
+        areasFiltradas,
+        idsFiltrados,
+        receitasFilt,
+        despesasFilt,
+        repassesFilt,
+        adminFiltroNorm,
+        totalReceita,
+        totalDespesa,
+        resultadoTotal,
+        direitoLeandro: direitoLeandroFinal,
+        direitoNenem: direitoNenemFinal,
+        somaDireitos: direitoLeandroFinal + direitoNenemFinal,
+        repassadoLeandro,
+        repassadoNenem,
+        totalRepassado: repassadoLeandro + repassadoNenem,
+        aRepassarLeandro,
+        aRepassarNenem,
+        aRepassarLeandroPos,
+        aRepassarNenemPos,
+        totalAReceber: aRepassarLeandroPos + aRepassarNenemPos,
+        responsabilidadeLeandro,
+        responsabilidadeNenem,
+        totalResponsabilidades: responsabilidadeLeandro + responsabilidadeNenem,
+        statusLeandro,
+        statusNenem,
+        areasComResultado,
+        somaResultadosAdmins,
+        diferencaConferencia
+    };
 }
 
 // ============================================================
@@ -635,7 +842,7 @@ function limparFormArea() {
     document.getElementById('areaDataCadastro').value = obterDataLocal();
     document.getElementById('areaDataCadastro').classList.remove('is-invalid');
     document.getElementById('areaDataError').classList.remove('show');
-    document.getElementById('areaAdministrador').value = ADMIN_LEANDRO;
+    document.getElementById('areaAdministrador').value = 'Leandro';
     document.getElementById('areaAdminError').classList.remove('show');
 }
 
@@ -716,7 +923,7 @@ function editarArea(id) {
     document.getElementById('areaNome').value = area.nome || '';
     document.getElementById('areaCodigo').value = area.codigo || '';
     document.getElementById('areaDataCadastro').value = area.dataCadastro || '';
-    document.getElementById('areaAdministrador').value = area.administrador || ADMIN_LEANDRO;
+    document.getElementById('areaAdministrador').value = area.administrador || 'Leandro';
     document.getElementById('tab1').scrollIntoView({ behavior: 'smooth' });
     mostrarFeedbackSucesso('Área carregada para edição!');
 }
@@ -754,7 +961,7 @@ function renderizarAreas() {
 function mudarPaginaAreas(delta) { paginaAreas += delta; renderizarAreas(); }
 
 // ============================================================
-// GUIA 2: LANÇAMENTOS
+// GUIA 2: LANÇAMENTOS (RESUMIDO)
 // ============================================================
 function trocarTipoLancamento(tipo) {
     const elReceita = document.getElementById('camposReceita');
@@ -929,7 +1136,7 @@ function editarLancamento(id, tipo) {
 }
 
 // ============================================================
-// FILTROS DA GUIA 2
+// FILTROS DA GUIA 2 (RESUMIDO)
 // ============================================================
 function renderizarReceitas() {
     const areaFiltro = document.getElementById('filtroArea').value;
@@ -1137,7 +1344,7 @@ function limparFiltros() {
 }
 
 // ============================================================
-// GUIA 3: PRESTAÇÃO + RESUMO
+// GUIA 3: PRESTAÇÃO + RESUMO (REESTRUTURADA)
 // ============================================================
 function abrirModalRepasse(repasse = null) {
     limparValidacoes();
@@ -1272,186 +1479,152 @@ function renderizarRepasses() {
 function mudarPaginaRepasses(delta) { paginaRepasses += delta; renderizarRepasses(); }
 
 // ============================================================
-// FUNÇÃO CENTRAL: ATUALIZAR RESUMO
+// FUNÇÃO: ATUALIZAR RESUMO (CORRIGIDA)
 // ============================================================
 function atualizarResumo() {
-    if (!areas.length) return;
-    
-    const areaFiltro = document.getElementById('filtroResumoArea').value;
-    const adminFiltro = document.getElementById('filtroResumoAdmin').value;
-    const dataInicio = document.getElementById('filtroResumoInicio').value;
-    const dataFim = document.getElementById('filtroResumoFim').value;
+    const dados = calcularPrestacao();
 
-    let areasFiltradas = [...areas];
-    if (areaFiltro) areasFiltradas = areasFiltradas.filter(a => a.id === areaFiltro);
-    if (adminFiltro) areasFiltradas = areasFiltradas.filter(a => adminPertenceAoFiltro(a.administrador, adminFiltro));
-    
-    const idsFiltrados = areasFiltradas.map(a => a.id);
-    
-    let receitasFilt = receitas.filter(r => idsFiltrados.includes(r.areaId));
-    let despesasFilt = despesas.filter(d => idsFiltrados.includes(d.areaId));
-    let repassesFilt = repasses.filter(r => idsFiltrados.includes(r.areaId));
-    
-    if (dataInicio) {
-        receitasFilt = receitasFilt.filter(r => r.data >= dataInicio);
-        despesasFilt = despesasFilt.filter(d => d.data >= dataInicio);
-        repassesFilt = repassesFilt.filter(r => r.data >= dataInicio);
+    // Cards
+    document.getElementById('cardReceita').textContent = formatarMoeda(dados.totalReceita);
+    document.getElementById('cardDespesa').textContent = formatarMoeda(dados.totalDespesa);
+    const resultadoCard = document.getElementById('cardResultado');
+    resultadoCard.textContent = formatarMoeda(dados.resultadoTotal);
+    resultadoCard.parentElement.className = 'resumo-card ' + (dados.resultadoTotal >= 0 ? 'destaque' : 'negativo');
+    document.getElementById('cardRepassado').textContent = formatarMoeda(dados.totalRepassado);
+    document.getElementById('cardARepassar').textContent = formatarMoeda(dados.totalAReceber);
+    const respCard = document.getElementById('cardResponsabilidadeValor');
+    respCard.textContent = formatarMoeda(dados.totalResponsabilidades);
+    respCard.parentElement.className = 'resumo-card ' + (dados.totalResponsabilidades < 0 ? 'negativo' : '');
+
+    // TABELA: RESUMO DAS ÁREAS (sem coluna "Responsável")
+    renderizarResumoAreas(dados);
+
+    // TABELA: POSIÇÃO DOS ADMINISTRADORES
+    const posicaoBody = document.getElementById('corpoPosicaoAdmin');
+    if (posicaoBody) {
+        posicaoBody.innerHTML = '';
+        const admins = [
+            { 
+                nome: 'Leandro', 
+                resultado: dados.direitoLeandro, 
+                repassado: dados.repassadoLeandro, 
+                aRepassar: dados.aRepassarLeandroPos, 
+                responsabilidade: dados.responsabilidadeLeandro, 
+                status: dados.statusLeandro 
+            },
+            { 
+                nome: 'Nenem Viana', 
+                resultado: dados.direitoNenem, 
+                repassado: dados.repassadoNenem, 
+                aRepassar: dados.aRepassarNenemPos, 
+                responsabilidade: dados.responsabilidadeNenem, 
+                status: dados.statusNenem 
+            }
+        ];
+
+        let totalResultado = 0, totalRepassado = 0, totalARepassar = 0, totalResponsabilidade = 0;
+
+        admins.forEach(admin => {
+            totalResultado += admin.resultado;
+            totalRepassado += admin.repassado;
+            totalARepassar += admin.aRepassar;
+            totalResponsabilidade += admin.responsabilidade;
+
+            const statusClass = admin.status === 'A REPASSAR' ? 'status-a-repassar' 
+                : (admin.status === 'QUITADO' ? 'status-quitado' : 'status-responsabilidade');
+
+            const row = posicaoBody.insertRow();
+            row.innerHTML = `
+                <td><strong>${admin.nome}</strong></td>
+                <td class="${admin.resultado >= 0 ? 'lucro-positivo' : 'lucro-negativo'}">${formatarMoeda(admin.resultado)}</td>
+                <td>${formatarMoeda(admin.repassado)}</td>
+                <td class="${admin.aRepassar > 0 ? 'lucro-positivo' : ''}">${formatarMoeda(admin.aRepassar)}</td>
+                <td class="${admin.responsabilidade < 0 ? 'lucro-negativo' : ''}">${formatarMoeda(admin.responsabilidade)}</td>
+                <td><span class="${statusClass}">${admin.status}</span></td>
+            `;
+        });
+
+        const footer = document.getElementById('footerPosicaoAdmin');
+        if (footer) {
+            footer.innerHTML = `
+                <tr class="total-row">
+                    <td><strong>TOTAL</strong></td>
+                    <td>${formatarMoeda(totalResultado)}</td>
+                    <td>${formatarMoeda(totalRepassado)}</td>
+                    <td>${formatarMoeda(totalARepassar)}</td>
+                    <td>${formatarMoeda(totalResponsabilidade)}</td>
+                    <td></td>
+                </tr>
+            `;
+        }
     }
-    if (dataFim) {
-        receitasFilt = receitasFilt.filter(r => r.data <= dataFim);
-        despesasFilt = despesasFilt.filter(d => d.data <= dataFim);
-        repassesFilt = repassesFilt.filter(r => r.data <= dataFim);
-    }
 
-    let totalReceita = receitasFilt.reduce((s, r) => s + (r.valor || 0), 0);
-    let totalDespesa = despesasFilt.reduce((s, d) => s + (d.valor || 0), 0);
-    let resultadoTotal = totalReceita - totalDespesa;
-
-    let direitoLeandro = 0;
-    let direitoNenem = 0;
-    
-    areasFiltradas.forEach(area => {
-        const recArea = receitasFilt.filter(r => r.areaId === area.id);
-        const despArea = despesasFilt.filter(d => d.areaId === area.id);
-        let entradas = recArea.reduce((s, r) => s + (r.valor || 0), 0);
-        let saidas = despArea.reduce((s, d) => s + (d.valor || 0), 0);
-        let resultado = entradas - saidas;
-        const distribuicao = distribuirResultado(area, resultado);
-        direitoLeandro += distribuicao.leandro;
-        direitoNenem += distribuicao.nenem;
-    });
-
-    const adminFiltroNorm = normalizarAdmin(adminFiltro || '');
-    if (adminFiltroNorm === ADMIN_LEANDRO) direitoNenem = 0;
-    else if (adminFiltroNorm === ADMIN_NENEM) direitoLeandro = 0;
-
-    let repassadoLeandro = 0;
-    let repassadoNenem = 0;
-    repassesFilt.forEach(r => {
-        if (r.administrador === ADMIN_LEANDRO) repassadoLeandro += r.valor || 0;
-        else if (r.administrador === ADMIN_NENEM) repassadoNenem += r.valor || 0;
-    });
-
-    if (adminFiltroNorm === ADMIN_LEANDRO) repassadoNenem = 0;
-    else if (adminFiltroNorm === ADMIN_NENEM) repassadoLeandro = 0;
-
-    const totalRepassado = repassadoLeandro + repassadoNenem;
-    const totalARepassar = resultadoTotal - totalRepassado;
-    const aRepassarLeandro = direitoLeandro - repassadoLeandro;
-    const aRepassarNenem = direitoNenem - repassadoNenem;
-
-    document.getElementById('cardReceita').textContent = formatarMoeda(totalReceita);
-    document.getElementById('cardDespesa').textContent = formatarMoeda(totalDespesa);
-    document.getElementById('cardResultado').textContent = formatarMoeda(resultadoTotal);
-    document.getElementById('cardRepassado').textContent = formatarMoeda(totalRepassado);
-    document.getElementById('cardARepassar').textContent = formatarMoeda(totalARepassar);
-
-    document.getElementById('direitoLeandro').textContent = formatarMoeda(direitoLeandro);
-    document.getElementById('direitoNenem').textContent = formatarMoeda(direitoNenem);
-    document.getElementById('direitoTotal').innerHTML = '<strong>' + formatarMoeda(direitoLeandro + direitoNenem) + '</strong>';
-
-    document.getElementById('repassadoLeandro').textContent = formatarMoeda(repassadoLeandro);
-    document.getElementById('repassadoNenem').textContent = formatarMoeda(repassadoNenem);
-    document.getElementById('repassadoTotal').innerHTML = '<strong>' + formatarMoeda(totalRepassado) + '</strong>';
-
-    document.getElementById('aRepassarLeandro').textContent = formatarMoeda(aRepassarLeandro);
-    document.getElementById('aRepassarNenem').textContent = formatarMoeda(aRepassarNenem);
-    document.getElementById('aRepassarTotal').innerHTML = '<strong>' + formatarMoeda(totalARepassar) + '</strong>';
-
-    document.getElementById('aRepassarLeandro').style.color = aRepassarLeandro >= 0 ? '#166534' : '#dc2626';
-    document.getElementById('aRepassarNenem').style.color = aRepassarNenem >= 0 ? '#166534' : '#dc2626';
-    document.getElementById('cardARepassar').style.color = totalARepassar >= 0 ? '#ffffff' : '#fca5a5';
-
-    renderizarResumoAreas(idsFiltrados, dataInicio, dataFim, adminFiltro);
+    // Repasses
     renderizarRepasses();
+
+    // Conferência
+    document.getElementById('confEntradas').textContent = formatarMoeda(dados.totalReceita);
+    document.getElementById('confSaidas').textContent = formatarMoeda(dados.totalDespesa);
+    document.getElementById('confResultado').textContent = formatarMoeda(dados.resultadoTotal);
+    document.getElementById('confSomaAdmins').textContent = formatarMoeda(dados.somaResultadosAdmins);
+
+    const diff = dados.diferencaConferencia;
+    const diffElement = document.getElementById('confDiferenca');
+    if (Math.abs(diff) < 0.01) {
+        diffElement.innerHTML = 'R$ 0,00 <span class="conferido">✅ CONFERIDO</span>';
+        diffElement.className = 'valor conferido';
+    } else {
+        diffElement.innerHTML = formatarMoeda(diff) + ' <span class="divergente">⚠️ ATENÇÃO: EXISTE DIFERENÇA</span>';
+        diffElement.className = 'valor divergente';
+    }
 }
 
 // ============================================================
-// RENDERIZAR RESUMO DAS ÁREAS
+// RENDERIZAR RESUMO DAS ÁREAS (SEM COLUNA "RESPONSÁVEL")
 // ============================================================
-function renderizarResumoAreas(idsFiltrados, dataInicio, dataFim, adminFiltro) {
-    let receitasPeriodo = [...receitas];
-    let despesasPeriodo = [...despesas];
-    
-    if (dataInicio) {
-        receitasPeriodo = receitasPeriodo.filter(r => r.data >= dataInicio);
-        despesasPeriodo = despesasPeriodo.filter(d => d.data >= dataInicio);
+function renderizarResumoAreas(dados) {
+    // Filtrar apenas áreas com entradas ou saídas > 0
+    let areasComDados = dados.areasComResultado.filter(item => item.entradas !== 0 || item.saidas !== 0);
+
+    // Aplicar filtro de administrador (se houver)
+    const adminFiltro = document.getElementById('filtroResumoAdmin').value;
+    if (adminFiltro) {
+        const adminNorm = normalizarAdmin(adminFiltro);
+        if (adminNorm === ADMIN_LEANDRO) {
+            areasComDados = areasComDados.filter(item => item.leandro !== 0);
+        } else if (adminNorm === ADMIN_NENEM) {
+            areasComDados = areasComDados.filter(item => item.nenem !== 0);
+        }
     }
-    if (dataFim) {
-        receitasPeriodo = receitasPeriodo.filter(r => r.data <= dataFim);
-        despesasPeriodo = despesasPeriodo.filter(d => d.data <= dataFim);
-    }
-    
-    let areasUnicas = new Set(idsFiltrados);
-    receitasPeriodo.forEach(r => areasUnicas.add(r.areaId));
-    despesasPeriodo.forEach(d => areasUnicas.add(d.areaId));
-    
-    const dadosAreas = [];
-    let totalEntradasGeral = 0;
-    let totalSaidasGeral = 0;
-    let totalResultadoGeral = 0;
-    let totalLeandroGeral = 0;
-    let totalNenemGeral = 0;
-    
-    const adminFiltroNorm = normalizarAdmin(adminFiltro || '');
-    
-    areasUnicas.forEach(id => {
-        const area = areas.find(a => a.id === id);
-        if (!area) return;
-        if (!idsFiltrados.includes(id)) return;
-        
-        const recArea = receitasPeriodo.filter(r => r.areaId === id);
-        const despArea = despesasPeriodo.filter(d => d.areaId === id);
-        
-        let entradas = recArea.reduce((s, r) => s + (r.valor || 0), 0);
-        let saidas = despArea.reduce((s, d) => s + (d.valor || 0), 0);
-        let resultado = entradas - saidas;
-        
-        const distribuicao = distribuirResultado(area, resultado);
-        
-        let leandro = distribuicao.leandro;
-        let nenem = distribuicao.nenem;
-        if (adminFiltroNorm === ADMIN_LEANDRO) nenem = 0;
-        else if (adminFiltroNorm === ADMIN_NENEM) leandro = 0;
-        
-        totalEntradasGeral += entradas;
-        totalSaidasGeral += saidas;
-        totalResultadoGeral += resultado;
-        totalLeandroGeral += leandro;
-        totalNenemGeral += nenem;
-        
-        dadosAreas.push({
-            id: id,
-            nome: area.nome || id,
-            administrador: area.administrador || '-',
-            entradas: entradas,
-            saidas: saidas,
-            resultado: resultado,
-            leandro: leandro,
-            nenem: nenem
-        });
-    });
-    
-    dadosAreas.sort((a, b) => a.nome.localeCompare(b.nome));
-    
-    const totalAreas = dadosAreas.length;
-    const totalPages = Math.ceil(totalAreas / ITENS_RESUMO_AREAS);
+
+    const itemsPorPagina = ITENS_RESUMO_AREAS;
+    const totalItems = areasComDados.length;
+    const totalPages = Math.ceil(totalItems / itemsPorPagina);
     if (paginaResumoAreas > totalPages) paginaResumoAreas = 1;
     if (paginaResumoAreas < 1) paginaResumoAreas = 1;
-    
-    const start = (paginaResumoAreas - 1) * ITENS_RESUMO_AREAS;
-    const pageItems = dadosAreas.slice(start, start + ITENS_RESUMO_AREAS);
-    
+
+    const start = (paginaResumoAreas - 1) * itemsPorPagina;
+    const pageItems = areasComDados.slice(start, start + itemsPorPagina);
+
     const tbody = document.getElementById('corpoResumoAreas');
     if (!tbody) return;
     tbody.innerHTML = '';
-    
+
+    let totalEntradas = 0, totalSaidas = 0, totalResultado = 0, totalLeandro = 0, totalNenem = 0;
+
     pageItems.forEach(item => {
-        const row = tbody.insertRow();
-        const adminDisplay = item.administrador === ADMIN_COMPARTILHADO ? 'Leandro / Nenem' : item.administrador;
+        const adminDisplay = item.area.administrador === ADMIN_COMPARTILHADO ? 'Leandro / Nenem' : item.area.administrador;
         const resultadoClass = item.resultado >= 0 ? 'lucro-positivo' : 'lucro-negativo';
+
+        totalEntradas += item.entradas;
+        totalSaidas += item.saidas;
+        totalResultado += item.resultado;
+        totalLeandro += item.leandro;
+        totalNenem += item.nenem;
+
+        const row = tbody.insertRow();
         row.innerHTML = `
-            <td><strong>${escapeHtml(item.nome)}</strong></td>
+            <td><strong>${escapeHtml(item.area.nome)}</strong></td>
             <td>${escapeHtml(adminDisplay)}</td>
             <td>${formatarMoeda(item.entradas)}</td>
             <td>${formatarMoeda(item.saidas)}</td>
@@ -1460,28 +1633,28 @@ function renderizarResumoAreas(idsFiltrados, dataInicio, dataFim, adminFiltro) {
             <td>${formatarMoeda(item.nenem)}</td>
         `;
     });
-    
-    const tfoot = document.getElementById('footerResumoAreas');
-    if (tfoot) {
-        const totalResultadoClass = totalResultadoGeral >= 0 ? 'lucro-positivo' : 'lucro-negativo';
-        tfoot.innerHTML = `
+
+    const footer = document.getElementById('footerResumoAreas');
+    if (footer) {
+        const totalResultadoClass = totalResultado >= 0 ? 'lucro-positivo' : 'lucro-negativo';
+        footer.innerHTML = `
             <tr class="total-row">
                 <td><strong>TOTAL</strong></td>
                 <td></td>
-                <td><strong>${formatarMoeda(totalEntradasGeral)}</strong></td>
-                <td><strong>${formatarMoeda(totalSaidasGeral)}</strong></td>
-                <td class="${totalResultadoClass}"><strong>${formatarMoeda(totalResultadoGeral)}</strong></td>
-                <td><strong>${formatarMoeda(totalLeandroGeral)}</strong></td>
-                <td><strong>${formatarMoeda(totalNenemGeral)}</strong></td>
+                <td><strong>${formatarMoeda(totalEntradas)}</strong></td>
+                <td><strong>${formatarMoeda(totalSaidas)}</strong></td>
+                <td class="${totalResultadoClass}"><strong>${formatarMoeda(totalResultado)}</strong></td>
+                <td><strong>${formatarMoeda(totalLeandro)}</strong></td>
+                <td><strong>${formatarMoeda(totalNenem)}</strong></td>
             </tr>
         `;
     }
-    
+
     const pagDiv = document.getElementById('paginacaoResumoAreas');
     if (!pagDiv) return;
     if (totalPages <= 1) { pagDiv.innerHTML = ''; return; }
     pagDiv.innerHTML = `
-        <span style="font-size:12px; color:#4a6741; margin-right:8px;">${start + 1}–${Math.min(start + ITENS_RESUMO_AREAS, totalAreas)} de ${totalAreas} áreas</span>
+        <span style="font-size:12px; color:#4a6741; margin-right:8px;">${start + 1}–${Math.min(start + itemsPorPagina, totalItems)} de ${totalItems} áreas</span>
         <button ${paginaResumoAreas <= 1 ? 'disabled' : ''} onclick="mudarPaginaResumoAreas(-1)">◀</button>
         <span>${paginaResumoAreas} / ${totalPages}</span>
         <button ${paginaResumoAreas >= totalPages ? 'disabled' : ''} onclick="mudarPaginaResumoAreas(1)">▶</button>
@@ -1503,11 +1676,12 @@ function limparFiltrosResumo() {
 }
 
 // ============================================================
-// PDF DO RESUMO
+// PDF DO RESUMO (ATUALIZADO)
 // ============================================================
 function gerarPDFResumo() {
+    const dados = calcularPrestacao();
     const w = window.open('', '_blank');
-    w.document.write('<html><head><title>Prestação de Contas</title><style>body{font-family:Arial;padding:30px;} h1{color:#1a4a2a;} table{width:100%;border-collapse:collapse;margin-top:15px;} th{background:#1a4a2a;color:white;padding:10px;} td{padding:8px;border:1px solid #ccc;text-align:center;} .total{background:#f0f6f0;font-weight:bold;} .cards{display:flex;gap:15px;margin:20px 0;flex-wrap:wrap;} .card{background:#1a4a2a;color:white;padding:15px 20px;border-radius:10px;text-align:center;flex:1;min-width:120px;} .card.destaque{background:#f59e0b;} .card .valor{font-size:20px;font-weight:bold;} .card .label{font-size:11px;opacity:0.85;text-transform:uppercase;} .footer{margin-top:30px;font-size:12px;color:#666;text-align:center;border-top:1px solid #ccc;padding-top:15px;}</style></head><body>');
+    w.document.write('<html><head><title>Prestação de Contas</title><style>body{font-family:Arial;padding:30px;} h1{color:#1a4a2a;} table{width:100%;border-collapse:collapse;margin-top:15px;} th{background:#1a4a2a;color:white;padding:10px;} td{padding:8px;border:1px solid #ccc;text-align:center;} .total{background:#f0f6f0;font-weight:bold;} .positivo{color:#166534;font-weight:bold;} .negativo{color:#991b1b;font-weight:bold;} .cards{display:flex;gap:15px;margin:20px 0;flex-wrap:wrap;} .card{background:#1a4a2a;color:white;padding:15px 20px;border-radius:10px;text-align:center;flex:1;min-width:120px;} .card.destaque{background:#f59e0b;} .card.negativo{background:#991b1b;} .card .valor{font-size:20px;font-weight:bold;} .card .label{font-size:11px;opacity:0.85;text-transform:uppercase;} .footer{margin-top:30px;font-size:12px;color:#666;text-align:center;border-top:1px solid #ccc;padding-top:15px;}</style></head><body>');
     
     w.document.write('<h1>PRESTAÇÃO DE CONTAS - VIANA FARINHA</h1>');
     w.document.write('<p>Gerado em: ' + new Date().toLocaleString() + '</p>');
@@ -1520,73 +1694,55 @@ function gerarPDFResumo() {
     const nomeArea = areaFiltro ? (areas.find(a => a.id === areaFiltro)?.nome || 'Selecionada') : 'Todas';
     w.document.write('<p>Período: ' + (dataInicio || 'Início') + ' a ' + (dataFim || 'Fim') + ' | Área: ' + nomeArea + ' | Administrador: ' + (adminFiltro || 'Todos') + '</p>');
     
+    // CARDS
+    const aRepassarTotal = dados.aRepassarLeandroPos + dados.aRepassarNenemPos;
+    const totalResponsabilidades = dados.responsabilidadeLeandro + dados.responsabilidadeNenem;
     w.document.write(`
         <div class="cards">
-            <div class="card"><div class="label">TOTAL ENTRADAS</div><div class="valor">${document.getElementById('cardReceita').textContent}</div></div>
-            <div class="card"><div class="label">TOTAL SAÍDAS</div><div class="valor">${document.getElementById('cardDespesa').textContent}</div></div>
-            <div class="card"><div class="label">RESULTADO</div><div class="valor">${document.getElementById('cardResultado').textContent}</div></div>
-            <div class="card"><div class="label">JÁ REPASSADO</div><div class="valor">${document.getElementById('cardRepassado').textContent}</div></div>
-            <div class="card destaque"><div class="label">A REPASSAR</div><div class="valor">${document.getElementById('cardARepassar').textContent}</div></div>
+            <div class="card"><div class="label">TOTAL ENTRADAS</div><div class="valor">${formatarMoeda(dados.totalReceita)}</div></div>
+            <div class="card"><div class="label">TOTAL SAÍDAS</div><div class="valor">${formatarMoeda(dados.totalDespesa)}</div></div>
+            <div class="card ${dados.resultadoTotal >= 0 ? 'destaque' : 'negativo'}"><div class="label">RESULTADO</div><div class="valor">${formatarMoeda(dados.resultadoTotal)}</div></div>
+            <div class="card"><div class="label">JÁ REPASSADO</div><div class="valor">${formatarMoeda(dados.totalRepassado)}</div></div>
+            <div class="card destaque"><div class="label">A REPASSAR</div><div class="valor">${formatarMoeda(aRepassarTotal)}</div></div>
+            <div class="card ${totalResponsabilidades < 0 ? 'negativo' : ''}"><div class="label">RESPONSABILIDADES</div><div class="valor">${formatarMoeda(totalResponsabilidades)}</div></div>
         </div>
     `);
     
-    w.document.write('<h2>PRESTAÇÃO POR ADMINISTRADOR</h2>');
+    // POSIÇÃO DOS ADMINISTRADORES
+    w.document.write('<h2>POSIÇÃO DOS ADMINISTRADORES</h2>');
     w.document.write(`
         <table>
-            <thead><tr><th>ADMINISTRADOR</th><th>DIREITO (Resultado)</th><th>JÁ REPASSADO</th><th>A REPASSAR</th></tr></thead>
+            <thead><tr><th>ADMINISTRADOR</th><th>RESULTADO</th><th>JÁ REPASSADO</th><th>A REPASSAR</th><th>RESPONSABILIDADE</th><th>STATUS</th></tr></thead>
             <tbody>
-                <tr><td><strong>Leandro</strong></td><td>${document.getElementById('direitoLeandro').textContent}</td><td>${document.getElementById('repassadoLeandro').textContent}</td><td>${document.getElementById('aRepassarLeandro').textContent}</td></tr>
-                <tr><td><strong>Nenem Viana</strong></td><td>${document.getElementById('direitoNenem').textContent}</td><td>${document.getElementById('repassadoNenem').textContent}</td><td>${document.getElementById('aRepassarNenem').textContent}</td></tr>
-                <tr class="total"><td><strong>TOTAL</strong></td><td>${document.getElementById('direitoTotal').textContent}</td><td>${document.getElementById('repassadoTotal').textContent}</td><td>${document.getElementById('aRepassarTotal').textContent}</td></tr>
+                <tr><td><strong>Leandro</strong></td><td class="${dados.direitoLeandro >= 0 ? 'positivo' : 'negativo'}">${formatarMoeda(dados.direitoLeandro)}</td><td>${formatarMoeda(dados.repassadoLeandro)}</td><td>${formatarMoeda(dados.aRepassarLeandroPos)}</td><td class="${dados.responsabilidadeLeandro < 0 ? 'negativo' : ''}">${formatarMoeda(dados.responsabilidadeLeandro)}</td><td>${dados.statusLeandro}</td></tr>
+                <tr><td><strong>Nenem Viana</strong></td><td class="${dados.direitoNenem >= 0 ? 'positivo' : 'negativo'}">${formatarMoeda(dados.direitoNenem)}</td><td>${formatarMoeda(dados.repassadoNenem)}</td><td>${formatarMoeda(dados.aRepassarNenemPos)}</td><td class="${dados.responsabilidadeNenem < 0 ? 'negativo' : ''}">${formatarMoeda(dados.responsabilidadeNenem)}</td><td>${dados.statusNenem}</td></tr>
+                <tr class="total"><td><strong>TOTAL</strong></td><td>${formatarMoeda(dados.direitoLeandro + dados.direitoNenem)}</td><td>${formatarMoeda(dados.totalRepassado)}</td><td>${formatarMoeda(dados.aRepassarLeandroPos + dados.aRepassarNenemPos)}</td><td>${formatarMoeda(dados.responsabilidadeLeandro + dados.responsabilidadeNenem)}</td><td></td></tr>
             </tbody>
         </table>
     `);
     
+    // RESUMO DAS ÁREAS (apenas com lançamentos, sem "Responsável")
     w.document.write('<h2>RESUMO DAS ÁREAS</h2>');
-    
-    const areaFiltroId = document.getElementById('filtroResumoArea').value;
-    const adminFiltroVal = document.getElementById('filtroResumoAdmin').value;
-    const dataInicioVal = document.getElementById('filtroResumoInicio').value;
-    const dataFimVal = document.getElementById('filtroResumoFim').value;
-    
-    let areasFiltradasPdf = [...areas];
-    if (areaFiltroId) areasFiltradasPdf = areasFiltradasPdf.filter(a => a.id === areaFiltroId);
-    if (adminFiltroVal) areasFiltradasPdf = areasFiltradasPdf.filter(a => adminPertenceAoFiltro(a.administrador, adminFiltroVal));
-    const idsFiltradosPdf = areasFiltradasPdf.map(a => a.id);
-    
-    let receitasPdf = receitas.filter(r => idsFiltradosPdf.includes(r.areaId));
-    let despesasPdf = despesas.filter(d => idsFiltradosPdf.includes(d.areaId));
-    if (dataInicioVal) { receitasPdf = receitasPdf.filter(r => r.data >= dataInicioVal); despesasPdf = despesasPdf.filter(d => d.data >= dataInicioVal); }
-    if (dataFimVal) { receitasPdf = receitasPdf.filter(r => r.data <= dataFimVal); despesasPdf = despesasPdf.filter(d => d.data <= dataFimVal); }
-    
-    const adminFiltroNorm = normalizarAdmin(adminFiltroVal || '');
-    
     let pdfHtml = '<table><thead><tr><th>ÁREA</th><th>ADMINISTRADOR</th><th>ENTRADAS</th><th>SAÍDAS</th><th>RESULTADO</th><th>DIREITO LEANDRO</th><th>DIREITO NENEM VIANA</th></tr></thead><tbody>';
-    let pdfTotalEntradas = 0, pdfTotalSaidas = 0, pdfTotalResultado = 0, pdfTotalLeandro = 0, pdfTotalNenem = 0;
-    
-    idsFiltradosPdf.forEach(id => {
-        const area = areas.find(a => a.id === id);
-        if (!area) return;
-        const recArea = receitasPdf.filter(r => r.areaId === id);
-        const despArea = despesasPdf.filter(d => d.areaId === id);
-        let ent = recArea.reduce((s, r) => s + (r.valor || 0), 0);
-        let sai = despArea.reduce((s, d) => s + (d.valor || 0), 0);
-        let res = ent - sai;
-        const dist = distribuirResultado(area, res);
-        
-        let leandro = dist.leandro;
-        let nenem = dist.nenem;
-        if (adminFiltroNorm === ADMIN_LEANDRO) nenem = 0;
-        else if (adminFiltroNorm === ADMIN_NENEM) leandro = 0;
-        
-        pdfTotalEntradas += ent; pdfTotalSaidas += sai; pdfTotalResultado += res; pdfTotalLeandro += leandro; pdfTotalNenem += nenem;
-        const resClass = res >= 0 ? 'positivo' : 'negativo';
-        pdfHtml += `<tr><td>${escapeHtml(area.nome)}</td><td>${escapeHtml(area.administrador)}</td><td>${formatarMoeda(ent)}</td><td>${formatarMoeda(sai)}</td><td class="${resClass}">${formatarMoeda(res)}</td><td>${formatarMoeda(leandro)}</td><td>${formatarMoeda(nenem)}</td></tr>`;
+    const areasComDados = dados.areasComResultado.filter(item => item.entradas !== 0 || item.saidas !== 0);
+    areasComDados.forEach(item => {
+        const resClass = item.resultado >= 0 ? 'positivo' : 'negativo';
+        pdfHtml += `<tr><td>${escapeHtml(item.area.nome)}</td><td>${escapeHtml(item.area.administrador)}</td><td>${formatarMoeda(item.entradas)}</td><td>${formatarMoeda(item.saidas)}</td><td class="${resClass}">${formatarMoeda(item.resultado)}</td><td>${formatarMoeda(item.leandro)}</td><td>${formatarMoeda(item.nenem)}</td></tr>`;
     });
-    const totalResClass = pdfTotalResultado >= 0 ? 'positivo' : 'negativo';
-    pdfHtml += `<tr class="total"><td><strong>TOTAL</strong></td><td></td><td><strong>${formatarMoeda(pdfTotalEntradas)}</strong></td><td><strong>${formatarMoeda(pdfTotalSaidas)}</strong></td><td class="${totalResClass}"><strong>${formatarMoeda(pdfTotalResultado)}</strong></td><td><strong>${formatarMoeda(pdfTotalLeandro)}</strong></td><td><strong>${formatarMoeda(pdfTotalNenem)}</strong></td></tr>`;
     pdfHtml += '</tbody></table>';
     w.document.write(pdfHtml);
+    
+    // CONFERÊNCIA
+    w.document.write('<h2>CONFERÊNCIA DA PRESTAÇÃO</h2>');
+    w.document.write(`
+        <table style="width:auto; margin-top:10px;">
+            <tr><td style="text-align:right;"><strong>Total de Entradas</strong></td><td style="text-align:right;">${formatarMoeda(dados.totalReceita)}</td></tr>
+            <tr><td style="text-align:right;"><strong>(-) Total de Saídas</strong></td><td style="text-align:right;">${formatarMoeda(dados.totalDespesa)}</td></tr>
+            <tr><td style="text-align:right;"><strong>(=) Resultado Geral</strong></td><td style="text-align:right; font-weight:bold;">${formatarMoeda(dados.resultadoTotal)}</td></tr>
+            <tr><td style="text-align:right;"><strong>Soma dos Resultados dos Administradores</strong></td><td style="text-align:right;">${formatarMoeda(dados.somaResultadosAdmins)}</td></tr>
+            <tr style="border-top:2px solid #000;"><td style="text-align:right; font-weight:bold;">DIFERENÇA DE CONFERÊNCIA</td><td style="text-align:right; font-weight:bold;">${Math.abs(dados.diferencaConferencia) < 0.01 ? 'R$ 0,00 ✅ CONFERIDO' : formatarMoeda(dados.diferencaConferencia) + ' ⚠️ ATENÇÃO'}</td></tr>
+        </table>
+    `);
     
     w.document.write('<div class="footer">Sistema de Gestão de Áreas - VIANA FARINHA</div></body></html>');
     w.document.close();
@@ -1596,7 +1752,7 @@ function gerarPDFResumo() {
 function imprimirResumo() { window.print(); }
 
 // ============================================================
-// GUIA 4: CONTROLE PIX
+// GUIA 4: CONTROLE PIX (MANTIDO)
 // ============================================================
 function atualizarStatusPix(lancamento) {
     const hoje = obterDataLocal();
